@@ -87,7 +87,9 @@ Enter the project, open the terminal and run:
 
 Finally run:
 
-    py {yourCode}.py
+    py satcomm-scen4.py
+
+Note: Every time you want to re run the program you have to delete the sampledata and results files and paste the ones in originData    
 
 DONE.
 
