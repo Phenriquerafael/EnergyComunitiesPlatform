@@ -24,10 +24,73 @@ A:
 - System to show the data
 - System to manipulate the data or show charts and tables 
 
-## plugins used:
-- gurobi
-- glpk 
-- ipopt
+# Setup
+
+
+## Install Python
+Download the installer at 'https://www.python.org/downloads/' and follow the instructions
+
+## Install gorubi:
+
+1º Download gurobi from 'https://www.gurobi.com/downloads/gurobi-software/' (my case: x64 windows ) 
+
+2º Create an account and Get Academic license for 1 year at https://portal.gurobi.com/iam/licenses/list/
+
+3º Download the gurobi.lic file and follow these instructions:
+    #Abrir Windows PowerShell como administrador (botão direito do rato no wpsh)
+
+    # Criar a pasta (caso não exista)
+    mkdir C:\gurobi  
+
+    # Mover a licença para a pasta correta (copiar o caminho do ficheiro gurobi.lic transferido)
+    Move-Item "C:\Users\phenr\Downloads\gurobi.lic" "C:\gurobi\gurobi.lic"
+
+    #Atualizar a variável de ambiente:
+    setx GRB_LICENSE_FILE "C:\gurobi\gurobi.lic"
+
+    #Fechar e reabrir o terminal e testar com:
+    grbprobe
+
+    #Deverá mostrar os dados da licença
+
+## Install GLPK
+
+1º Download the flie 'glpk-4.35.tar.gz' at 'https://ftp.gnu.org/gnu/glpk/'
+
+2º Extract the Zip folder by: right clicking on the folder and then>> 7-Zip >> Extract Here as shown. Move the glpk-4.65 folder from your downloads folder to your C: drive.
+
+3º Assuming you’re using 64-bit Windows, click on the C:\glpk-4.65 folder in Windows explorer, click on the w64 folder, and select and copy the file path, which should be C:\glpk-4.65\w64.
+
+4º Search and open your Control Panel, select System and Security>>System>>Advanced system settings>>Environment Variables. Then click on ‘path’ in the top window, click the ‘Edit’ button, then ‘New’.
+
+5º Paste the file path you copied above and save.
+
+## Install Libraries 
+
+Enter the project, open the terminal and run:
+
+    pip install scipy
+
+    pip install numpy
+
+    pip install pandas
+    
+    pip install pyomo
+    
+    pip install matplotlib
+
+    pip install pulp
+
+    pip install envs
+
+    pip install openpyxl
+
+Finally run:
+
+    py {yourCode}.py
+
+DONE.
+
 
 
 
