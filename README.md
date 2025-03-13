@@ -23,6 +23,7 @@ A:
 - System to store the results in a database
 - System to show the data
 - System to manipulate the data or show charts and tables 
+- Function to show data loading
 
 # Setup
 
