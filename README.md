@@ -7,7 +7,12 @@ A: Each dataset if diferent but certain atributes represent the same context val
 Q: What are the minimal files (datasets, program files and ect.) that the system needs to fully operate? 
 A:
 
-## System Interation:
+Q: Como funciona o carregamento da bateria quando chega ao limite de charge e discharge
+
+
+
+!! tabelas para comparar um prosumer dentro e fora da comunidade
+!! ver como é feito o tarifário a espanha## System Interation:
 
 1º Dataset 
 2º Read Datasets 
