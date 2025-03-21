@@ -242,14 +242,14 @@ for day in range(1, days + 1):
 # Convert results to a DataFrame and save to Excel
 detailed_results_df = pd.DataFrame(detailed_results)
 
-detailed_results_path = r"sampledata.xlsx"
+detailed_results_path = r"detailed_results.xlsx"
 detailed_results_df.to_excel(detailed_results_path, index=False)
 
 print(f"Detailed results saved to: {detailed_results_path}")
 print(f"Overall objective function value for all days: {total_objective_value:.2f}")
 
-"""
-P_buy_values = {(PL, T): value(instance.P_buy[PL, T]) for PL in instance.PL for T in instance.T}
+
+""" P_buy_values = {(PL, T): value(instance.P_buy[PL, T]) for PL in instance.PL for T in instance.T}
 P_sell_values = {(PL, T): value(instance.P_sell[PL, T]) for PL in instance.PL for T in instance.T}
 P_peer_values = {(PL, PL1, T): value(instance.P_peer[PL, PL1, T]) for PL in instance.PL for PL1 in instance.PL for T in instance.T}
 P_dch_values = {(PL, T): value(instance.P_ESS_dch[PL, T]) for PL in instance.PL for T in instance.T}
@@ -335,4 +335,4 @@ plt.title("Energy Cost vs Revenue Over Time")
 plt.legend()
 plt.grid()
 plt.show()
-"""
+ """
