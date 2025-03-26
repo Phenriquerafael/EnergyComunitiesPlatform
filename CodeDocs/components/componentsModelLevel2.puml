@@ -1,0 +1,29 @@
+@startuml
+
+interface API 
+interface UI_Admin
+interface UI_Prosumer
+interface UI_EnergyCommunity
+
+component "Level 2" {
+    component FrontEnd
+    component BackEnd
+    component Optimization
+    port P1
+    port P2
+    port P3
+    port P4
+}
+
+API -- P1
+UI_Admin -- P2
+UI_Prosumer -- P3
+UI_EnergyCommunity -- P4
+P1 - BackEnd
+P2 - FrontEnd
+P3 - FrontEnd
+P4 - FrontEnd
+FrontEnd -(0- BackEnd
+Optimization -(0- BackEnd
+
+@enduml

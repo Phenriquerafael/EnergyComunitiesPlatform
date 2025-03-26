@@ -1,13 +1,14 @@
-# EnergyComunitiesPlatform
+# EnergyComunitiesPlatform 
 
 ## Doubts:
 Q: How many dataset variations can exist? (Is every dataset a diferent variation or some have the same atributes)
 A: Each dataset if diferent but certain atributes represent the same context value so they can be used in the same alghoritm.
 
 Q: What are the minimal files (datasets, program files and ect.) that the system needs to fully operate? 
-A:
+A: Predefined dataSet (the question would be which atributes are fundamental to the optimization process (same dataSets may variate))
 
 Q: Como funciona o carregamento da bateria quando chega ao limite de charge e discharge
+A: Check the fluxogram
 
 ## Notes
 - Create plots to compare a prosumer inside and outside an energy community
@@ -102,7 +103,61 @@ Finally run:
 
 DONE.
 
+## Solution Arquitecture
 
+### Use Case Diagram
 
+![Use Case Diagram](CodeDocs\UseCaseDiagram\UseCaseDiagram.svg)
 
+### Fluxogram
+Level 1 
 
+![Fluxogram1](CodeDocs\Fluxogram\Fluxogram.png)
+
+Level 2 
+
+![2](CodeDocs\Fluxogram\FluxogramLevel2.png)
+
+### Domain Model
+
+DM
+
+(to be completed)
+
+DDD
+
+(to be completed)
+
+### Class Diagram
+
+Level 1
+
+![](CodeDocs\ClassDiagram\ClassDiagram.png)
+
+Level 2
+
+![](CodeDocs\ClassDiagram\ClassDiagram2.png)
+
+### Components Diagram
+
+Backend
+
+![](CodeDocs\components\componentsModelBackEnd.svg)
+
+Level 2
+
+![](CodeDocs\components\componentsModelLevel2.svg)
+
+Level 3
+
+![](CodeDocs\components\componentsModelServer.svg)
+
+### Layers Diagram
+
+View
+
+![](CodeDocs\Layers\LayersView.svg)
+
+Layout 
+
+![](CodeDocs\Layers\LayoutLayers.svg)
