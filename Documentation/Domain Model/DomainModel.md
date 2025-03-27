@@ -27,13 +27,37 @@ package "<<agr Profile>>"{
     class ProfileTimeStamp<<vo>>{}
     class ProfileValue<<vo>>{}  
     note right{
-        probably the value in kw/h
+        Balance of the Prosumer in kw/h, positive values lead to buy energy from the grid
     }
 
-    Prosumer -> "1" Profile
-    Profile -> "1" ProfileTimeStamp
-    Profile -> ProfileId
-    Profile -> ProfileValue
+    Prosumer --> "1" Profile
+    Profile --> "1" ProfileTimeStamp
+    Profile --> "1" ProfileId
+    Profile --> "1" ProfileValue
+}
+
+package "<<agr Grid>>"{
+    class Grid <<entity>><<root>>{}
+    class GridId<<vo>>{}
+    class GridName<<vo>>{}
+
+    Grid --> "1" GridId
+    Grid --> "1" GridName
+}
+
+package "agr GridExchange>>"{
+    class GridExchange <<entity>><<root>>{}
+    class GridExchangeId<<vo>>{}
+    class GridExchangeTimeStamp<<vo>>{}
+    class GridExchangeBuy<<vo>>{}
+    class GridExchangeSell<<vo>>{}
+
+    GridExchange ---> "1" Grid
+    GridExchange ---> "1" Prosumer
+    GridExchange ---> "1" GridExchangeId
+    GridExchange ---> "1" GridExchangeTimeStamp
+    GridExchange ---> "1" GridExchangeBuy
+    GridExchange ---> "1" GridExchangeSell
 }
 
 package "<<agr Community>>"{
@@ -42,10 +66,26 @@ package "<<agr Community>>"{
     }
     class CommunityId<<vo>>{}
     class CommunityName<<vo>>{}
-    
-    Community --> "1..*" Prosumer
-    Community -> "1" CommunityId
-    Community -> CommunityName
+    class CommunityProsumers<<array>>{
+    }
+    Community --> "1" CommunityId
+    Community -> "1" CommunityName
+    Community --> "1" CommunityProsumers
+}
+
+package "<<agr CommunityExchange>>"{
+    class CommunityExchange<<entity>><<root>>{}
+    class CommunityExchangeId<<vo>>{}
+    class CommunityExchangeTimeStamp<<vo>>{}
+    class CommunityExchangePeerIn<<vo>>{}
+    class CommunityExchangePeerOut<<vo>>{}
+
+    CommunityExchange --> "1" Community
+    CommunityExchange --> "1" Prosumer
+    CommunityExchange --> "1" CommunityExchangeId
+    CommunityExchange --> "1" CommunityExchangeTimeStamp
+    CommunityExchange --> "1" CommunityExchangePeerIn
+    CommunityExchange --> "1" CommunityExchangePeerOut
 }
 
 package "<<agr User>>"{
@@ -80,5 +120,70 @@ package "<<agr CommonUser>>"{
      CommonUser --|> User
 }
 
-package "<<agr Common>>"
+package "<<agr Photovoltaic Panel>>"{
+    class PhotovoltaicPanel<<entity>><<root>>{
+    }
+    class PhotovoltaicID<<vo>>{}
+    class PhotovoltaicName<<vo>>{}
+
+    PhotovoltaicPanel --> "1" PhotovoltaicID
+    PhotovoltaicPanel --> "1" PhotovoltaicName
+    Prosumer --> "1" PhotovoltaicPanel
+}
+
+package "<<agr Photovoltaic Energy>>"{
+    class PhotovoltaicEnergy<<entity>><<root>>{}
+    class PhotovoltaicEnergyId<<vo>>{}
+    class PhotovoltaicEnergyTimeStamp<<vo>>{}
+    class PhotovoltaicEnergyLoad<<vo>>{}
+    class PhotovoltaicEnergyBattery<<vo>>{}
+
+    PhotovoltaicEnergy --> "1" PhotovoltaicPanel
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyId
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyTimeStamp
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyLoad
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyBattery
+}
+
+package "<<agr Battery(ESS)>>"{
+    class Battery<<entity>><<root>>{}
+    class BatteryId<<vo>>{}
+    class BatteryName<<vo>>{}
+
+    Prosumer --> "1" Battery
+    Battery --> "1" BatteryId
+    Battery --> "1" BatteryName
+
+
+}
+
+package "<<agr BatteryEnergy>>"{
+    class BatteryEnergy<<entity>><<root>>{}
+    class BatteryEnergyId<<vo>>{}
+    class BatteryEnergyState<<vo>>{}
+    class BatteryEnergyCharge<<vo>>{}
+     note right{
+        this value will be equal to the value provided by PhotovoltaicEnergyBattery
+    }
+    class BatteryEnergyDischarge<<vo>>{}
+    class BatteryEnergyTimeStamp<<vo>>{}
+    class BatteryEnergyDischargeBinary<<vo>>{}
+     note right{
+        value in binary to acknowledge the battery is discharging
+    }
+    class BatteryEnergyChargeBinary<<vo>>{}
+     note right{
+        value in binary to acknowledge the battery is charging
+    }
+
+    BatteryEnergy ---> "1" Battery
+    BatteryEnergy --> "1" BatteryEnergyId
+    BatteryEnergy --> "1" BatteryEnergyState
+    BatteryEnergy --> "1" BatteryEnergyCharge
+    BatteryEnergy --> "1" BatteryEnergyDischarge
+    BatteryEnergy --> "1" BatteryEnergyTimeStamp
+    BatteryEnergy --> "1" BatteryEnergyDischargeBinary
+    BatteryEnergy --> "1" BatteryEnergyChargeBinary
+
+}
 @enduml
