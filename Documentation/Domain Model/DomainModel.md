@@ -51,6 +51,8 @@ package "agr GridExchange>>"{
     class GridExchangeTimeStamp<<vo>>{}
     class GridExchangeBuy<<vo>>{}
     class GridExchangeSell<<vo>>{}
+    class GridExchangePriceBuy<<vo>>{}
+    class GridExchangePriceSell<<vo>>{}
 
     GridExchange ---> "1" Grid
     GridExchange ---> "1" Prosumer
@@ -58,6 +60,8 @@ package "agr GridExchange>>"{
     GridExchange ---> "1" GridExchangeTimeStamp
     GridExchange ---> "1" GridExchangeBuy
     GridExchange ---> "1" GridExchangeSell
+    GridExchange --> "1" GridExchangePriceBuy
+    GridExchange --> "1" GridExchangePriceSell
 }
 
 package "<<agr Community>>"{
