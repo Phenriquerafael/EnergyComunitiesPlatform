@@ -1,0 +1,32 @@
+@startuml
+hide methods
+left to right direction
+skinparam classAttributeIconSize 0
+
+
+
+class Prosumer {
+  +pvProduction: float
+  +load: float
+  +pLoad: float
+}
+
+class Battery {
+  +stateOfCharge: float
+  +capacity: float
+}
+
+class Community {
+  +peers: List<Prosumer>
+}
+
+class Exchange {
+  +pSell: float
+  +pBuy: float
+}
+
+Prosumer "1" --> "1" Battery
+Prosumer "1" --> "1" Exchange
+Prosumer "1" --> "1" Community
+Community "1" --> "*" Prosumer
+@enduml

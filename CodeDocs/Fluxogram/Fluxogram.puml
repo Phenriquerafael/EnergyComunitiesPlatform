@@ -1,0 +1,23 @@
+@startuml
+
+' Diagrama de Atividades
+start
+
+:Carregar Dados de Entrada (PLoad, PPV, Cbuy, Csell);
+:Definir Conjuntos e Parâmetros;
+:Inicializar Variáveis de Decisão;
+
+if (É o primeiro período do dia?) then (Sim)
+    :SOC inicial = SOC do dia anterior;
+else (Não)
+    :Atualizar SOC conforme carga e descarga;
+endif
+
+:Definir Função Objetivo (Minimizar Custo);
+:Definir Restrições (Balanço de Energia, Limites de SOC, etc.);
+:Solução com Solver (GUROBI);
+:Armazenar Resultados;
+stop
+
+@enduml
+ 

@@ -1,0 +1,115 @@
+@startuml DomainModel 
+hide methods
+' ======= layout =========
+skinparam backgroundColor #fcf9ea
+skinparam titleBorderRoundCorner 15
+skinparam titleFontSize 30
+skinparam classAttributeIconSize 0
+skinparam titleFontName Arial Black
+skinparam titleFontColor #f8a978
+skinparam roundcorner 20
+skinparam stereotypeCBackgroundColor ffc5a1
+skinparam class {
+
+ArrowColor ffc5a1
+BorderColor White
+BackgroundColor badfdb
+BackgroundColor<<Event>> skyblue
+BackgroundColor<<Service>> Moccasin
+}
+
+class Duration
+
+class RoomSlot
+class Name
+
+enum TYPE_PHASE <<enum>>
+note left of TYPE_PHASE
+Phase kind: anesthesia, surgery and cleaning
+end note
+
+
+' =====SPECIALIZATION====='
+frame SPECIALIZATION <<Aggregate>>{
+class Specialization <<root>> <<Entity>>{
+}
+
+class Description <<value object>> {
+    -licenceNumber
+}
+class SpecializationID <<value object>> {
+    -ID
+}
+
+
+}
+
+
+enum TYPE_STATUS <<enum>>
+
+
+enum TYPE_PRIORITY <<enum>>
+
+
+
+
+enum TYPE_ROOM <<enum>>
+
+
+class LoginExternalService <<service>>
+
+frame DOCTOR <<Aggregate>>{
+class Doctor <<root>><<Entity>>{
+}
+}
+enum TYPE_STATUS_APPOINTMENT{}
+
+frame APPOINTMENT <<Aggregate>>{
+class Appointment <<root>> <<Entity>>{
+}
+class AppointmentID <<value object>>{
+}
+
+class RoleDuringAppointment <<value object>>{
+}
+class Status <<value object>> {
+    -status
+}
+
+class ScheduleTime <<value object>> {
+    -schedule
+}
+
+class Phase <<Entity>>{
+}
+
+
+
+class StaffAvailable <<value object>> {
+    -staffAvailable
+}
+
+class ProperMember <<value object>>{
+    -properMember
+}
+
+
+
+}
+
+frame NURSE <<Aggregate>>{
+class Nurse <<root>> <<Entity>>{ }
+}
+
+
+
+' =====APPOINTMENT_HISTORY====='
+frame APPOINTMENT_HISTORY <<Aggregate>>{
+class AppointmentHistory <<root>> <<Entity>>{
+}
+
+class Record <<value object>> {
+    -record
+}
+}
+

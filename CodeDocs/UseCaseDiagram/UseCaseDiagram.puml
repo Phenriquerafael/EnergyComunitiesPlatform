@@ -1,0 +1,23 @@
+@startuml
+
+' Diagrama de Caso de Uso
+left to right direction
+actor Prosumer
+actor Grid
+actor Solver
+
+rectangle "Sistema de Otimização" {
+    usecase "Carregar Dados de Entrada" as UC1
+    usecase "Otimizar Uso de Energia" as UC2
+    usecase "Comprar/Vender Energia" as UC3
+    usecase "Trocar Energia entre Prosumers" as UC4
+}
+
+Prosumer -- UC1
+Prosumer -- UC2
+Prosumer -- UC3
+Prosumer -- UC4
+Grid -- UC3
+Solver -- UC2
+
+@enduml
