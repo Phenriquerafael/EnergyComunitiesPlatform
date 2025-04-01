@@ -1,100 +1,814 @@
-# EnergyComunitiesPlatform
+# EnergyComunitiesPlatform 
 
 ## Doubts:
 Q: How many dataset variations can exist? (Is every dataset a diferent variation or some have the same atributes)
 A: Each dataset if diferent but certain atributes represent the same context value so they can be used in the same alghoritm.
 
 Q: What are the minimal files (datasets, program files and ect.) that the system needs to fully operate? 
-A:
+A: Predefined dataSet (the question would be which atributes are fundamental to the optimization process (same dataSets may variate))
+
+Q: Como funciona o carregamento da bateria quando chega ao limite de charge e discharge
+A: Check the fluxogram
+
+## Notes
+- Create plots to compare a prosumer inside and outside an energy community
+- Study how tax is applied in Spain (sampleData)
+- Study how to deploy the optimization algorithm 
+- Study which calls the backend has to make to use the O.A
 
 ## System Interation:
 
 1º Dataset 
+
 2º Read Datasets 
+
 3º Optimize Data
+
 4º Calculate prices and results
+
 5º Return Arrays with results
 
 ## Interface:
-
-- System to read the data 
-- System to store the data in a database
-- System to store the program methods
-- System to store the results in a database
-- System to show the data
-- System to manipulate the data or show charts and tables 
-- Function to show data loading
-
-# Setup
-
-
-## Install Python
-Download the installer at 'https://www.python.org/downloads/' and follow the instructions
-
-## Install gorubi:
-
-1º Download gurobi from 'https://www.gurobi.com/downloads/gurobi-software/' (my case: x64 windows ) 
-
+Download the installer at 'https://www.python.org/downloads/' and follow the ins
 2º Create an account and Get Academic license for 1 year at https://portal.gurobi.com/iam/licenses/list/
 
 3º Download the gurobi.lic file and follow these instructions:
-    #Abrir Windows PowerShell como administrador (botão direito do rato no wpsh)
+    #Open Windows PowerShell as an admin (mouse right click)
 
-    # Criar a pasta (caso não exista)
+    # Create folder (in case it doesn't exist)
     mkdir C:\gurobi  
 
-    # Mover a licença para a pasta correta (copiar o caminho do ficheiro gurobi.lic transferido)
+    # Move the license to the correct folder (copy the path of the gurobi.lic downloaded file)
     Move-Item "C:\Users\phenr\Downloads\gurobi.lic" "C:\gurobi\gurobi.lic"
 
-    #Atualizar a variável de ambiente:
+    #Update the ambient variable:
     setx GRB_LICENSE_FILE "C:\gurobi\gurobi.lic"
 
-    #Fechar e reabrir o terminal e testar com:
+    #Close the terminal, reopen and run:
     grbprobe
 
-    #Deverá mostrar os dados da licença
+    #It should show the license data
 
 ## Install GLPK
 
-1º Download the flie 'glpk-4.35.tar.gz' at 'https://ftp.gnu.org/gnu/glpk/'
+**1º** - Download the file 'glpk-4.35.tar.gz' at 'https://ftp.gnu.org/gnu/glpk/'
 
-2º Extract the Zip folder by: right clicking on the folder and then>> 7-Zip >> Extract Here as shown. Move the glpk-4.65 folder from your downloads folder to your C: drive.
+**2º** - Extract the Zip folder by: right clicking on the folder and then>> 7-Zip >> Extract Here as shown. Move the glpk-4.65 folder from your downloads folder to your C: drive.
 
-3º Assuming you’re using 64-bit Windows, click on the C:\glpk-4.65 folder in Windows explorer, click on the w64 folder, and select and copy the file path, which should be C:\glpk-4.65\w64.
+**3º** - Assuming you’re using 64-bit Windows, click on the C:\glpk-4.65 folder in Windows explorer, click on the w64 folder, and select and copy the file path, which should be C:\glpk-4.65\w64.
 
-4º Search and open your Control Panel, select System and Security>>System>>Advanced system settings>>Environment Variables. Then click on ‘path’ in the top window, click the ‘Edit’ button, then ‘New’.
+**4º** - Search and open your Control Panel, select System and Security>>System>>Advanced system settings>>Environment Variables. Then click on ‘path’ in the top window, click the ‘Edit’ button, then ‘New’.
 
-5º Paste the file path you copied above and save.
+**5º** - Paste the file path you copied above and save.
 
 ## Install Libraries 
-
-Enter the project, open the terminal and run:
-
-    pip install scipy
-
-    pip install numpy
-
-    pip install pandas
-    
-    pip install pyomo
-    
-    pip install matplotlib
-
-    pip install pulp
-
-    pip install envs
-
-    pip install openpyxl
-
 Finally run:
 
     py satcomm-scen4.py
 
-Note: Every time you want to re run the program you have to delete the sampledata and results files and paste the ones in originData    
-
 DONE.
 
+---
+
+## Optimization Algorithm Description
+
+### Variables Mapping
+
+The table below maps the original variables from the code to more comprehensible names, along with their meanings in the context of the energy optimization model:
+
+| **Original Variable**           | **New Name**             | **Meaning**                                          |
+|---------------------------------|--------------------------|-----------------------------------------------------|
+| `P_Load`                       | `UserDemand`             | Energy required by the user in the interval         |
+| `PPV_capacity`                 | `MaxSolarProduction`     | Maximum energy generated by the solar panel         |
+| `P_PV_load`                    | `EnergyForDemand`        | Solar energy used directly for demand               |
+| `P_PV_ESS`                     | `EnergyForBattery`       | Solar energy used to charge the battery             |
+| `P_ESS_ch`                     | `BatteryCharge`          | Energy charged into the battery                     |
+| `P_ESS_dch`                    | `BatteryDischarge`       | Energy discharged from the battery                  |
+| `I_ESS_ch`                     | `BatteryCharging`        | Indicator that the battery is charging              |
+| `I_ESS_dch`                    | `BatteryDischarging`     | Indicator that the battery is discharging           |
+| `SOC`                          | `ChargeLevel`            | Current level of energy stored in the battery       |
+| `P_buy`                        | `EnergyPurchased`        | Energy purchased from the grid                      |
+| `P_sell`                       | `EnergySold`             | Energy sold to the grid                             |
+| `P_peer_in`                    | `EnergyReceived`         | Energy received from another user in the community  |
+| `P_peer_out`                   | `EnergySent`             | Energy sent to another user in the community        |
+| `Cbuy`                         | `PurchasePrice`          | Price per kW/h to buy from the grid                 |
+| `Csell`                        | `SellingPrice`           | Price per kW/h to sell to the grid                  |
+| `ESSparams[1, PL]`             | `ChargeEfficiency`       | Efficiency when charging the battery                |
+| `1/ESSparams[1, PL]`           | `DischargeEfficiency`    | Efficiency when discharging the battery             |
+| `ESSparams[2, PL] * ESSparams[3, PL]` | `MaxCapacity`      | Maximum charge/discharge capacity of the battery    |
+| `ESSparams[4, PL]`             | `MinLevel`               | Minimum charge level of the battery                 |
+| `SOC_end_of_day`               | `FinalChargeLevel`       | Charge level at the end of the day                  |
+
+---
+
+### Fluxogram
+Level 1 
+
+![Fluxogram1](CodeDocs\Fluxogram\Fluxogram.png)
+
+Level 2
+
+```plantuml
+@startuml
+start
+if(Prosumer is out of home?) then (yes)
+  :produces energy;
+  if (Battery needs energy from \n the photovoltaic  panel?) then (yes)
+  :Process \n ended;
+else (no)
+  :is going to send energy \n to the community;
+  if(Community needs energy from \n the photovoltaic panel?) then (yes)
+  :Process \n ended;
+  else (no)
+  : sells the energy \n to the grid, ends process;
+  endif
+endif
+  else (no)
+  : consumes energy ;
+  if (Photovoltaic panel is giving enough energy?) then (yes)
+  :Process \n ended;
+  else (no)
+  :is going to request \n the battery for energy;
+  if(Battery has enough energy to give?) then (yes)
+  :Process \n ended;
+  else (no)
+  : is going to request \n energy to the community;
+    if(Community has enough energy to give?) then (yes)
+    :Process \n ended;
+    else (no)
+    : is going to buy energy from \n the grid, ends process;
+    endif
+  endif
+  endif
+endif
+
+
+stop
+
+@enduml
+```
+
+Level 2B
+```plantuml
+@startuml
+    package "Photovoltaic Panel"{
+        object p_pv_load as "Photovoltaic Load"{
+            * P_Pv_Load()
+        }
+    }
+    
+    package "Prosumer"{
+        object P as "Prosumer Load"{
+            * P_Load()
+        }
+    }
+   
+
+    package "Battery" {
+        object b_ch as "Charge"{
+            * Ess_Charge()
+        }
+
+        object b_dch as "Discharge"{
+            * Ess_Discharge()
+        }
+    }
+
+    package "Grid" {
+        object g_buy as "Buy energy"{
+            * P_Buy()
+        }
+        object g_sell as "Sell energy"{
+            * P_Sell()
+        }
+    }
+
+    package "Community" {
+        object peer_out as "Send energy"{
+            * Peer_Out()
+        }
+        object peer_in as "Receive energy"{
+            * Peer_In()
+        }
+    }
+    diamond dia1
+    diamond dia2
+    diamond dia3
+    p_pv_load --> P: "Prosumer is consuming energy"
+    p_pv_load --> b_ch: "Prosumer is not consuming energy"
+    b_dch --> dia1
+    peer_out --> dia1
+    g_buy --> dia1
+    dia1 --> P: "Prosumer needs more energy"
+    b_dch --> dia2
+    p_pv_load --> dia2
+    dia2 --> peer_in: "Community needs energy"
+    p_pv_load --> dia3
+    b_dch --> dia3
+    dia3 --> g_sell: "Best case, nobody needs energy"
+@enduml
+```
+
+Level 3
+
+```plantuml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+' Start of the process for one day '
+start
+:Load current day data;
+note right: Maximum solar panel production,\nUser usage,\nPurchase price,\nSelling price,\nBattery parameters
+
+' Loop for each time interval (15 minutes) '
+:For each 15-minute interval in the day (total of 96);
+
+' Prosumer Inputs '
+:Get UserUsage and MaxSolarProduction;
+note right: UserUsage = energy required\nMaxSolarProduction = energy generated by the solar panel
+
+' Decision on solar energy usage '
+:Split solar energy into EnergyForUsage and EnergyForBattery;
+note right: EnergyForUsage + EnergyForBattery = MaxSolarProduction
+
+' Battery Management '
+if (EnergyForBattery > 0?) then (Yes)
+  :Calculate BatteryCharge;
+  note right: BatteryCharge = EnergyForBattery\nLimited by the battery's maximum capacity
+  :ChargingBattery = True;
+  :DischargingBattery = False;
+else (No)
+  if (UserUsage > EnergyForUsage?) then (Yes)
+    :Calculate BatteryDischarge;
+    note right: Limited by the battery's maximum capacity
+    :DischargingBattery = True;
+    :ChargingBattery = False;
+  else (No)
+    :BatteryCharge = 0;
+    :BatteryDischarge = 0;
+    :ChargingBattery = False;
+    :DischargingBattery = False;
+  endif
+endif
+
+' Update battery charge level '
+:Calculate ChargeLevel;
+note right: ChargeLevel = Previous level + 15min * (ChargeEfficiency * BatteryCharge - BatteryDischarge / DischargeEfficiency)\nMinimum defined by battery parameters
+
+' User Energy Balance '
+:Calculate required or excess energy;
+note right: UserUsage = EnergyForUsage + BatteryDischarge + EnergyPurchased - EnergySold + EnergyReceived - EnergySent
+
+' Decision on community or grid exchange '
+if (UserUsage > EnergyForUsage + BatteryDischarge?) then (Yes)
+  if (Community has spare energy?) then (Yes)
+    :Receive EnergyReceived from community;
+    note right: EnergyReceived = energy from another user
+  else (No)
+    :Buy EnergyPurchased from the grid;
+    note right: EnergyPurchased limited to 12.5 kW\nCost = PurchasePrice * EnergyPurchased
+  endif
+else (No)
+  if (MaxSolarProduction > UserUsage + EnergyForBattery?) then (Yes)
+    if (Community needs energy?) then (Yes)
+      :Send EnergySent to community;
+      note right: EnergySent limited by solar excess
+    else (No)
+      :Sell EnergySold to the grid;
+      note right: EnergySold limited to 10.5 kW\nRevenue = SellingPrice * EnergySold
+    endif
+  else (No)
+    :EnergyPurchased = 0;
+    :EnergySold = 0;
+    :EnergyReceived = 0;
+    :EnergySent = 0;
+  endif
+endif
+
+' Store results for the interval '
+:Store EnergyPurchased, EnergySold, ChargeLevel, BatteryCharge, BatteryDischarge, EnergyForUsage, EnergyForBattery, EnergyReceived, EnergySent;
+
+' End of time loop '
+:Next interval;
+detach
+
+' End of day '
+:Save final ChargeLevel for the day;
+note right: FinalChargeLevel = ChargeLevel at the last interval
+
+' Calculate daily cost/revenue '
+:Calculate total daily cost;
+note right: Total Cost = Sum(PurchasePrice * EnergyPurchased - SellingPrice * EnergySold) for all intervals
+
+stop
+
+@enduml
+```
+Level 3B
+
+```plantuml
+@startuml
+skinparam monochrome true
+skinparam backgroundColor white
+
+' Start of the process for one day '
+start
+:Load current day data;
+note right: PPV_capacity, P_Load, Cbuy, Csell, ESSparams
+
+' Loop for each time interval (T = 1 to Thorizon) '
+:For each T in Thorizon (96 intervals of 15 minutes);
+
+' Prosumer Inputs '
+:Get P_Load[T, PL] and PPV_capacity[T, PL];
+note right: P_Load = Prosumer usage\nPPV_capacity = Maximum PV production
+
+' Decision on PV energy usage '
+:Calculate P_PV_load[T, PL] and P_PV_ESS[T, PL];
+note right: P_PV_load + P_PV_ESS = PPV_capacity[T, PL]
+
+' Battery (ESS) Management '
+if (P_PV_ESS[T, PL] > 0?) then (Yes)
+  :Calculate P_ESS_ch[T, PL];
+  note right: P_ESS_ch = P_PV_ESS\nLimited by ESSparams[2, PL] * ESSparams[3, PL]
+  :I_ESS_ch[T, PL] = 1;
+  :I_ESS_dch[T, PL] = 0;
+else (No)
+  if (P_Load[T, PL] > P_PV_load[T, PL]?) then (Yes)
+    :Calculate P_ESS_dch[T, PL];
+    note right: Limited by ESSparams[2, PL] * ESSparams[3, PL]
+    :I_ESS_dch[T, PL] = 1;
+    :I_ESS_ch[T, PL] = 0;
+  else (No)
+    :P_ESS_ch[T, PL] = 0;
+    :P_ESS_dch[T, PL] = 0;
+    :I_ESS_ch[T, PL] = 0;
+    :I_ESS_dch[T, PL] = 0;
+  endif
+endif
+
+' Update battery state of charge '
+:Calculate SOC[T, PL];
+note right: SOC[T, PL] = SOC[T-1, PL] + ΔT * (ESSparams[1, PL] * P_ESS_ch[T, PL] - P_ESS_dch[T, PL] / ESSparams[1, PL])\nMinimum SOC = ESSparams[4, PL]
+
+' Prosumer Energy Balance '
+:Calculate net balance;
+note right: P_Load[T, PL] = P_PV_load[T, PL] + P_ESS_dch[T, PL] + P_buy[T, PL] - P_sell[T, PL] + P_peer_in[T, PL] - P_peer_out[T, PL]
+
+' Decision on community exchange '
+if (P_Load[T, PL] > P_PV_load[T, PL] + P_ESS_dch[T, PL]?) then (Yes)
+  if (Community has available energy?) then (Yes)
+    :Receive P_peer_in[T, PL];
+    note right: P_peer_in = Energy from another prosumer
+  else (No)
+    :Buy P_buy[T, PL] from Grid;
+    note right: P_buy limited to 12.5 kW\nCost = Cbuy[T] * P_buy[T, PL]
+  endif
+else (No)
+  if (PPV_capacity[T, PL] > P_Load[T, PL] + P_PV_ESS[T, PL]?) then (Yes)
+    if (Community needs energy?) then (Yes)
+      :Send P_peer_out[T, PL];
+      note right: P_peer_out limited by excess PPV_capacity
+    else (No)
+      :Sell P_sell[T, PL] to Grid;
+      note right: P_sell limited to 10.5 kW\nRevenue = Csell[T] * P_sell[T, PL]
+    endif
+  else (No)
+    :P_buy[T, PL] = 0;
+    :P_sell[T, PL] = 0;
+    :P_peer_in[T, PL] = 0;
+    :P_peer_out[T, PL] = 0;
+  endif
+endif
+
+' Store results for interval T '
+:Store P_buy[T, PL], P_sell[T, PL], SOC[T, PL], P_ESS_ch[T, PL], P_ESS_dch[T, PL], P_PV_load[T, PL], P_PV_ESS[T, PL], P_peer_in[T, PL], P_peer_out[T, PL];
+
+' End of time loop '
+:Next T;
+detach
+
+' End of day '
+:Save final SOC for the day;
+note right: SOC_end_of_day[PL, day] = SOC[Thorizon, PL]
+
+' Calculate daily objective '
+:Calculate total daily cost;
+note right: Sum(Cbuy[T] * P_buy[T, PL] - Csell[T] * P_sell[T, PL]) for all T and PL
+
+stop
+
+@enduml
+```
+
+
+## Explanation of the Revised Flowcharts
+
+The revised flowcharts describe the energy management process for a prosumer. Below is a detailed explanation of each step:
+
+### Data Loading
+Initial data, such as solar production (`MaxSolarProduction`), user demand (`UserDemand`), purchase and selling prices (`PurchasePrice` and `SellingPrice`), and battery parameters (e.g., `ChargeEfficiency`, `MaxCapacity`), are loaded for the day.
+
+### Loop by Intervals
+The process repeats for each 15-minute interval, totaling 96 intervals per day.
+
+### Solar Energy Division
+The energy generated by the solar panel (`MaxSolarProduction`) is split between:
+- Directly meeting the user’s demand (`EnergyForDemand`).
+- Charging the battery (`EnergyForBattery`).
+
+### Battery Management
+- **If there is energy for the battery** (`EnergyForBattery > 0`): The battery is charged (`BatteryCharge`), and the `BatteryCharging` indicator is activated.
+- **If demand exceeds available energy** (`UserDemand > EnergyForDemand`): The battery is discharged (`BatteryDischarge`), and the `BatteryDischarging` indicator is activated.
+- The `ChargeLevel` is updated based on the charging (`BatteryCharge`) and discharging (`BatteryDischarge`) actions, considering efficiencies (`ChargeEfficiency` and `DischargeEfficiency`).
+
+### Energy Balance
+Calculates whether there is a need for extra energy or a surplus, using the equation:
+- `UserDemand = EnergyForDemand + BatteryDischarge + EnergyPurchased - EnergySold + EnergyReceived - EnergySent`.
+
+### Transactions with Community and Grid
+- **Energy Deficit**:
+  - Attempts to receive energy from the community (`EnergyReceived`) if available.
+  - Otherwise, purchases from the grid (`EnergyPurchased`), with cost calculated as `PurchasePrice * EnergyPurchased`.
+- **Energy Surplus**:
+  - Sends energy to the community (`EnergySent`) if needed.
+  - Otherwise, sells to the grid (`EnergySold`), generating revenue as `SellingPrice * EnergySold`.
+
+### Results
+Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`, etc.) for analysis. At the end of the day, calculates the total cost/revenue based on prices and transactions.
+
+---
 
 
 
+## Preconized Solution
 
+### Use Case Diagram
+
+![Use Case Diagram](CodeDocs\UseCaseDiagram\UseCaseDiagram.svg)
+
+
+
+### Domain Model
+
+
+DDD
+
+```plantuml
+@startuml DDD
+
+hide circle
+hide fields
+' ======= layout =========
+skinparam backgroundColor #fcf9ea
+skinparam titleBorderRoundCorner 15
+skinparam titleFontSize 30
+skinparam classAttributeIconSize 0
+skinparam titleFontName Arial Black
+skinparam titleFontColor #f8a978
+skinparam roundcorner 20
+skinparam stereotypeCBackgroundColor ffc5a1
+left to right direction
+
+skinparam class {
+
+ArrowColor ffc5a1
+BorderColor White
+BackgroundColor badfdb
+BackgroundColor<<Event>> skyblue
+BackgroundColor<<Service>> Moccasin
+}
+left to right direction
+
+package "<<agr Prosumer>>"{
+    class Prosumer<<entity>><<root>>{}
+    class ProsumerId<<vo>>{}
+    class ProsumerDescription<<vo>>{}
+
+    Prosumer --> "1" ProsumerId
+    Prosumer --> "0..1" ProsumerDescription
+    
+}
+
+package "<<agr Profile>>"{
+    class Profile<<entity>><<root>>{
+
+    }
+    class ProfileId<<vo>>{}
+    class ProfileTimeStamp<<vo>>{}
+    class ProfileValue<<vo>>{}  
+    note right{
+        Balance of the Prosumer in kw/h, positive values lead to buy energy from the grid
+    }
+
+    Prosumer --> "1" Profile
+    Profile --> "1" ProfileTimeStamp
+    Profile --> "1" ProfileId
+    Profile --> "1" ProfileValue
+}
+
+package "<<agr Grid>>"{
+    class Grid <<entity>><<root>>{}
+    class GridId<<vo>>{}
+    class GridName<<vo>>{}
+
+    Grid --> "1" GridId
+    Grid --> "1" GridName
+}
+
+package "agr GridExchange>>"{
+    class GridExchange <<entity>><<root>>{}
+    class GridExchangeId<<vo>>{}
+    class GridExchangeTimeStamp<<vo>>{}
+    class GridExchangeBuy<<vo>>{}
+    class GridExchangeSell<<vo>>{}
+    class GridExchangePriceBuy<<vo>>{}
+    class GridExchangePriceSell<<vo>>{}
+
+    GridExchange ---> "1" Grid
+    GridExchange ---> "1" Prosumer
+    GridExchange ---> "1" GridExchangeId
+    GridExchange ---> "1" GridExchangeTimeStamp
+    GridExchange ---> "1" GridExchangeBuy
+    GridExchange ---> "1" GridExchangeSell
+    GridExchange --> "1" GridExchangePriceBuy
+    GridExchange --> "1" GridExchangePriceSell
+}
+
+package "<<agr Community>>"{
+    class Community<<entity>><<root>>{
+
+    }
+    class CommunityId<<vo>>{}
+    class CommunityName<<vo>>{}
+    class CommunityProsumers<<array>>{
+    }
+    Community --> "1" CommunityId
+    Community -> "1" CommunityName
+    Community --> "1" CommunityProsumers
+}
+
+package "<<agr CommunityExchange>>"{
+    class CommunityExchange<<entity>><<root>>{}
+    class CommunityExchangeId<<vo>>{}
+    class CommunityExchangeTimeStamp<<vo>>{}
+    class CommunityExchangePeerIn<<vo>>{}
+    class CommunityExchangePeerOut<<vo>>{}
+
+    CommunityExchange --> "1" Community
+    CommunityExchange --> "1" Prosumer
+    CommunityExchange --> "1" CommunityExchangeId
+    CommunityExchange --> "1" CommunityExchangeTimeStamp
+    CommunityExchange --> "1" CommunityExchangePeerIn
+    CommunityExchange --> "1" CommunityExchangePeerOut
+}
+
+package "<<agr User>>"{
+    class User<<entity>><<root>>{
+
+    }
+    class UserId<<vo>>{}
+    class UserName<<vo>>{}
+    class UserEmail<<vo>>{}
+    class UserPassword<<vo>>{}
+    class UserPhone<<vo>>{}
+
+    User --> "1" UserId
+    User --> "1" UserName
+    User --> "1" UserEmail
+    User --> "1" UserPassword
+    User --> "1" UserPhone
+    Community --> "1" User
+    Prosumer --> "1" User
+}
+
+package "<<agr Administrator>>"{
+    class Administrator<<entity>><<root>>{
+
+    }
+    Administrator --|> User
+   
+}
+
+package "<<agr CommonUser>>"{
+    class CommonUser<<entity>><<root>>{}
+     CommonUser --|> User
+}
+
+package "<<agr Photovoltaic Panel>>"{
+    class PhotovoltaicPanel<<entity>><<root>>{
+    }
+    class PhotovoltaicID<<vo>>{}
+    class PhotovoltaicName<<vo>>{}
+
+    PhotovoltaicPanel --> "1" PhotovoltaicID
+    PhotovoltaicPanel --> "1" PhotovoltaicName
+    Prosumer --> "1" PhotovoltaicPanel
+}
+
+package "<<agr Photovoltaic Energy>>"{
+    class PhotovoltaicEnergy<<entity>><<root>>{}
+    class PhotovoltaicEnergyId<<vo>>{}
+    class PhotovoltaicEnergyTimeStamp<<vo>>{}
+    class PhotovoltaicEnergyLoad<<vo>>{}
+    class PhotovoltaicEnergyBattery<<vo>>{}
+
+    PhotovoltaicEnergy --> "1" PhotovoltaicPanel
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyId
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyTimeStamp
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyLoad
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyBattery
+}
+
+package "<<agr Battery(ESS)>>"{
+    class Battery<<entity>><<root>>{}
+    class BatteryId<<vo>>{}
+    class BatteryName<<vo>>{}
+
+    Prosumer --> "1" Battery
+    Battery --> "1" BatteryId
+    Battery --> "1" BatteryName
+
+
+}
+
+package "<<agr BatteryEnergy>>"{
+    class BatteryEnergy<<entity>><<root>>{}
+    class BatteryEnergyId<<vo>>{}
+    class BatteryEnergyState<<vo>>{}
+    class BatteryEnergyCharge<<vo>>{}
+     note right{
+        this value will be equal to the value provided by PhotovoltaicEnergyBattery
+    }
+    class BatteryEnergyDischarge<<vo>>{}
+    class BatteryEnergyTimeStamp<<vo>>{}
+    class BatteryEnergyDischargeBinary<<vo>>{}
+     note right{
+        value in binary to acknowledge the battery is discharging
+    }
+    class BatteryEnergyChargeBinary<<vo>>{}
+     note right{
+        value in binary to acknowledge the battery is charging
+    }
+
+    BatteryEnergy ---> "1" Battery
+    BatteryEnergy --> "1" BatteryEnergyId
+    BatteryEnergy --> "1" BatteryEnergyState
+    BatteryEnergy --> "1" BatteryEnergyCharge
+    BatteryEnergy --> "1" BatteryEnergyDischarge
+    BatteryEnergy --> "1" BatteryEnergyTimeStamp
+    BatteryEnergy --> "1" BatteryEnergyDischargeBinary
+    BatteryEnergy --> "1" BatteryEnergyChargeBinary
+
+}
+@enduml
+
+```
+
+### Class Diagram
+
+Level 1
+
+![](CodeDocs\ClassDiagram\ClassDiagram.png)
+
+Level 2
+
+![](CodeDocs\ClassDiagram\ClassDiagram2.png)
+
+Level 3
+```plantuml
+@startuml
+skinparam style strictuml
+hide methods
+
+class Prosumer {
+  - prosumerId: String
+  - prosumerDescription: String
+  - pLoad: float[][]
+  - ppvCapacity: float[][]
+  + calculateSoc(): void
+  + decideExchange(): void
+}
+
+class Profile {
+  - profileId: String
+  - profileTimeStamp: TimeStamp
+  - profileValue: float
+}
+
+class Grid {
+  - gridId: String
+  - gridName: String
+}
+
+class GridExchange {
+  - gridExchangeId: String
+  - gridExchangeTimeStamp: TimeStamp
+  - gridExchangeBuy: float
+  - gridExchangeSell: float
+  - gridExchangePriceBuy: float
+  - gridExchangePriceSell: float
+  + registerBuy(amount: float): void
+  + registerSell(amount: float): void
+}
+
+class Community {
+  - communityId: String
+  - communityName: String
+  - prosumers: Prosumer[*]
+  + hasEnergy(): bool
+  + needsEnergy(): bool
+}
+
+class CommunityExchange {
+  - communityExchangeId: String
+  - communityExchangeTimeStamp: TimeStamp
+  - peerIn: float
+  - peerOut: float
+}
+
+class PhotovoltaicPanel {
+  - photovoltaicId: String
+  - photovoltaicName: String
+}
+
+class PhotovoltaicEnergy {
+  - photovoltaicEnergyId: String
+  - photovoltaicEnergyTimeStamp: TimeStamp
+  - pvLoad: float
+  - pvBattery: float
+}
+
+class Battery {
+  - batteryId: String
+  - batteryName: String
+  - capacityMax: float
+  - efficiencyCharge: float
+  - efficiencyDischarge: float
+  - socMin: float
+}
+
+class BatteryEnergy {
+  - batteryEnergyId: String
+  - batteryEnergyTimeStamp: TimeStamp
+  - stateOfCharge: float
+  - charge: float
+  - discharge: float
+  - chargeBinary: bool
+  - dischargeBinary: bool
+}
+
+class TimeStamp {
+  - intervalOfTime: String
+  - numberOfIntervals: int
+}
+
+' Relacionamentos '
+Prosumer --> "1" Profile
+Prosumer --> "1" PhotovoltaicPanel
+Prosumer --> "1" Battery
+Prosumer --> "1..*" GridExchange
+Prosumer --> "1..*" CommunityExchange
+PhotovoltaicPanel --> "1..*" PhotovoltaicEnergy
+Battery --> "1..*" BatteryEnergy
+Grid --> "1..*" GridExchange
+Community --> "1..*" CommunityExchange
+Community --> "1..*" Prosumer
+PhotovoltaicEnergy --> "1" BatteryEnergy
+Profile --> "1" TimeStamp
+GridExchange --> "1" TimeStamp
+CommunityExchange --> "1" TimeStamp
+PhotovoltaicEnergy --> "1" TimeStamp
+BatteryEnergy --> "1" TimeStamp
+
+note right of Profile: Balance of the Prosumer in kW/h, positive values lead to buy energy from the grid
+note right of BatteryEnergy: Charge and discharge constrained by efficiency and capacity
+
+@enduml
+```
+
+
+### Components Diagram
+
+Backend
+
+![](CodeDocs\components\componentsModelBackEnd.svg)
+
+Level 2
+
+![](CodeDocs\components\componentsModelLevel2.svg)
+
+Level 3
+
+![](CodeDocs\components\componentsModelServer.svg)
+
+### Layers Diagram
+
+View
+
+![](CodeDocs\Layers\LayersView.svg)
+
+Layout 
+
+![](CodeDocs\Layers\LayoutLayers.svg)

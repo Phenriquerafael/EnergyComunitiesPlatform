@@ -3,20 +3,21 @@
 ' Diagrama de Atividades
 start
 
-:Carregar Dados de Entrada (PLoad, PPV, Cbuy, Csell);
-:Definir Conjuntos e Parâmetros;
-:Inicializar Variáveis de Decisão;
+:Load Data (PLoad, PPV, Cbuy, Csell);
+:Define parameters (η, SOCmax, SOCmin, Pmax, Pmin);
+:Define time intervals (T, Δt);
+:Initialize variables (SOC, Pcharge, Pdischarge, Ccost, Cprofit);
 
-if (É o primeiro período do dia?) then (Sim)
-    :SOC inicial = SOC do dia anterior;
-else (Não)
-    :Atualizar SOC conforme carga e descarga;
+if (First period of the day?) then (Yes)
+    :initial SOC = SOC of the previous day;
+else (No)
+    :Update SOC on charge and discharge;
 endif
 
-:Definir Função Objetivo (Minimizar Custo);
-:Definir Restrições (Balanço de Energia, Limites de SOC, etc.);
-:Solução com Solver (GUROBI);
-:Armazenar Resultados;
+:Define objective (Minimize cost);
+:Define restraints (SOC, Pcharge, Pdischarge);
+:Solve solution (GUROBI);
+:Store Results;
 stop
 
 @enduml
