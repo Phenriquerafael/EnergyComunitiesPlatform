@@ -1,0 +1,66 @@
+```plantuml
+@startuml
+    skinparam linetype normal
+    component EM as "Energy Management" <<Container (C4)>>{
+        port p1 as " "
+        port p2 as " "
+        port p3 as " "
+        folder FD as "Frameworks and Drivers Layer"{
+            component Routing <<Container (C4)>>
+            component Persistence <<Container (C4)>>
+        }
+        interface Controller_API as "Controller API"
+        interface DMAPI as "Data Model API"
+        interface PAPI as "Persistence API"
+        Persistence -right- PAPI
+        
+        component Data_Model as "Data Model" <<Container (C4)>>
+        Persistence -- DMAPI
+        DMAPI -right- Data_Model
+        folder IA as "Interface Adapters Layer"{
+            component Controller <<Container (C4)>>
+            component Repository <<Container (C4)>>
+        }
+        interface REPOAPI as "Repository API"
+
+        folder AB as "Application Business Rules"{
+            component AS as "Application Service" <<Container (C4)>>
+        }
+        Repository -- REPOAPI
+        REPOAPI -- AS
+
+        interface ASAPI as "App Service API"
+
+        Controller --- ASAPI
+        ASAPI -- AS
+
+        interface DTOAPI as "DTO API"
+
+        component DTO <<Container (C4)>>
+
+        folder EB as "Enterprise Business Rules"{
+            component DomainModel as "Domain Model" <<Container (C4)>>
+        }
+
+        interface ModelAPI as "Model API"
+
+        Repository -- ModelAPI
+        ModelAPI -- DomainModel
+        Controller -- DTOAPI
+        DTOAPI -- AS
+        DTOAPI -left- DTO
+        DMAPI -- Repository
+        PAPI -- Repository
+        Routing -right- Controller_API
+        Controller_API -- Controller
+    }
+    interface AuthAPI as "Authentication API"
+    interface OptimizationAPI as "Optimization API"
+    interface EMAPI as "Energy Management API"
+    p1 -up- EMAPI
+    interface SGBDAPI as "SGBD API"
+    p2 -up- SGBDAPI
+    p1 -- Routing
+    p3 -up- AuthAPI
+    p3 -up- OptimizationAPI
+@enduml
