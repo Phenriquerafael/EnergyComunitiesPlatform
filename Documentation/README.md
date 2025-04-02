@@ -1,29 +1,14 @@
 # EnergyComunitiesPlatform 
-To ensure we align our development efforts with your vision, we’d like to clarify a few key aspects of the project scope, architecture, and data integration. Your input on the following questions will help us deliver a solution that meets your needs effectively.
 
-## Q&A:
+## Doubts:
 Q: How many dataset variations can exist? (Is every dataset a diferent variation or some have the same atributes)
-A: Each dataset if diferent but certain atributes represent the same context value so they can be used in the same alghoritm:
+A: Each dataset if diferent but certain atributes represent the same context value so they can be used in the same alghoritm.
 
-- PPV_capacity: Max fotovoltaic energy geration capacity per hour
- 
-- PL: Load profile of a user along the day 
+Q: What are the minimal files (datasets, program files and ect.) that the system needs to fully operate? 
+A: Predefined dataSet (the question would be which atributes are fundamental to the optimization process (same dataSets may variate))
 
-- buysell: The price of electricity bought from the grid
-
-- buysell: The price of electricity sold to the grid
-
-- ESS-Param: Energy Storage System parameters
-
-Q: Regarding the unused input data in the sampleData file (e.g., Pev, Physical_Distance, EV-Param, etc.), should these be considered for inclusion in the project’s development scope, or should we prioritize building a product based solely on the data and functionality currently utilized by the optimization algorithm?
-
-Q: Will the backend domain model be designed to represent only the results of the optimization algorithm, or should it also include the input data? In other words, are we aiming for a system where the optimization algorithm is accessed solely through APIs, with standardized formats for both input and output data?
-
-Q: In addition to Excel/CSV files, what other methods will the optimization algorithm use to receive data? For example, should it be designed to directly access an organization’s or energy community’s database?
-
-Q: The current algorithm supports multiple prosumers (nPlayers). Should the system be designed with scalability in mind to handle a growing number of prosumers or energy communities, and if so, are there specific performance or capacity targets we should aim for (e.g., maximum number of users, processing time)?
-
-Q: How do you envision end-users interacting with the system? For example, should we include a user interface to input data, view optimization results (e.g., `P_buy`, `P_sell`, `SOC`), or adjust parameters, or will the system primarily operate as a backend service with outputs delivered via files or APIs?
+Q: Como funciona o carregamento da bateria quando chega ao limite de charge e discharge
+A: Check the fluxogram
 
 ## Notes
 - Create plots to compare a prosumer inside and outside an energy community
@@ -140,9 +125,9 @@ The table below maps the original variables from the code to more comprehensible
 ---
 
 ### Fluxogram
-**Level 1 **
+Level 1 
 ```plantuml
-@startuml 
+@startuml
 
 ' Diagrama de Atividades
 start
@@ -168,10 +153,10 @@ stop
  
 ```
 
-**Level 2**
+Level 2
 
 ```plantuml
-@startuml 
+@startuml
 start
 if(Prosumer is out of home?) then (yes)
   :produces energy;
@@ -210,9 +195,9 @@ stop
 @enduml
 ```
 
-**Level 2B**
+Level 2B
 ```plantuml
-@startuml 
+@startuml
     package "Photovoltaic Panel"{
         object p_pv_load as "Photovoltaic Load"{
             * P_Pv_Load()
@@ -271,10 +256,10 @@ stop
 @enduml
 ```
 
-**Level 3**
+Level 3
 
 ```plantuml
-@startuml 
+@startuml
 skinparam monochrome true
 skinparam backgroundColor white
 
@@ -367,10 +352,10 @@ stop
 
 @enduml
 ```
-**Level 3B**
+Level 3B
 
 ```plantuml
-@startuml 
+@startuml
 skinparam monochrome true
 skinparam backgroundColor white
 
@@ -508,40 +493,13 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 ### Use Case Diagram
 
-**Level 1**
-
-```plantuml
-@startuml
-
-' Diagrama de Caso de Uso
-left to right direction
-actor Prosumer
-actor Grid
-actor Solver
-
-rectangle "Optimization System" {
-    usecase "Load input data" as UC1
-    usecase "OPtimize uso of energy" as UC2
-    usecase "Buy/Sell Energy" as UC3
-    usecase "Trade energy between prosumers" as UC4
-}
-
-Prosumer -- UC1
-Prosumer -- UC2
-Prosumer -- UC3
-Prosumer -- UC4
-Grid -- UC3
-Solver -- UC2
-
-@enduml
-
-```
+![Use Case Diagram](CodeDocs\UseCaseDiagram\UseCaseDiagram.svg)
 
 
 
 ### Domain Model
 
-**DDD based on currently functional system**
+DDD based on results
 
 ```plantuml
 @startuml DDD
@@ -703,52 +661,239 @@ package "<<agr BatteryEnergy>>"{
     Profile --> "1" BatteryEnergy
 
 }
+@enduml
 
+```
+
+
+DDD based on sampleData and detailedResults
+
+```plantuml
+@startuml DDD
+
+hide circle
+hide fields
+' ======= layout =========
+skinparam backgroundColor #fcf9ea
+skinparam titleBorderRoundCorner 15
+skinparam titleFontSize 30
+skinparam classAttributeIconSize 0
+skinparam titleFontName Arial Black
+skinparam titleFontColor #f8a978
+skinparam roundcorner 20
+skinparam stereotypeCBackgroundColor ffc5a1
+left to right direction
+
+skinparam class {
+
+ArrowColor ffc5a1
+BorderColor White
+BackgroundColor badfdb
+BackgroundColor<<Event>> skyblue
+BackgroundColor<<Service>> Moccasin
+}
+left to right direction
+
+package "<<agr Prosumer>>"{
+    class Prosumer<<entity>><<root>>{}
+    class ProsumerId<<vo>>{}
+    class ProsumerDescription<<vo>>{}
+
+    Prosumer --> "1" ProsumerId
+    Prosumer --> "0..1" ProsumerDescription
+    
+}
+
+package "<<agr Profile>>"{
+    class Profile<<entity>><<root>>{
+
+    }
+    class ProfileId<<vo>>{}
+    class ProfileTimeStamp<<vo>>{}
+    class ProfileValue<<vo>>{} 
+    class P_Sell<<vo>>{}
+    class P_Buy<<vo>>{}
+    note right{
+        Balance of the Prosumer in kw/h, positive values lead to buy energy from the grid
+    }
+
+    Prosumer --> "1" Profile
+    Profile --> "1" ProfileTimeStamp
+    Profile --> "1" ProfileId
+    Profile --> "1" ProfileValue
+}
+
+/' package "<<agr Grid>>"{
+    class Grid <<entity>><<root>>{}
+    class GridId<<vo>>{}
+    class GridName<<vo>>{}
+
+    Grid --> "1" GridId
+    Grid --> "1" GridName
+}
+
+package "agr GridExchange>>"{
+    class GridExchange <<entity>><<root>>{}
+    class GridExchangeId<<vo>>{}
+    class GridExchangeTimeStamp<<vo>>{}
+    class GridExchangeBuy<<vo>>{}
+    class GridExchangeSell<<vo>>{}
+    class GridExchangePriceBuy<<vo>>{}
+    class GridExchangePriceSell<<vo>>{}
+
+    GridExchange ---> "1" Grid
+    GridExchange ---> "1" Prosumer
+    GridExchange ---> "1" GridExchangeId
+    GridExchange ---> "1" GridExchangeTimeStamp
+    GridExchange ---> "1" GridExchangeBuy
+    GridExchange ---> "1" GridExchangeSell
+    GridExchange --> "1" GridExchangePriceBuy
+    GridExchange --> "1" GridExchangePriceSell
+} '/
+
+/' package "<<agr Community>>"{
+    class Community<<entity>><<root>>{
+
+    }
+    class CommunityId<<vo>>{}
+    class CommunityName<<vo>>{}
+    class CommunityProsumers<<array>>{
+    }
+    Community --> "1" CommunityId
+    Community -> "1" CommunityName
+    Community --> "1" CommunityProsumers
+} '/
+
+/' package "<<agr CommunityExchange>>"{
+    class CommunityExchange<<entity>><<root>>{}
+    class CommunityExchangeId<<vo>>{}
+    class CommunityExchangeTimeStamp<<vo>>{}
+    class CommunityExchangePeerIn<<vo>>{}
+    class CommunityExchangePeerOut<<vo>>{}
+
+    CommunityExchange --> "1" Community
+    CommunityExchange --> "1" Prosumer
+    CommunityExchange --> "1" CommunityExchangeId
+    CommunityExchange --> "1" CommunityExchangeTimeStamp
+    CommunityExchange --> "1" CommunityExchangePeerIn
+    CommunityExchange --> "1" CommunityExchangePeerOut
+} '/
+
+package "<<agr User>>"{
+    class User<<entity>><<root>>{
+
+    }
+    class UserId<<vo>>{}
+    class UserName<<vo>>{}
+    class UserEmail<<vo>>{}
+    class UserPassword<<vo>>{}
+    class UserPhone<<vo>>{}
+
+    User --> "1" UserId
+    User --> "1" UserName
+    User --> "1" UserEmail
+    User --> "1" UserPassword
+    User --> "1" UserPhone
+    Community --> "1" User
+    Prosumer --> "1" User
+}
+
+package "<<agr Administrator>>"{
+    class Administrator<<entity>><<root>>{
+
+    }
+    Administrator --|> User
+   
+}
+
+package "<<agr CommonUser>>"{
+    class CommonUser<<entity>><<root>>{}
+     CommonUser --|> User
+}
+
+package "<<agr Photovoltaic Panel>>"{
+    class PhotovoltaicPanel<<entity>><<root>>{
+    }
+    class PhotovoltaicID<<vo>>{}
+    class PhotovoltaicName<<vo>>{}
+
+    PhotovoltaicPanel --> "1" PhotovoltaicID
+    PhotovoltaicPanel --> "1" PhotovoltaicName
+    Prosumer --> "1" PhotovoltaicPanel
+}
+
+package "<<agr Photovoltaic Energy>>"{
+    class PhotovoltaicEnergy<<entity>><<root>>{}
+    class PhotovoltaicEnergyId<<vo>>{}
+    /' class PhotovoltaicEnergyTimeStamp<<vo>>{} '/
+    class PhotovoltaicEnergyLoad<<vo>>{}
+    class PhotovoltaicEnergyBattery<<vo>>{}
+
+    note right of PhotovoltaicEnergyBattery
+    Has value in results?
+    end note 
+
+    PhotovoltaicEnergy --> "1" PhotovoltaicPanel
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyId
+   /'  PhotovoltaicEnergy --> "1" PhotovoltaicEnergyTimeStamp '/
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyLoad
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyBattery
+}
 
 package "<<agr Battery(ESS)>>"{
     class Battery<<entity>><<root>>{}
     class BatteryId<<vo>>{}
     class BatteryName<<vo>>{}
-    class MaxCapacity<<vo>>{}
-    class EfficiencyCharge<<vo>>{}
-    class EfficiencyDischarge <<vo>>{}
-    class MinimalSOC <<vo>>{}
+    class Eficiency<<vo>>{}
+    class MaxChargeDischarge<<vo>>{}
+    class 
+
 
     Prosumer --> "1" Battery
     Battery --> "1" BatteryId
     Battery --> "1" BatteryName
-    Battery --> "1" MaxCapacity
-    Battery --> "1" EfficiencyCharge
-    Battery --> "1" EfficiencyDischarge
-    Battery --> "1" MinimalSOC 
-
-    note right of MaxCapacity 
-    Represents the Cap values for each ESS.
-    end note
-
-    note right of EfficiencyCharge
-    Represents the Eta values for charging efficiency.
-    end note
-
-    note right of EfficiencyDischarge
-     Represents the Eta values for discharging efficiency (if modeled separately).
-     end note
-
-    note right of MinimalSOC
-      Could represent a minimum state of charge (not explicitly provided in your data but could be relevant).
-    end note
+    
 
 
+}
+
+package "<<agr BatteryEnergy>>"{
+    class BatteryEnergy<<entity>><<root>>{}
+    class BatteryEnergyId<<vo>>{}
+    class BatteryEnergyState<<vo>>{}
+    class BatteryEnergyCharge<<vo>>{}
+     note right{
+        this value will be equal to the value provided by PhotovoltaicEnergyBattery
+    }
+    class BatteryEnergyDischarge<<vo>>{}
+    /' class BatteryEnergyTimeStamp<<vo>>{} '/
+    class BatteryEnergyDischargeBinary<<vo>>{}
+     note right{
+        boolean value to acknowledge the battery is discharging
+    }
+    class BatteryEnergyChargeBinary<<vo>>{}
+     note right{
+        boolean value to acknowledge the battery is charging
+    }
+
+    BatteryEnergy ---> "1" Battery
+    BatteryEnergy --> "1" BatteryEnergyId
+    BatteryEnergy --> "1" BatteryEnergyState
+    BatteryEnergy --> "1" BatteryEnergyCharge
+    BatteryEnergy --> "1" BatteryEnergyDischarge
+    /' BatteryEnergy --> "1" BatteryEnergyTimeStamp '/
+    BatteryEnergy --> "1" BatteryEnergyDischargeBinary
+    BatteryEnergy --> "1" BatteryEnergyChargeBinary
 
 }
 @enduml
 
 ```
 
-**Energy Community Platform DDD (without electric car and prosumers distances concepts)**
+DDD Original
 
 ```plantuml
-@startuml
+@startuml DDD
 
 hide circle
 hide fields
@@ -917,35 +1062,10 @@ package "<<agr Battery(ESS)>>"{
     class Battery<<entity>><<root>>{}
     class BatteryId<<vo>>{}
     class BatteryName<<vo>>{}
-    class MaxCapacity<<vo>>{}
-    class EfficiencyCharge<<vo>>{}
-    class EfficiencyDischarge <<vo>>{}
-    class MinimalSOC <<vo>>{}
 
     Prosumer --> "1" Battery
     Battery --> "1" BatteryId
     Battery --> "1" BatteryName
-    Battery --> "1" MaxCapacity
-    Battery --> "1" EfficiencyCharge
-    Battery --> "1" EfficiencyDischarge
-    Battery --> "1" MinimalSOC 
-
-    note right of MaxCapacity 
-    Represents the Cap values for each ESS.
-    end note
-
-    note right of EfficiencyCharge
-    Represents the Eta values for charging efficiency.
-    end note
-
-    note right of EfficiencyDischarge
-     Represents the Eta values for discharging efficiency (if modeled separately).
-     end note
-
-    note right of MinimalSOC
-      Could represent a minimum state of charge (not explicitly provided in your data but could be relevant).
-    end note
-
 
 
 }
@@ -981,94 +1101,17 @@ package "<<agr BatteryEnergy>>"{
 }
 @enduml
 
-
 ```
 
 ### Class Diagram
 
 Level 1
 
-```plantuml
-@startuml
-
-' Diagrama de Classes
-class Prosumer {
-    - PLoad: float[]
-    - PPV_capacity: float[]
-    - SOC: float
-    - P_buy: float
-    - P_sell: float
-    + optimizeEnergy()
-}
-
-class Grid {
-    - Cbuy: float[]
-    - Csell: float[]
-    + giveEnergy()
-    + buyEnergy()
-}
-
-class Solver {
-    + resolverProblema()
-}
-
-Prosumer --> Grid : Compra/Vende Energia
-Prosumer --> Prosumer : Troca Energia P2P
-Prosumer --> Solver : Envia Modelo
-Solver --> Prosumer : Retorna Resultados
-
-@enduml
-
-```
+![](CodeDocs\ClassDiagram\ClassDiagram.png)
 
 Level 2
 
-```plantuml
-@startuml
-skinparam style strictuml
-
-class Prosumer {
-  - pvProduction: float
-  - load: float
-  - pLoad: float
-  - pESSCharge: float
-  - pESSDischarge: float
-  - pPV_ESS: float
-  + calculatePLoad(): float
-  + decideExchange(): void
-  + decideBatteryUsage(): void
-}
-
-class Battery {
-  - capacity: float
-  - stateOfCharge: float
-  + charge(amount: float): void
-  + discharge(amount: float): void
-}
-
-class Community {
-  - peers: List<Prosumer>
-  + hasEnergy(): bool
-  + needsEnergy(): bool
-  + receiveEnergy(from: Prosumer): void
-  + provideEnergy(to: Prosumer): void
-}
-
-class Exchange {
-  - pSell: float
-  - pBuy: float
-  + registerSell(from: Prosumer, amount: float): void
-  + registerBuy(to: Prosumer, amount: float): void
-}
-
-Prosumer --> Battery
-Prosumer --> Community
-Prosumer --> Exchange
-Community --> "0..*" Prosumer
-
-@enduml
-
-```
+![](CodeDocs\ClassDiagram\ClassDiagram2.png)
 
 Level 3
 ```plantuml
@@ -1183,234 +1226,26 @@ note right of BatteryEnergy: Charge and discharge constrained by efficiency and 
 ```
 
 
-### Components Diagram 
-#### Version 1
+### Components Diagram
 
+Backend
 
-**Backend**
+![](CodeDocs\components\componentsModelBackEnd.svg)
 
-```plantuml
-@startuml 
+Level 2
 
-interface API_Optimization
-interface API_Exterior
+![](CodeDocs\components\componentsModelLevel2.svg)
 
+Level 3
 
-component "BackEnd" {
-    component DB
-    component Server
-    port P1
-    port P2
-}
-
-API_Optimization -- P1
-API_Exterior -- P2
-P1 - Server
-P2 - Server
-Server -(0- DB
-
-@enduml
-```
-**Level 1**
-```plantuml
-@startuml    
-
-interface API 
-interface UI 
-component System
-
-API - System
-UI - System
-
-@enduml
-```
-
-
-**Level 2**
-
-```plantuml
-@startuml
-
-interface API 
-interface UI_Admin
-interface UI_Prosumer
-interface UI_EnergyCommunity
-
-component "Level 2" {
-    component FrontEnd
-    component BackEnd
-    component Optimization
-    port P1
-    port P2
-    port P3
-    port P4
-}
-
-API -- P1
-UI_Admin -- P2
-UI_Prosumer -- P3
-UI_EnergyCommunity -- P4
-P1 - BackEnd
-P2 - FrontEnd
-P3 - FrontEnd
-P4 - FrontEnd
-FrontEnd -(0- BackEnd
-Optimization -(0- BackEnd
-
-@enduml
-
-```
-
-
-**Server**
-```plantuml
-@startuml 
-
-interface API_Optimization
-interface API_Exterior
-interface DB
-
-component "Server" {
-component Controllers
-component Domain
-component Services
-component Repositories
-component Authorizer
-component Dto
-component Logs 
-component Mapper
-
-Controllers -(0- Services
-Services -(0- Domain
-Services -(0- Authorizer
-Services -(0- Logs
-Services -(0- Mapper
-Mapper -(0- Dto
-Repositories -0)- Services
-
-
-
-port P1
-port P2
-port P3
-
-}
-
-
-P2 -- Repositories
-API_Exterior -- P1
-P1 -- Controllers
-DB -- P2
-API_Optimization -- P3
-P3 -- Services
-
-
-
-@enduml
-```
-
+![](CodeDocs\components\componentsModelServer.svg)
 
 ### Layers Diagram
-#### Version 1
 
-**View**
+View
 
-````plantuml
-@startuml
-'https://plantuml.com/component-diagram
+![](CodeDocs\Layers\LayersView.svg)
 
+Layout 
 
-
-package "Frameworks & Drivers" {
-    component Database
-    component Routing
-}
-
-
-package "Interface Adapters"{
-    component Repositories
-    component Controllers
-}
-
-
-Routing ..> Controllers
-Database <.. Repositories
-
-package "Application Business Rules"{
-    component Services
-}
-
-Controllers ..> Services
-
-package "Enterprise Business Rules"{
-    component Domain
-    component IRepositories
-}
-
-Services ..> Domain
-Services ..> IRepositories
-Repositories ..|> IRepositories
-
-@enduml
-````
-
-**Layout**
-
-```plantuml
-@startuml
-'https://plantuml.com/component-diagram
-
-
-
-package "Frameworks & Drivers" {
-    component Database
-    component Routing
-}
-
-component DTO
-component Data_Model
-
-Database -- Data_Model_API
-Database -- Database_Driver_API
-Data_Model_API - Data_Model
-Routing -- DTO_API
-Routing -- Controller_API
-DTO_API - DTO
-
-
-package "Interface Adapters"{
-    component Repositories
-    component Controllers
-}
-
-Controller_API -- Controllers
-DTO_API -- Controllers
-Data_Model_API -- Repositories
-Database_Driver_API -- Repositories
-Controllers -- Service_API
-Repositories -- Repo_API
-Repositories -- Model_API
-'Controllers -- VO_API
-'Repositories -- VO_API
-
-package "Application Business Rules"{
-    component Services
-}
-
-'VO_API -- Services
-Service_API -- Services
-Repo_API -- Services
-Services -- Model_API
-
-package "Enterprise Business Rules"{
-    component Domain
-}
-
-'VO_API -- Domain
-Model_API -- Domain
-
-
-
-
-@enduml
-```
+![](CodeDocs\Layers\LayoutLayers.svg)

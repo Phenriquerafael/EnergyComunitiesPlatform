@@ -6,21 +6,8 @@
 - Playload is the energy each prosumer user need KW/H
 - payload of each prosumer within each time sample
 
-## Same feeder
-- ids para saber se estão proximos (ligação)
-
-## Pev
-- Veículo eletrico
-
 ## Ess
 - Banco de Battery
-
-## Physical_Distance
-- Distance between each prosumer
-
-## Prosumer
-- percent?
-- Benefit por participating in the EC (measuring greatness?)
 
 ## BuySell
 - Energy bought from the grid MW/H euros
@@ -35,11 +22,24 @@
 - Battery parameters?
 -Eta  Eficiencia
 
+## ~~Same feeder - Not used~~
+- ids para saber se estão proximos (ligação)
 
-## EV-Param
+## ~~Pev - Not used~~
+- Veículo eletrico
+
+## ~~Physical_Distance - Not used~~
+- Distance between each prosumer
+
+## ~~Prosumer - Not used~~
+- percent?
+- Benefit por participating in the EC (measuring greatness?)
+
+
+## ~~EV-Param - Not used~~
 - ?
 
-## Pro-C
+## ~~Pro-C - Not used~~
 - ?
 
 

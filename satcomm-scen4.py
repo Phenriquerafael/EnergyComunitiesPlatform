@@ -242,7 +242,7 @@ for day in range(1, days + 1):
 # Convert results to a DataFrame and save to Excel
 detailed_results_df = pd.DataFrame(detailed_results)
 
-detailed_results_path = r"sampledata.xlsx"
+detailed_results_path = r"detailed_results.xlsx"
 detailed_results_df.to_excel(detailed_results_path, index=False)
 
 print(f"Detailed results saved to: {detailed_results_path}")
