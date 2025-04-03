@@ -1,0 +1,198 @@
+@startuml DDD
+
+hide circle
+hide fields
+' ======= layout =========
+skinparam backgroundColor #fcf9ea
+skinparam titleBorderRoundCorner 15
+skinparam titleFontSize 30
+skinparam classAttributeIconSize 0
+skinparam titleFontName Arial Black
+skinparam titleFontColor #f8a978
+skinparam roundcorner 20
+skinparam stereotypeCBackgroundColor ffc5a1
+left to right direction
+
+skinparam class {
+
+ArrowColor ffc5a1
+BorderColor White
+BackgroundColor badfdb
+BackgroundColor<<Event>> skyblue
+BackgroundColor<<Service>> Moccasin
+}
+left to right direction
+
+package "<<agr Prosumer>>"{
+    class Prosumer<<entity>><<root>>{}
+    class ProsumerId<<vo>>{}
+    class ProsumerDescription<<vo>>{}
+
+    Prosumer --> "1" ProsumerId
+    Prosumer --> "0..1" ProsumerDescription
+    
+}
+
+package "<<agr Profile>>"{
+    class Profile<<entity>><<root>>{
+
+    }
+    class ProfileId<<vo>>{}
+    class ProfileTimeStamp<<vo>>{}
+    class ProfileLoad<<vo>>{} 
+    class SoldEnergy<<vo>>{}
+    class BoughtEnergy<<vo>>{}
+    note right{
+        Balance of the Prosumer in kw/h, positive values lead to buy energy from the grid
+    }
+
+    Prosumer --> "1" Profile
+    Profile --> "1" ProfileTimeStamp
+    Profile --> "1" ProfileId
+    Profile --> "1" ProfileLoad
+
+    Profile --> "1" SoldEnergy
+    Profile --> "1" BoughtEnergy
+    
+    note right of ProfileLoad
+    Energy required by the user in the interval
+    end note 
+    
+}
+
+
+/' package "<<agr User>>"{
+    class User<<entity>><<root>>{
+
+    }
+    class UserId<<vo>>{}
+    class UserName<<vo>>{}
+    class UserEmail<<vo>>{}
+    class UserPassword<<vo>>{}
+    class UserPhone<<vo>>{}
+
+    User --> "1" UserId
+    User --> "1" UserName
+    User --> "1" UserEmail
+    User --> "1" UserPassword
+    User --> "1" UserPhone
+    Community --> "1" User
+    Prosumer --> "1" User
+} '/
+
+/' package "<<agr Administrator>>"{
+    class Administrator<<entity>><<root>>{
+
+    }
+    Administrator --|> User
+   
+}
+
+package "<<agr CommonUser>>"{
+    class CommonUser<<entity>><<root>>{}
+     CommonUser --|> User
+}
+ '/
+
+package "<<agr Photovoltaic Energy>>"{
+    class PhotovoltaicEnergy<<entity>><<root>>{}
+    class PhotovoltaicEnergyId<<vo>>{}
+
+    class PhotovoltaicEnergyLoad<<vo>>{}
+    class PhotovoltaicEnergyBattery<<vo>>{}
+
+    note right of PhotovoltaicEnergyBattery
+    Has value in results?
+    end note 
+
+/'     PhotovoltaicEnergy --> "1" PhotovoltaicPanel '/
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyId
+
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyLoad
+    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyBattery
+
+    Profile --> "1" PhotovoltaicEnergy
+}
+
+/' package "<<agr Battery(ESS)>>"{
+    class Battery<<entity>><<root>>{}
+    class BatteryId<<vo>>{}
+    class BatteryName<<vo>>{}
+
+    Prosumer --> "1" Battery
+    Battery --> "1" BatteryId
+    Battery --> "1" BatteryName
+
+
+}
+ '/
+package "<<agr BatteryEnergy>>"{
+    class BatteryEnergy<<entity>><<root>>{}
+    class BatteryEnergyId<<vo>>{}
+    class BatteryEnergyState<<vo>>{}
+    class BatteryEnergyCharge<<vo>>{}
+     note right{
+        this value will be equal to the value provided by PhotovoltaicEnergyBattery
+    }
+    class BatteryEnergyDischarge<<vo>>{}
+
+/'     class BatteryEnergyDischargeBinary<<vo>>{}
+     note right{
+        boolean value to acknowledge the battery is discharging
+    }
+    class BatteryEnergyChargeBinary<<vo>>{}
+     note right{
+        boolean value to acknowledge the battery is charging
+    } '/
+
+/'     BatteryEnergy ---> "1" Battery '/
+    BatteryEnergy --> "1" BatteryEnergyId
+    BatteryEnergy --> "1" BatteryEnergyState
+    BatteryEnergy --> "1" BatteryEnergyCharge
+    BatteryEnergy --> "1" BatteryEnergyDischarge
+/' 
+    BatteryEnergy --> "1" BatteryEnergyDischargeBinary
+    BatteryEnergy --> "1" BatteryEnergyChargeBinary '/
+
+    Profile --> "1" BatteryEnergy
+
+}
+
+
+package "<<agr Battery(ESS)>>"{
+    class Battery<<entity>><<root>>{}
+    class BatteryId<<vo>>{}
+    class BatteryName<<vo>>{}
+    class MaxCapacity<<vo>>{}
+    class EfficiencyCharge<<vo>>{}
+    class EfficiencyDischarge <<vo>>{}
+    class MinimalSOC <<vo>>{}
+
+    Prosumer --> "1" Battery
+    Battery --> "1" BatteryId
+    Battery --> "1" BatteryName
+    Battery --> "1" MaxCapacity
+    Battery --> "1" EfficiencyCharge
+    Battery --> "1" EfficiencyDischarge
+    Battery --> "1" MinimalSOC 
+
+    note right of MaxCapacity 
+    Represents the Cap values for each ESS.
+    end note
+
+    note right of EfficiencyCharge
+    Represents the Eta values for charging efficiency.
+    end note
+
+    note right of EfficiencyDischarge
+     Represents the Eta values for discharging efficiency (if modeled separately).
+     end note
+
+    note right of MinimalSOC
+      Could represent a minimum state of charge (not explicitly provided in your data but could be relevant).
+    end note
+
+
+
+}
+@enduml

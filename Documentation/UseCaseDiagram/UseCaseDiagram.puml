@@ -1,4 +1,4 @@
-@startuml
+@startuml 
 
 ' Diagrama de Caso de Uso
 left to right direction
@@ -6,11 +6,11 @@ actor Prosumer
 actor Grid
 actor Solver
 
-rectangle "Sistema de Otimização" {
-    usecase "Carregar Dados de Entrada" as UC1
-    usecase "Otimizar Uso de Energia" as UC2
-    usecase "Comprar/Vender Energia" as UC3
-    usecase "Trocar Energia entre Prosumers" as UC4
+rectangle "Optimization System" {
+    usecase "Load input data" as UC1
+    usecase "OPtimize uso of energy" as UC2
+    usecase "Buy/Sell Energy" as UC3
+    usecase "Trade energy between prosumers" as UC4
 }
 
 Prosumer -- UC1

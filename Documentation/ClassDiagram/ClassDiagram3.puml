@@ -1,5 +1,6 @@
 @startuml
 skinparam style strictuml
+hide methods
 
 class Prosumer {
   - prosumerId: String
