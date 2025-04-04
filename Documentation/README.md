@@ -508,10 +508,46 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 ### Use Case Diagram
 
-**Level 1**
+**Level 1 - Version 1 (Functional Code)**
 
 ```plantuml
-@startuml
+@startuml  
+
+' Diagrama de Caso de Uso
+left to right direction
+actor Prosumer
+actor Admin
+actor CommunityManager
+
+rectangle "Optimization System" {
+    usecase "Load input data" as UC1
+    usecase "Manage user account" as UC2
+    usecase "Manage Users" as UC3
+    usecase "Manage input data" as UC4
+    usecase "Analyse output data" as UC5
+    usecase "Manage Users Permissions" as UC6
+    
+}
+
+Prosumer -- UC1
+Prosumer -- UC2
+Prosumer -- UC3
+Prosumer -- UC4
+Prosumer -- UC5
+
+Admin -- UC3
+Admin -- UC6
+
+CommunityManager -- UC2
+CommunityManager -- UC5
+
+@enduml
+
+```
+**Level 1 - Version 2**
+
+```plantuml
+@startuml  
 
 ' Diagrama de Caso de Uso
 left to right direction
@@ -521,15 +557,17 @@ actor Solver
 
 rectangle "Optimization System" {
     usecase "Load input data" as UC1
-    usecase "OPtimize uso of energy" as UC2
+    usecase "Optimize use of energy" as UC2
     usecase "Buy/Sell Energy" as UC3
     usecase "Trade energy between prosumers" as UC4
+    usecase "see output data" as UC5
 }
 
 Prosumer -- UC1
 Prosumer -- UC2
 Prosumer -- UC3
 Prosumer -- UC4
+Prosumer -- UC5
 Grid -- UC3
 Solver -- UC2
 
@@ -537,7 +575,312 @@ Solver -- UC2
 
 ```
 
+**Level 2 - Version 1**
 
+```plantuml
+@startuml 
+left to right direction
+
+actor Admin
+actor User
+actor Prosumer
+actor "Community Manager" as CM
+
+
+
+ 
+rectangle "Energy Community Platform" {
+  usecase "Create users" as UC1
+  usecase "Update users" as UC2
+  usecase "Delete users" as UC3
+
+  usecase "Register account" as UC4
+  usecase "Update account" as UC5
+  usecase "Delete account" as UC6
+
+  usecase "Upload data" as UC7
+  usecase "Update data" as UC8
+  usecase "Analyse data" as UC9
+
+  usecase "Create energy community" as UC10
+  usecase "Add Data" as UC11
+  usecase "Delete Data" as UC12
+    
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+
+    User --> UC4
+    User --> UC5
+    User --> UC6
+
+    Prosumer --> UC7
+    Prosumer --> UC8
+    Prosumer --> UC9
+
+    CM --> UC10
+    CM --> UC11
+    CM --> UC9
+    CM --> UC12
+}
+@enduml
+
+```
+
+**Level 2 - Version 2**
+
+```plantuml
+@startuml
+left to right direction
+
+actor Admin
+actor User
+actor Prosumer
+actor "Community Manager" as CM
+
+rectangle "Energy Community Platform" {
+
+    ' Admin Use Cases
+    Admin --> (Create users)
+    Admin --> (Update users)
+    Admin --> (Delete users)
+    Admin --> (View system logs)
+    Admin --> (Manage roles and permissions)
+    Admin --> (Monitor platform usage)
+
+    ' User Use Cases
+    User --> (Register account)
+    User --> (Update account)
+    User --> (Delete account)
+    User --> (View community data)
+    User --> (Join energy community)
+
+    ' Prosumer Use Cases
+    Prosumer --> (Upload data)
+    Prosumer --> (Update data)
+    Prosumer --> (Analyse data)
+    Prosumer --> (View own consumption/production history)
+    Prosumer --> (Set energy usage preferences)
+
+    ' Community Manager Use Cases
+    CM --> (Create energy community)
+    CM --> (Add data)
+    CM --> (Analyse data)
+    CM --> (Delete data)
+    CM --> (Manage members)
+    CM --> (Generate reports)
+    CM --> (Configure energy sharing rules)
+}
+@enduml
+
+```
+
+**Level 3 - Version 1**
+
+```plantuml
+@startuml
+left to right direction
+
+' Actors
+actor Admin
+actor User
+actor Prosumer
+actor "Community Manager" as CM
+/' actor Grid
+actor Solver '/
+
+' Actor Relationships
+Prosumer --|> User : <<extends>>
+CM --|> User : <<extends>>
+
+rectangle "Energy Community Platform" {
+
+  ' Admin Use Cases
+  package "Admin Management" {
+    usecase "UC1: Create User" as UC1
+    usecase "UC2: Update User" as UC2
+    usecase "UC3: Delete User" as UC3
+    usecase "UC4: Manage Roles and Permissions" as UC4
+    usecase "UC5: Monitor Platform Usage" as UC5
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+  }
+
+  ' User Use Cases
+  package "Account Management" {
+    usecase "UC6: Register Account" as UC6
+    usecase "UC7: Update Account" as UC7
+    usecase "UC8: Delete Account" as UC8
+    usecase "UC9: Join Energy Community" as UC9
+
+    User --> UC6
+    User --> UC7
+    User --> UC8
+    User --> UC9
+  }
+
+  ' Prosumer Use Cases
+  package "Energy Management for Prosumer" {
+    usecase "UC10: Upload Energy Data" as UC10
+    usecase "UC11: Update Energy Data" as UC11
+    usecase "UC12: Analyse Energy Trends \n(define x, y values and relation)" as UC12
+    usecase "UC13: View Consumption/Production History" as UC13
+    /' usecase "UC14: Set Energy Usage Preferences" as UC14 '/
+    /' usecase "UC15: Trade Energy with Community" as UC15 '/
+    /' usecase "UC16: Optimize Energy Usage" as UC16 '/
+    usecase "UC17: View Cost/Revenue from Trading" as UC17
+
+    Prosumer --> UC10
+    Prosumer --> UC11
+    Prosumer --> UC12
+    Prosumer --> UC13
+/'     Prosumer --> UC14
+    Prosumer --> UC15
+    Prosumer --> UC16 '/
+    Prosumer --> UC17
+  }
+
+  ' Community Manager Use Cases
+  package "Community Management" {
+    usecase "UC18: Create Energy Community" as UC18
+    usecase "UC19: Add Community Data" as UC19
+    usecase "UC20: Analyse Community Energy Balance" as UC20
+    usecase "UC21: Delete Community Data" as UC21
+    usecase "UC22: Manage Community Members" as UC22
+    usecase "UC23: Generate Community Reports" as UC23
+    usecase "UC24: Configure Energy Sharing Rules" as UC24
+    usecase "UC25: Monitor Energy Sharing Efficiency" as UC25
+    /' usecase "UC26: Set Community Energy Goals" as UC26 '/
+
+    CM --> UC18
+    CM --> UC19
+    CM --> UC20
+    CM --> UC21
+    CM --> UC22
+    CM --> UC23
+    CM --> UC24
+    CM --> UC25
+/'     CM --> UC26 '/
+  }
+
+
+}
+
+@enduml
+```
+**Level 3 - Version 2**
+
+```plantuml
+@startuml
+left to right direction
+
+' Actors
+actor Admin
+actor User
+actor Prosumer
+actor "Community Manager" as CM
+/' actor Grid
+actor Solver '/
+
+' Actor Relationships
+Prosumer --|> User : <<extends>>
+CM --|> User : <<extends>>
+
+rectangle "Energy Community Platform" {
+
+  ' Admin Use Cases
+  package "Admin Management" {
+    usecase "UC1: Create User" as UC1
+    usecase "UC2: Update User" as UC2
+    usecase "UC3: Delete User" as UC3
+    usecase "UC4: Manage Roles and Permissions" as UC4
+    usecase "UC5: Monitor Platform Usage" as UC5
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+  }
+
+  ' User Use Cases
+  package "Account Management" {
+    usecase "UC6: Register Account" as UC6
+    usecase "UC7: Update Account" as UC7
+    usecase "UC8: Delete Account" as UC8
+    usecase "UC9: Join Energy Community" as UC9
+
+    User --> UC6
+    User --> UC7
+    User --> UC8
+    User --> UC9
+  }
+
+  ' Prosumer Use Cases
+  package "Energy Management for Prosumer" {
+    usecase "UC10: Upload Energy Data" as UC10
+    usecase "UC11: Update Energy Data" as UC11
+    usecase "UC12: Analyse Energy Trends" as UC12
+    usecase "UC13: View Consumption/Production History" as UC13
+    usecase "UC14: Set Energy Usage Preferences" as UC14
+    usecase "UC15: Trade Energy with Community" as UC15
+    usecase "UC16: Optimize Energy Usage" as UC16
+    usecase "UC17: View Cost/Revenue from Trading" as UC17
+
+    Prosumer --> UC10
+    Prosumer --> UC11
+    Prosumer --> UC12
+    Prosumer --> UC13
+    Prosumer --> UC14
+    Prosumer --> UC15
+    Prosumer --> UC16
+    Prosumer --> UC17
+  }
+
+  ' Community Manager Use Cases
+  package "Community Management" {
+    usecase "UC18: Create Energy Community" as UC18
+    usecase "UC19: Add Community Data" as UC19
+    usecase "UC20: Analyse Community Energy Balance" as UC20
+    usecase "UC21: Delete Community Data" as UC21
+    usecase "UC22: Manage Community Members" as UC22
+    usecase "UC23: Generate Community Reports" as UC23
+    usecase "UC24: Configure Energy Sharing Rules" as UC24
+    usecase "UC25: Monitor Energy Sharing Efficiency" as UC25
+    usecase "UC26: Set Community Energy Goals" as UC26
+
+    CM --> UC18
+    CM --> UC19
+    CM --> UC20
+    CM --> UC21
+    CM --> UC22
+    CM --> UC23
+    CM --> UC24
+    CM --> UC25
+    CM --> UC26
+  }
+
+  ' Grid and Solver Use Cases
+  package "External Interactions" {
+    usecase "UC27: Buy/Sell Energy" as UC27
+
+    Grid --> UC27
+    Prosumer --> UC27
+    CM --> UC27
+
+    Solver --> UC16  
+    'Optimize Energy Usage (Prosumer)
+    Solver --> UC20  
+    'Analyse Community Energy Balance (Community Manager)'
+  }
+}
+
+@enduml
+```
 
 ### Domain Model
 

@@ -204,7 +204,7 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 ### Use Cases Diagram
 
 **Level 1**
-![](out\Documentation\UseCaseDiagram\UseCaseDiagram\UseCaseDiagram.svg)
+![UseCases](out\Documentation\UseCaseDiagram\UseCaseDiagram\UseCaseDiagram.svg)
 
 ---
 
