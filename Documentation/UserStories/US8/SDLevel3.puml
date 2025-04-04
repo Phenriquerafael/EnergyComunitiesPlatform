@@ -1,0 +1,51 @@
+@startuml
+participant "SPA UI" as SPA
+participant "APP" as APP
+participant "Controller" as Controller
+
+participant "Mapper" as Mapper
+participant "DTO" as DTO
+participant "Service" as Service
+participant "Domain" as Domain
+participant "EntityID" as EntityID
+participant "Repository" as Repository
+
+SPA -> APP: 1: post(/api/pacients)
+activate APP
+APP -> Controller: 1.1: post
+activate Controller
+Controller -> Mapper: 1.1.1.1: toDTO()
+activate Mapper
+Mapper -> DTO: 1.1.1.1.1: new Dto(object info)
+activate DTO
+DTO --> Mapper: 1.1.1.1.2: returns DTO
+deactivate DTO
+Mapper --> Controller: 1.1.1.2:
+
+Controller -> Service: 1.1.3: service call
+activate Service
+Service -> Mapper: 1.1.3.1: toDomain
+
+Mapper -> Service: 1.1.3.1.1: create object
+
+Service -> Domain : 1.1.3.1.1
+activate Domain
+Domain -> EntityID: 1.1.3.1.1.1: generates Medical Record Number
+activate EntityID
+EntityID --> Domain: 1.1.3.1.1.2:
+deactivate EntityID
+Domain --> Service: 1.1.3.1.3: return pacient object
+deactivate Domain
+Service -> Repository: 1.1.3.1.3.1 : saves pacient
+activate Repository
+Repository --> Service
+deactivate Repository
+Service --> Mapper: 1.1.3.1.3.1: transforms to DTO
+
+
+Service --> Controller: 1.1.3.1.3.2: returns
+deactivate Service
+Controller --> APP: 1.1.3.1.3.2.1: status 201
+deactivate Controller
+APP --> SPA: 1.1.3.1.3.2.1.1: success message
+@enduml

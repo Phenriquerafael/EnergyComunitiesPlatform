@@ -1,0 +1,42 @@
+@startuml
+
+autonumber
+
+Actor User
+
+activate User
+User -> SPA : Edit a patient information
+activate SPA
+
+note right of SPA
+Single Page Application
+end note 
+
+SPA -> Patient : GET/patients/findAll
+activate Patient
+
+Patient --> SPA : status code
+deactivate Patient
+
+alt successfull case
+    SPA --> User : Returns requested list
+else failure
+    SPA --> User : Does not return requested list
+end
+
+User -> SPA : types patient id
+
+SPA -> Patient : DELETE/patient/{id}
+activate Patient
+
+Patient --> SPA : status code
+deactivate Patient
+
+alt successfull case
+    SPA --> User : Patient deleted successfully
+else failure
+    SPA --> User : Patient not deleted
+end
+
+
+@enduml

@@ -1,4 +1,10 @@
 # EnergyComunitiesPlatform 
+
+## Introduction
+
+**[Glossary](/documentation/Glossary.md)**
+
+
 To ensure we align our development efforts with your vision, we’d like to clarify a few key aspects of the project scope, architecture, and data integration. Your input on the following questions will help us deliver a solution that meets your needs effectively.
 
 ## Q&A:
@@ -1918,3 +1924,4 @@ Model_API -- Domain
     localhost ---server1 : http/s
 
 @enduml
+

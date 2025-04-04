@@ -1,7 +1,21 @@
 # EnergyComunitiesPlatform 
-To ensure we align our development efforts with your vision, we’d like to clarify a few key aspects of the project scope, architecture, and data integration. Your input on the following questions will help us deliver a solution that meets your needs effectively.
 
-## Q&A:
+
+## 1. Introduction
+
+## 2. Group Members
+
+The members of the group:
+
+| Student Nr.	                     | Name             |
+|----------------------------------|------------------|
+| 1211664 | Pedro Henrique |
+| 1210808 | Gabriel Silva    |
+| 1191014 | Rodrigo Silva   |
+
+
+
+## 3. Q&A:
 Q: How many dataset variations can exist? (Is every dataset a diferent variation or some have the same atributes)
 A: Each dataset if diferent but certain atributes represent the same context value so they can be used in the same alghoritm:
 
@@ -205,6 +219,14 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 **Level 1**
 ![UseCases](out\Documentation\UseCaseDiagram\UseCaseDiagram\UseCaseDiagram.svg)
+
+---
+## User Stories
+**[Work Division](Documentation\WorkDivision.md)**
+
+**[Definition of Ready](/documentation/DoR.md)**
+
+**[Definition of Done](/documentation/DoD.md)**
 
 ---
 

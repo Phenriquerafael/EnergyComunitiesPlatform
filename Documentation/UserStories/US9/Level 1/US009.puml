@@ -1,0 +1,23 @@
+@startuml
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: US009
+
+actor "Admin" as Admin
+participant "UI" as UI
+
+activate Admin
+Admin -> UI : 1 : Starts the editing patient profile process
+activate UI
+UI --> Admin : 1.1 : Requests data (name, contact informartion, dimension, code)
+deactivate UI
+Admin -> UI : 2 : Inserts requested data
+activate UI
+UI --> Admin : 2.1 : Shows success confirmation and updated patient information
+
+
+deactivate UI
+
+@enduml

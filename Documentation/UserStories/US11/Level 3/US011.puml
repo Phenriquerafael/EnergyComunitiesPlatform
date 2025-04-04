@@ -1,0 +1,33 @@
+@startuml
+
+activate SPA
+note right of SPA
+Single Page Application
+end note 
+
+SPA -> API : GET /api/patients?search={searchCriteria}
+activate API
+
+API -> PatientController : getPatients(searchCriteria)
+activate PatientController
+
+PatientController -> PatientService : getPatients(searchCriteria)
+activate PatientService
+
+PatientService -> PatientRepo : findByCriteria(searchCriteria)
+activate PatientRepo
+PatientRepo --> PatientService : patientList
+deactivate PatientRepo
+
+PatientService -> PatientController: patientList
+deactivate PatientService
+
+PatientController --> API : status code 200, patientList
+deactivate PatientController
+
+API --> SPA : patientList
+deactivate API
+
+deactivate SPA
+
+@enduml

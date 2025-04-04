@@ -1,0 +1,64 @@
+@startuml
+
+autonumber
+
+Actor User
+activate User
+User -> SPA : Edit a patient information
+activate SPA
+
+SPA --> User : Shows patients' ID and name list 
+deactivate SPA
+
+User -> SPA : types patient ID
+activate SPA
+
+SPA -> API : PUT/PATCH /patient/{firstName, lastName, phoneNumber, email, emergencyContact}
+activate API
+
+API -> PatientController : updatePatient(patientDTO)
+activate PatientController
+
+PatientController -> PatientService : editPatient(patientDTO)
+activate PatientService
+
+note right of PatientService
+PatientService is responsible for orchestrating the logic
+and ensuring ContactInformation is updated.
+end note
+
+PatientService -> Patient : findByDomainId(id)
+activate Patient
+
+Patient -> ContactInformation : updateContact(phoneNumber, email)
+activate ContactInformation
+ContactInformation --> Patient : updated ContactInformation
+deactivate ContactInformation
+
+Patient --> PatientService : updated Patient
+deactivate Patient
+
+PatientService -> PatientRepo : save(updated Patient)
+activate PatientRepo
+PatientRepo --> PatientService : updated Patient saved
+deactivate PatientRepo
+
+PatientService --> PatientController : updated patientDTO
+deactivate PatientService
+
+PatientController --> API : status code 200
+deactivate PatientController
+
+alt successful case
+    API --> SPA : Patient updated successfully
+    SPA --> User : Success message
+else failure
+    API --> SPA : Patient not updated
+    SPA --> User : Error message
+end
+
+deactivate API
+deactivate SPA
+deactivate User
+
+@enduml
