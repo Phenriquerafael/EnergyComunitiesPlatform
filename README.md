@@ -157,19 +157,19 @@ The table below maps the original variables from the code to more comprehensible
 ## Flowcharts
 
 ### Flowchart
-![Flowchart](out\Documentation\Fluxograms\Fluxogram\Fluxogram.svg)
+![Flowchart](out/Documentation/Fluxograms/Fluxogram/Fluxogram.svg)
 
 ### Flowchart Level 2
-![Flowchart Level 2](out\Documentation\Fluxograms\FluxogramLevel2\FluxogramLevel2.svg)
+![Flowchart Level 2](out/Documentation/Fluxograms/FluxogramLevel2/FluxogramLevel2.svg)
  
 ### Flowchart Level 2b
-![Flowchart Level 2b](./out/Documentation/Fluxograms/FluxogramLevel2b.svg)
+![Flowchart Level 2b](/out/Documentation/Fluxograms/FluxogramLevel2b.svg)
 
 ### Flowchart Level 3
-![Flowchart Level 3](out\Documentation\Fluxograms\FluxogramLevel3\FluxogramLevel3.svg)
+![Flowchart Level 3](out/Documentation/Fluxograms/FluxogramLevel3/FluxogramLevel3.svg)
 
 ### Flowchart Level 3b
-![Flowchart Level 3b](out\Documentation\Fluxograms\FluxogramLevel3b\FluxogramLevel3b.svg)
+![Flowchart Level 3b](out/Documentation/Fluxograms/FluxogramLevel3b/FluxogramLevel3b.svg)
 
 ---
 
@@ -217,8 +217,23 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 ### Use Cases Diagram
 
-**Level 1**
-![UseCases](out\Documentation\UseCaseDiagram\UseCaseDiagram\UseCaseDiagram.svg)
+**Level 1 - Version 1**
+![UseCase1.1](out/Documentation/UseCaseDiagram/UseCaseDiagramV2/UseCaseDiagramV2.svg)
+
+**Level 1 - Version 2**
+![UseCases1.2](out/Documentation/UseCaseDiagram/UseCaseDiagram/UseCaseDiagram.svg)
+
+**Level 2 - Version 1**
+![UseCase2.1](out/Documentation/UseCaseDiagram/UCD-Level2-V1/UCD-Level2-V1.svg)
+
+**Level 2 - Version 2**
+![UseCase2.1](out/Documentation/UseCaseDiagram/UCD-Level2-V2/UCD-Level2-V2.svg)
+
+**Level 3 - Version 1**
+![UseCase2.1](out/Documentation/UseCaseDiagram/UCD-Level3-V1/UCD-Level3-V1.svg)
+
+**Level 3 - Version 2**
+![UseCase2.1](out/Documentation/UseCaseDiagram/UCD-Level3-V2/UCD-Level3-V2.svg)
 
 ---
 ## User Stories
@@ -242,23 +257,23 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 ## Layers
 
 ### Layers View
-![LayersView](out\Documentation\Layers\LayersView\LayersView.svg)
+![LayersView](out/Documentation/Layers/LayersView/LayersView.svg)
 
 ### Layout Layers
 
-![](out\Documentation\Layers\LayoutLayers\LayoutLayers.svg)
+![](out/Documentation/Layers/LayoutLayers/LayoutLayers.svg)
 
 
 ## Class Diagrams
 
 ### ClassDiagram
-![ClassDiagram](out\Documentation\ClassDiagram\ClassDiagram\ClassDiagram.svg)
+![ClassDiagram](out/Documentation/ClassDiagram/ClassDiagram/ClassDiagram.svg)
 
 ### ClassDiagram2
-![ClassDiagram2](out\Documentation\ClassDiagram\ClassDiagram2\ClassDiagram2.svg)
+![ClassDiagram2](out/Documentation/ClassDiagram/ClassDiagram2/ClassDiagram2.svg)
 
 ### ClassDiagram3
-![ClassDiagram3](out\Documentation\ClassDiagram\ClassDiagram3\ClassDiagram3.svg)
+![ClassDiagram3](out/Documentation/ClassDiagram/ClassDiagram3/ClassDiagram3.svg)
 
 ---
 

@@ -8,7 +8,7 @@ actor Solver
 
 rectangle "Optimization System" {
     usecase "Load input data" as UC1
-    usecase "OPtimize uso of energy" as UC2
+    usecase "Optimize use of energy" as UC2
     usecase "Buy/Sell Energy" as UC3
     usecase "Trade energy between prosumers" as UC4
 }

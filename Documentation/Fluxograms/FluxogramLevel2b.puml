@@ -1,4 +1,4 @@
-@startuml
+@startuml  
     package "Photovoltaic Panel"{
         object p_pv_load as "Photovoltaic Load"{
             * P_Pv_Load()
