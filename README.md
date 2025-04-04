@@ -237,11 +237,11 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 ---
 ## User Stories
-**[Work Division](Documentation\WorkDivision.md)**
+**[Work Division](Documentation/WorkDivision.md)**
 
-**[Definition of Ready](/documentation/DoR.md)**
+**[Definition of Ready](Documentation/DoR.md)**
 
-**[Definition of Done](/documentation/DoD.md)**
+**[Definition of Done](Documentation/DoD.md)**
 
 ---
 
