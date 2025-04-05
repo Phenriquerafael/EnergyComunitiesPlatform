@@ -218,18 +218,18 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 ### Use Cases Diagram
 
 **Level 1 - Version 1**
-![UseCase1.1](out/Documentation/UseCaseDiagram/UseCaseDiagramV2/UseCaseDiagramV2.svg)
-
-**Level 1 - Version 2**
 ![UseCases1.2](out/Documentation/UseCaseDiagram/UseCaseDiagram/UseCaseDiagram.svg)
 
-**Level 2 - Version 1**
+**Level 1 - Version 2 (To be implemented)**
+![UseCase1.1](out/Documentation/UseCaseDiagram/UseCaseDiagramV2/UseCaseDiagramV2.svg)
+
+**Level 2 - Version 1 (To be implemented)**
 ![UseCase2.1](out/Documentation/UseCaseDiagram/UCD-Level2-V1/UCD-Level2-V1.svg)
 
 **Level 2 - Version 2**
 ![UseCase2.1](out/Documentation/UseCaseDiagram/UCD-Level2-V2/UCD-Level2-V2.svg)
 
-**Level 3 - Version 1**
+**Level 3 - Version 1 (To be implemented)** 
 ![UseCase2.1](out/Documentation/UseCaseDiagram/UCD-Level3-V1/UCD-Level3-V1.svg)
 
 **Level 3 - Version 2**
@@ -247,10 +247,10 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 ## Domain Model - DDD
 
-### Energy Community DDD
+### Energy Community Complete DDD
 ![EnergyCommunityDDD](out/Documentation/Domain%20Model/DDD/EnergyComunityDDD/EnergyComunityDDD.svg)
 
-### Results DDD
+### Considered DDD (To be implemented)
 ![ResultsDDD](out/Documentation/Domain%20Model/DDD/ResultsDDD/DDD.svg)
 
 
@@ -266,14 +266,17 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 ## Class Diagrams
 
-### ClassDiagram
+### Level 1 
 ![ClassDiagram](out/Documentation/ClassDiagram/ClassDiagram/ClassDiagram.svg)
 
-### ClassDiagram2
+### Level 2
 ![ClassDiagram2](out/Documentation/ClassDiagram/ClassDiagram2/ClassDiagram2.svg)
 
-### ClassDiagram3
+### Level 3 - Version 1
 ![ClassDiagram3](out/Documentation/ClassDiagram/ClassDiagram3/ClassDiagram3.svg)
+
+### Level 3 - Version 1 (To be implemented)
+![ClassDiagram3](out/Documentation/ClassDiagram/ClassDiagram3V2/ClassDiagram3V2.svg)
 
 ---
 

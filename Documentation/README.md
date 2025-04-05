@@ -921,10 +921,10 @@ left to right direction
 package "<<agr Prosumer>>"{
     class Prosumer<<entity>><<root>>{}
     class ProsumerId<<vo>>{}
-    class ProsumerDescription<<vo>>{}
+
 
     Prosumer --> "1" ProsumerId
-    Prosumer --> "0..1" ProsumerDescription
+
     
 }
 
@@ -937,6 +937,9 @@ package "<<agr Profile>>"{
     class ProfileLoad<<vo>>{} 
     class SoldEnergy<<vo>>{}
     class BoughtEnergy<<vo>>{}
+    class PhotovoltaicEnergyLoad<<vo>>{}
+    class StateOfCharge<<vo>>{}
+
     note right{
         Balance of the Prosumer in kw/h, positive values lead to buy energy from the grid
     }
@@ -948,6 +951,8 @@ package "<<agr Profile>>"{
 
     Profile --> "1" SoldEnergy
     Profile --> "1" BoughtEnergy
+    Profile --> "1" PhotovoltaicEnergyLoad
+    Profile --> "1" StateOfCharge
     
     note right of ProfileLoad
     Energy required by the user in the interval
@@ -956,7 +961,7 @@ package "<<agr Profile>>"{
 }
 
 
-/' package "<<agr User>>"{
+package "<<agr User>>"{
     class User<<entity>><<root>>{
 
     }
@@ -971,87 +976,26 @@ package "<<agr Profile>>"{
     User --> "1" UserEmail
     User --> "1" UserPassword
     User --> "1" UserPhone
-    Community --> "1" User
-    Prosumer --> "1" User
-} '/
+    Prosumer --|> "1" User
+}
 
-/' package "<<agr Administrator>>"{
+package "<<agr Administrator>>"{
     class Administrator<<entity>><<root>>{
 
     }
+    class AdminId<<vo>>{}
+
     Administrator --|> User
-   
+   Administrator--> "1" AdminId
 }
 
-package "<<agr CommonUser>>"{
-    class CommonUser<<entity>><<root>>{}
-     CommonUser --|> User
-}
- '/
-
-package "<<agr Photovoltaic Energy>>"{
-    class PhotovoltaicEnergy<<entity>><<root>>{}
-    class PhotovoltaicEnergyId<<vo>>{}
-
-    class PhotovoltaicEnergyLoad<<vo>>{}
-    class PhotovoltaicEnergyBattery<<vo>>{}
-
-    note right of PhotovoltaicEnergyBattery
-    Has value in results?
-    end note 
-
-/'     PhotovoltaicEnergy --> "1" PhotovoltaicPanel '/
-    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyId
-
-    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyLoad
-    PhotovoltaicEnergy --> "1" PhotovoltaicEnergyBattery
-
-    Profile --> "1" PhotovoltaicEnergy
+package "<<agr CommunityManager>>"{
+    class CommunityManager<<entity>><<root>>{}
+    class CommunityManagerId <<vo>>
+     CommunityManager --|> User
+     CommunityManager --> "1" CommunityManagerId
 }
 
-/' package "<<agr Battery(ESS)>>"{
-    class Battery<<entity>><<root>>{}
-    class BatteryId<<vo>>{}
-    class BatteryName<<vo>>{}
-
-    Prosumer --> "1" Battery
-    Battery --> "1" BatteryId
-    Battery --> "1" BatteryName
-
-
-}
- '/
-package "<<agr BatteryEnergy>>"{
-    class BatteryEnergy<<entity>><<root>>{}
-    class BatteryEnergyId<<vo>>{}
-    class BatteryEnergyState<<vo>>{}
-    class BatteryEnergyCharge<<vo>>{}
-     note right{
-        this value will be equal to the value provided by PhotovoltaicEnergyBattery
-    }
-    class BatteryEnergyDischarge<<vo>>{}
-
-/'     class BatteryEnergyDischargeBinary<<vo>>{}
-     note right{
-        boolean value to acknowledge the battery is discharging
-    }
-    class BatteryEnergyChargeBinary<<vo>>{}
-     note right{
-        boolean value to acknowledge the battery is charging
-    } '/
-
-/'     BatteryEnergy ---> "1" Battery '/
-    BatteryEnergy --> "1" BatteryEnergyId
-    BatteryEnergy --> "1" BatteryEnergyState
-    BatteryEnergy --> "1" BatteryEnergyCharge
-    BatteryEnergy --> "1" BatteryEnergyDischarge
-/' 
-    BatteryEnergy --> "1" BatteryEnergyDischargeBinary
-    BatteryEnergy --> "1" BatteryEnergyChargeBinary '/
-
-    Profile --> "1" BatteryEnergy
-
-}
 
 
 package "<<agr Battery(ESS)>>"{
@@ -1059,45 +1003,75 @@ package "<<agr Battery(ESS)>>"{
     class BatteryId<<vo>>{}
     class BatteryName<<vo>>{}
     class MaxCapacity<<vo>>{}
-    class EfficiencyCharge<<vo>>{}
-    class EfficiencyDischarge <<vo>>{}
-    class MinimalSOC <<vo>>{}
+    class Efficiency<<vo>>{}
+    class MaxChargeDischarge <<vo>>{}
+    
 
     Prosumer --> "1" Battery
     Battery --> "1" BatteryId
     Battery --> "1" BatteryName
     Battery --> "1" MaxCapacity
-    Battery --> "1" EfficiencyCharge
-    Battery --> "1" EfficiencyDischarge
-    Battery --> "1" MinimalSOC 
-
-    note right of MaxCapacity 
-    Represents the Cap values for each ESS.
-    end note
-
-    note right of EfficiencyCharge
-    Represents the Eta values for charging efficiency.
-    end note
-
-    note right of EfficiencyDischarge
-     Represents the Eta values for discharging efficiency (if modeled separately).
-     end note
-
-    note right of MinimalSOC
-      Could represent a minimum state of charge (not explicitly provided in your data but could be relevant).
-    end note
-
-
-
+    Battery --> "1" Efficiency
+    Battery --> "1" MaxChargeDischarge
 }
+
+
+package "<<agr Community>>"{
+    class Community<<entity>><<root>>{
+
+    }
+    class CommunityId<<vo>>{}
+    class CommunityName<<vo>>{}
+    class CommunityProsumerIds<<array>>{
+    }
+    Community --> "1" CommunityId
+    Community -> "1" CommunityName
+    Community --> "1" CommunityProsumerIds
+    Community --> "1" CommunityManager
+}
+
+package "<<agr MembershipRequest>>" {
+    class MembershipRequest<<entity>><<root>>{}
+    class RequestId<<vo>>{}
+    class ProsumerId<<vo>>{}
+    class CommunityId<<vo>>{}
+    class Status<<vo>>{}
+    class TimeStamp<<vo>>{}
+
+    MembershipRequest --> "1" RequestId
+    MembershipRequest --> "1" ProsumerId
+    MembershipRequest --> "1" CommunityId
+    MembershipRequest --> "1" Status
+    MembershipRequest --> "1" TimeStamp
+    Prosumer --> "1..*" MembershipRequest
+    CommunityManager --> "1..*" MembershipRequest
+}
+
+package "<<agr CommunityEnergyProfile>>" {
+    class CommunityEnergyProfile<<entity>><<root>>{}
+    class CommunityEnergyProfileId<<vo>>{}
+    class TimeStamp<<vo>>{}
+    class TotalProduction<<vo>>{}
+    class TotalConsumption<<vo>>{}
+    class SharedEnergy<<vo>>{}
+
+    CommunityEnergyProfile --> "1" CommunityEnergyProfileId
+    CommunityEnergyProfile --> "1" TimeStamp
+    CommunityEnergyProfile --> "1" TotalProduction
+    CommunityEnergyProfile --> "1" TotalConsumption
+    CommunityEnergyProfile --> "1" SharedEnergy
+    Community --> "1..*" CommunityEnergyProfile
+}
+
 @enduml
 
 ```
 
+
 **Energy Community Platform DDD (without electric car and prosumers distances concepts)**
 
 ```plantuml
-@startuml
+@startuml 
 
 hide circle
 hide fields
@@ -1232,9 +1206,9 @@ package "<<agr Administrator>>"{
    
 }
 
-package "<<agr CommonUser>>"{
-    class CommonUser<<entity>><<root>>{}
-     CommonUser --|> User
+package "<<agr CommunityManager>>"{
+    class CommunityManager<<entity>><<root>>{}
+     CommunityManager --|> User
 }
 
 package "<<agr Photovoltaic Panel>>"{
@@ -1267,19 +1241,21 @@ package "<<agr Battery(ESS)>>"{
     class BatteryId<<vo>>{}
     class BatteryName<<vo>>{}
     class MaxCapacity<<vo>>{}
-    class EfficiencyCharge<<vo>>{}
-    class EfficiencyDischarge <<vo>>{}
-    class MinimalSOC <<vo>>{}
+    class Efficiency<<vo>>{}
+    class MaxChargeDischarge <<vo>>{}
+    class InitialCapacity <<vo>>{}
+    class TimeStamp <<vo>>{}
 
     Prosumer --> "1" Battery
     Battery --> "1" BatteryId
     Battery --> "1" BatteryName
     Battery --> "1" MaxCapacity
-    Battery --> "1" EfficiencyCharge
-    Battery --> "1" EfficiencyDischarge
-    Battery --> "1" MinimalSOC 
+    Battery --> "1" Efficiency
+    Battery --> "1" MaxChargeDischarge
+    Battery --> "1" InitialCapacity
+    Battery --> "1" TimeStamp 
 
-    note right of MaxCapacity 
+/'     note right of MaxCapacity 
     Represents the Cap values for each ESS.
     end note
 
@@ -1294,7 +1270,7 @@ package "<<agr Battery(ESS)>>"{
     note right of MinimalSOC
       Could represent a minimum state of charge (not explicitly provided in your data but could be relevant).
     end note
-
+ '/
 
 
 }
@@ -1373,7 +1349,7 @@ Solver --> Prosumer : Retorna Resultados
 Level 2
 
 ```plantuml
-@startuml
+@startuml 
 skinparam style strictuml
 
 class Prosumer {
@@ -1419,9 +1395,9 @@ Community --> "0..*" Prosumer
 
 ```
 
-Level 3
+**Level 3 - Version 1**
 ```plantuml
-@startuml
+@startuml 
 skinparam style strictuml
 hide methods
 
@@ -1527,6 +1503,101 @@ BatteryEnergy --> "1" TimeStamp
 
 note right of Profile: Balance of the Prosumer in kW/h, positive values lead to buy energy from the grid
 note right of BatteryEnergy: Charge and discharge constrained by efficiency and capacity
+
+@enduml
+```
+
+**Level 3 - Version 2**
+```plantuml
+@startuml
+skinparam style strictuml
+hide methods
+
+' Classes from DDD aggregates
+class Prosumer {
+  - prosumerId: String
+}
+
+class Profile {
+  - profileId: String
+  - profileTimeStamp: TimeStamp
+  - profileLoad: float
+  - soldEnergy: float
+  - boughtEnergy: float
+  - photovoltaicEnergyLoad: float
+  - stateOfCharge: float
+}
+
+class User {
+  - userId: String
+  - userName: String
+  - userEmail: String
+  - userPassword: String
+  - userPhone: String
+}
+
+class Administrator {
+  - adminId: String
+}
+
+class CommunityManager {
+  - communityManagerId: String
+}
+
+class Battery {
+  - batteryId: String
+  - batteryName: String
+  - maxCapacity: float
+  - efficiency: float
+  - maxChargeDischarge: float
+}
+
+class Community {
+  - communityId: String
+  - communityName: String
+  - communityProsumerIds: String[*]
+}
+
+class MembershipRequest {
+  - requestId: String
+  - prosumerId: String
+  - communityId: String
+  - status: String
+  - timeStamp: TimeStamp
+}
+
+class CommunityEnergyProfile {
+  - communityEnergyProfileId: String
+  - timeStamp: TimeStamp
+  - totalProduction: float
+  - totalConsumption: float
+  - sharedEnergy: float
+}
+
+class TimeStamp {
+  - intervalOfTime: String
+  - numberOfIntervals: int
+}
+
+' Relationships
+Prosumer --> "1" Profile
+Prosumer --> "1" Battery
+Prosumer --|> "1" User
+Prosumer --> "1..*" MembershipRequest
+
+Profile --> "1" TimeStamp
+
+User <|-- Administrator
+User <|-- CommunityManager
+
+Community --> "1..*" Prosumer
+Community --> "1" CommunityManager
+Community --> "1..*" CommunityEnergyProfile
+CommunityManager --> "1..*" MembershipRequest
+
+CommunityEnergyProfile --> "1" TimeStamp
+
+note right of Profile: Balance of the Prosumer in kW/h, positive values lead to buy energy from the grid
 
 @enduml
 ```
