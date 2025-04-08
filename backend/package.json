@@ -7,6 +7,7 @@
     "build": "tsc",
     "heroku-postbuild": "npm run build",
     "start": "nodemon",
+    "dev": "nodemon src/app.ts",
     "inspect": "nodemon --inspect src/app.ts",
     "test": "mocha -r ts-node/register **/*.test.ts",
     "lint": "npm run lint:js ",

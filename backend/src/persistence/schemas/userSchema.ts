@@ -1,5 +1,7 @@
+import { isEmail } from 'validator';
 import { IUserPersistence } from '../../dataschema/IUserPersistence';
 import mongoose from 'mongoose';
+
 
 const User = new mongoose.Schema(
   {
@@ -24,12 +26,23 @@ const User = new mongoose.Schema(
       type: String,
       lowercase: true,  
       unique: true,
+      required: [true, 'Please enter email'],
+      validate: [isEmail, 'Please enter a valid email'],
+      index: true,
+
+    },
+    phoneNumber: {
+      type: String,
+      required: [true, 'Please enter phone number'],
       index: true,
     },
 
     password: String,
 
-    salt: String,
+    isEmailVerified: {
+      type: Boolean,
+      required: false,
+    },
 
     role: {
       type: String,

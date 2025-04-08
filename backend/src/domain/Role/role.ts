@@ -1,13 +1,14 @@
-import { AggregateRoot } from "../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../core/domain/UniqueEntityID";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 
-import { Result } from "../core/logic/Result";
+import { Result } from "../../core/logic/Result";
 import { RoleId } from "./roleId";
 
-import IRoleDTO from "../dto/IRoleDTO";
+import IRoleDTO from "../../dto/IRoleDTO";
+import { RoleEnum } from "./roleEnum";
 
 interface RoleProps {
-  name: string;
+  name: RoleEnum;
 }
 
 export class Role extends AggregateRoot<RoleProps> {
@@ -23,7 +24,7 @@ export class Role extends AggregateRoot<RoleProps> {
     return this.props.name;
   }
 
-  set name ( value: string) {
+  set name ( value: RoleEnum) {
     this.props.name = value;
   }
   private constructor (props: RoleProps, id?: UniqueEntityID) {
@@ -31,7 +32,7 @@ export class Role extends AggregateRoot<RoleProps> {
   }
 
   public static create (roleDTO: IRoleDTO, id?: UniqueEntityID): Result<Role> {
-    const name = roleDTO.name;
+    const name = RoleEnum[roleDTO.name];
 
     if (!!name === false || name.length === 0) {
       return Result.fail<Role>('Must provide a role name')

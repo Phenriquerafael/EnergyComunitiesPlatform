@@ -1,12 +1,13 @@
 import { Service, Inject } from 'typedi';
 
 import IRoleRepo from "../services/IRepos/IRoleRepo";
-import { Role } from "../domain/role";
-import { RoleId } from "../domain/roleId";
+
 import { RoleMap } from "../mappers/RoleMap";
 
 import { Document, FilterQuery, Model } from 'mongoose';
 import { IRolePersistence } from '../dataschema/IRolePersistence';
+import { Role } from '../domain/Role/role';
+import { RoleId } from '../domain/Role/roleId';
 
 @Service()
 export default class RoleRepo implements IRoleRepo {
@@ -19,6 +20,26 @@ export default class RoleRepo implements IRoleRepo {
   private createBaseQuery (): any {
     return {
       where: {},
+    }
+  }
+
+  public async findByName(roleName: string): Promise<Role> {
+    try {
+      const query = { name: roleName };
+      const roleRecord = await this.roleSchema.findOne(query as FilterQuery<IRolePersistence & Document>);
+      return RoleMap.toDomain(roleRecord);
+
+    } catch (error) {
+
+      throw new Error("Role not found:"+ error);
+    }
+  }
+  public async findAll(): Promise<Role[]> {
+    try {
+      const roleRecord = await this.roleSchema.find();
+      return roleRecord.map((role) => RoleMap.toDomain(role));
+    } catch (error) {
+      throw new Error("Role not found:"+ error);
     }
   }
 
@@ -63,6 +84,6 @@ export default class RoleRepo implements IRoleRepo {
       return RoleMap.toDomain(roleRecord);
     }
     else
-      return null;
+      throw new Error('Role not found');
   }
 }

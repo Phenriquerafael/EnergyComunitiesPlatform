@@ -4,9 +4,10 @@ import { Document, Model } from 'mongoose';
 import { IRolePersistence } from '../dataschema/IRolePersistence';
 
 import IRoleDTO from "../dto/IRoleDTO";
-import { Role } from "../domain/role";
+
 
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";
+import { Role } from "../domain/Role/role";
 
 export class RoleMap extends Mapper<Role> {
   

@@ -44,7 +44,11 @@ export default {
     role: {
       name: "RoleController",
       path: "../controllers/roleController"
-    }
+    },
+    user:{
+      name: "UserController",
+      path: "../controllers/userController"
+    },
   },
 
   repos: {
@@ -62,6 +66,12 @@ export default {
     role: {
       name: "RoleService",
       path: "../services/roleService"
-    }
+    },
+    user: {
+      name: "UserService",
+      path: "../services/userService"
+    },
   },
+
+
 };
