@@ -152,7 +152,7 @@ export default class UserService implements IUserService{
 
 
       this.logger.silly('Sending confirmation email');
-      const emailResult = null; //await this.mailerService.sendConfirmationEmail(userResult.email.value, userResult.firstName,token);
+      const emailResult = Result.ok<void>(); //await this.mailerService.sendConfirmationEmail(userResult.email.value, userResult.firstName,token);
 
 
 
