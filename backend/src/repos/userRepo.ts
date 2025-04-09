@@ -1,84 +1,88 @@
 import { Service, Inject } from 'typedi';
-import { Document, Model } from 'mongoose';
-import { IUserPersistence } from '../dataschema/IUserPersistence';
+import prisma from '../../prisma/prismaClient';
 import IUserRepo from "../services/IRepos/IUserRepo";
-
-import { UserMap } from "../mappers/UserMap";
-import { UserId } from '../domain/User/userId';
 import { User } from '../domain/User/user';
+import { UserId } from '../domain/User/userId';
 import { UserEmail } from '../domain/User/userEmail';
+import { UserMap } from '../mappers/UserMap';
 
 @Service()
 export default class UserRepo implements IUserRepo {
-  constructor(
-    @Inject('userSchema') private userSchema: Model<IUserPersistence & Document>,
-    @Inject('logger') private logger
-  ) {}
+
+  constructor(@Inject('logger') private logger) {}
 
   public async exists(userId: UserId | string): Promise<boolean> {
-    const idX = userId instanceof UserId ? (<UserId>userId).id.toValue() : userId;
-    const query = { domainId: idX };
-    const userDocument = await this.userSchema.findOne(query);
-    return !!userDocument === true;
+    const id = userId instanceof UserId ? userId.id.toValue() : userId;
+    const user = await prisma.user.findUnique({
+      where: { domainId: id },
+    });
+    return !!user;
   }
 
   public async save(user: User): Promise<User> {
-    const query = { domainId: user.id.toString() };
-    const userDocument = await this.userSchema.findOne(query);
+    const id = user.id.toValue();
+    const existing = await prisma.user.findUnique({
+      where: { domainId: id },
+    });
 
-    try {
-      if (userDocument === null) {
-        const rawUser: any = UserMap.toPersistence(user);
-        const userCreated = await this.userSchema.create(rawUser);
-        return UserMap.toDomain(userCreated);
-      } else {
-        userDocument.firstName = user.firstName;
-        userDocument.lastName = user.lastName;
-        userDocument.email = user.email.value;
-        userDocument.phoneNumber = user.phoneNumber.value;
-        userDocument.password = user.password.value;
-        userDocument.role = user.role.id.toString();
-        userDocument.isEmailVerified = user.isEmailVerified;
-        
-/*        userDocument.passwordResetToken = user.passwordResetToken;
-        userDocument.passwordResetExpires = user.passwordResetExpires; */
-        await userDocument.save();
-        return user;
-      }
-    } catch (err) {
-      throw err;
+    const rawUser = UserMap.toPersistence(user);
+
+    if (!existing) {
+      const created = await prisma.user.create({ data: rawUser });
+      return UserMap.toDomain(created);
+    } else {
+      await prisma.user.update({
+        where: { domainId: id },
+        data: rawUser,
+      });
+      return user;
     }
   }
 
   public async findByEmail(email: UserEmail | string): Promise<User> {
-    const query = { email: email.toString() };
-    const userRecord = await this.userSchema.findOne(query);
-    return userRecord ? UserMap.toDomain(userRecord) : null;
+    const emailStr = email.toString();
+    const user = await prisma.user.findUnique({
+      where: { email: emailStr },
+    });
+    return user ? UserMap.toDomain(user) : null;
   }
 
   public async findByID(userId: UserId | string): Promise<User> {
-    const idX = userId instanceof UserId ? (<UserId>userId).id.toValue() : userId;
-    const query = { domainId: idX };
-    const userRecord = await this.userSchema.findOne(query);
-    return userRecord ? UserMap.toDomain(userRecord) : null;
+    const id = userId instanceof UserId ? userId.id.toValue() : userId;
+    const user = await prisma.user.findUnique({
+      where: { domainId: id },
+    });
+    return user ? UserMap.toDomain(user) : null;
   }
 
   public async findByResetToken(token: string): Promise<User> {
-    const query = { passwordResetToken: token, passwordResetExpires: { $gt: new Date() } };
-    const userRecord = await this.userSchema.findOne(query);
-    return userRecord ? UserMap.toDomain(userRecord) : null;
+    const user = await prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+    return user ? UserMap.toDomain(user) : null;
   }
 
-  //por corrigir
   public async findStaff(): Promise<User[]> {
-    const query = { role: { $in: ["22852d2a-646d-4c71-85f6-1605709f10e1", "fc01c9eb-a1da-4ded-96f5-9d1f97c8215b"] } };
-    const userRecords = await this.userSchema.find(query);
-    const users = await Promise.all(userRecords.map((userRecord) => UserMap.toDomain(userRecord)));
-    return users;
+    const staffRoleIds = [
+      "22852d2a-646d-4c71-85f6-1605709f10e1",
+      "fc01c9eb-a1da-4ded-96f5-9d1f97c8215b"
+    ];
+    const staff = await prisma.user.findMany({
+      where: {
+        roleId: { in: staffRoleIds },
+      },
+    });
+    return staff.map(UserMap.toDomain);
   }
 
   public async delete(id: string): Promise<void> {
-    const query = { domainId: id };
-    await this.userSchema.deleteOne(query);
-}
+    await prisma.user.delete({
+      where: { domainId: id },
+    });
+  }
 }

@@ -1,89 +1,63 @@
-import { Service, Inject } from 'typedi';
-
+import { Service } from 'typedi';
+import prisma from '../../prisma/prismaClient';
 import IRoleRepo from "../services/IRepos/IRoleRepo";
-
-import { RoleMap } from "../mappers/RoleMap";
-
-import { Document, FilterQuery, Model } from 'mongoose';
-import { IRolePersistence } from '../dataschema/IRolePersistence';
 import { Role } from '../domain/Role/role';
 import { RoleId } from '../domain/Role/roleId';
+import { RoleMap } from '../mappers/RoleMap';
 
 @Service()
 export default class RoleRepo implements IRoleRepo {
-  private models: any;
-
-  constructor(
-    @Inject('roleSchema') private roleSchema : Model<IRolePersistence & Document>,
-  ) {}
-
-  private createBaseQuery (): any {
-    return {
-      where: {},
-    }
-  }
 
   public async findByName(roleName: string): Promise<Role> {
-    try {
-      const query = { name: roleName };
-      const roleRecord = await this.roleSchema.findOne(query as FilterQuery<IRolePersistence & Document>);
-      return RoleMap.toDomain(roleRecord);
+    const roleRecord = await prisma.role.findUnique({
+      where: { name: roleName },
+    });
 
-    } catch (error) {
-
-      throw new Error("Role not found:"+ error);
-    }
+    if (!roleRecord) throw new Error("Role not found");
+    return RoleMap.toDomain(roleRecord);
   }
+
   public async findAll(): Promise<Role[]> {
-    try {
-      const roleRecord = await this.roleSchema.find();
-      return roleRecord.map((role) => RoleMap.toDomain(role));
-    } catch (error) {
-      throw new Error("Role not found:"+ error);
-    }
+    const roleRecords = await prisma.role.findMany();
+    return roleRecords.map(role => RoleMap.toDomain(role));
   }
 
   public async exists(role: Role): Promise<boolean> {
-    
-    const idX = role.id instanceof RoleId ? (<RoleId>role.id).toValue() : role.id;
-
-    const query = { domainId: idX}; 
-    const roleDocument = await this.roleSchema.findOne( query as FilterQuery<IRolePersistence & Document>);
-
-    return !!roleDocument === true;
+    const id = role.id instanceof RoleId ? role.id.toValue() : role.id;
+    const exists = await prisma.role.findUnique({
+      where: { domainId: id },
+    });
+    return !!exists;
   }
 
-  public async save (role: Role): Promise<Role> {
-    const query = { domainId: role.id.toString()}; 
+  public async save(role: Role): Promise<Role> {
+    const id = role.id.toValue();
+    const existing = await prisma.role.findUnique({
+      where: { domainId: id },
+    });
 
-    const roleDocument = await this.roleSchema.findOne( query );
+    const rawRole = RoleMap.toPersistence(role);
 
-    try {
-      if (roleDocument === null ) {
-        const rawRole: any = RoleMap.toPersistence(role);
-
-        const roleCreated = await this.roleSchema.create(rawRole);
-
-        return RoleMap.toDomain(roleCreated);
-      } else {
-        roleDocument.name = role.name;
-        await roleDocument.save();
-
-        return role;
-      }
-    } catch (err) {
-      throw err;
+    if (!existing) {
+      const created = await prisma.role.create({
+        data: rawRole,
+      });
+      return RoleMap.toDomain(created);
+    } else {
+      await prisma.role.update({
+        where: { domainId: id },
+        data: rawRole,
+      });
+      return role;
     }
   }
 
-  public async findByDomainId (roleId: RoleId | string): Promise<Role> {
-    const query = { domainId: roleId};
-    const roleRecord = await this.roleSchema.findOne( query as FilterQuery<IRolePersistence & Document> );
-
-    if( roleRecord != null) {
-      return RoleMap.toDomain(roleRecord);
-    }
-    else
-      throw new Error('Role not found');
+  public async findByDomainId(roleId: RoleId | string): Promise<Role> {
+    const id = roleId instanceof RoleId ? roleId.toValue() : roleId;
+    const role = await prisma.role.findUnique({
+      where: { domainId: id },
+    });
+    if (!role) throw new Error("Role not found");
+    return RoleMap.toDomain(role);
   }
 }

@@ -1,3 +1,6 @@
+/*** USED ONLY FOR EXAMPLIFICATION FOR SCHEMA.PRISMA
+ *  */ 
+
 import { isEmail } from 'validator';
 import { IUserPersistence } from '../../dataschema/IUserPersistence';
 import mongoose from 'mongoose';

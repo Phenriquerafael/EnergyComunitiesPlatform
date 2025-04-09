@@ -1,3 +1,6 @@
+/*** USED ONLY FOR EXAMPLIFICATION FOR SCHEMA.PRISMA
+ *  */ 
+
 import { IRolePersistence } from '../../dataschema/IRolePersistence';
 import mongoose from 'mongoose';
 

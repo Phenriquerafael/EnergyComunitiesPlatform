@@ -19,12 +19,13 @@ export default {
   /**
    * That long string from mlab
    */
-  databaseURL: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/test",
+/*   databaseURL: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/test", */
+  databaseURL: process.env.DATABASE_URL,
 
   /**
    * Your secret sauce
    */
-  jwtSecret: process.env.JWT_SECRET || "my sakdfho2390asjod$%jl)!sdjas0i secret",
+  jwtSecret: process.env.JWT_SECRET || "my secret sauce ahb2hufhn24ufion",
 
   /**
    * Used by winston logger
