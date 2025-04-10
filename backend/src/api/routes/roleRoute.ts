@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { celebrate, Joi } from 'celebrate';
 
-import { Container } from 'typedi';
+import { Container } from '../../container';
 import IRoleController from '../../controllers/IControllers/IRoleController'; 
 
 import config from "../../../config";
@@ -12,6 +12,12 @@ export default (app: Router) => {
   app.use('/roles', route);
 
   const ctrl = Container.get(config.controllers.role.name) as IRoleController;
+  console.log('RoleController in route:', ctrl); // Debug: Inspect the ctrl object
+  console.log('Has createRole:', typeof ctrl.createRole); // Debug: Check if createRole exists
+
+  if (!ctrl || typeof ctrl.createRole !== 'function') {
+    throw new Error(`RoleController not properly loaded: ${JSON.stringify(ctrl)}`);
+  }
 
   route.post('/',
     celebrate({

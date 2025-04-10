@@ -6,7 +6,7 @@ export default interface IUserController  {
     signOut(req: Request, res: Response, next: NextFunction);
     forgotPassword(req: Request, res: Response, next: NextFunction);
     resetPassword(req: Request, res: Response, next: NextFunction); 
-/*     getMe(req: Request, res: Response, next: NextFunction); */
+    getMe(req: Request, res: Response, next: NextFunction);
     confirmAccount(req: Request, res: Response, next: NextFunction);
     findStaff(req: Request, res: Response, next: NextFunction);
     isAdmin(req: Request, res: Response, next: NextFunction);

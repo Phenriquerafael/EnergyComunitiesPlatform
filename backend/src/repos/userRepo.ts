@@ -5,16 +5,20 @@ import { User } from '../domain/User/user';
 import { UserId } from '../domain/User/userId';
 import { UserEmail } from '../domain/User/userEmail';
 import { UserMap } from '../mappers/UserMap';
+import { PrismaClient } from '@prisma/client';
 
 @Service()
 export default class UserRepo implements IUserRepo {
-
-  constructor(@Inject('logger') private logger) {}
+    constructor(
+      @Inject('prisma') private prisma: PrismaClient
+    ) {
+      console.log('RoleRepo instantiated'); // Debug
+    }
 
   public async exists(userId: UserId | string): Promise<boolean> {
-    const id = userId instanceof UserId ? userId.id.toValue() : userId;
+    const id = userId instanceof UserId ? userId.id.toValue().toString() : userId;
     const user = await prisma.user.findUnique({
-      where: { domainId: id },
+      where: { domainId: id.toString() },
     });
     return !!user;
   }
@@ -22,7 +26,7 @@ export default class UserRepo implements IUserRepo {
   public async save(user: User): Promise<User> {
     const id = user.id.toValue();
     const existing = await prisma.user.findUnique({
-      where: { domainId: id },
+      where: { domainId: id.toString() },
     });
 
     const rawUser = UserMap.toPersistence(user);
@@ -32,7 +36,7 @@ export default class UserRepo implements IUserRepo {
       return UserMap.toDomain(created);
     } else {
       await prisma.user.update({
-        where: { domainId: id },
+        where: { domainId: id.toString() },
         data: rawUser,
       });
       return user;
@@ -50,11 +54,11 @@ export default class UserRepo implements IUserRepo {
   public async findByID(userId: UserId | string): Promise<User> {
     const id = userId instanceof UserId ? userId.id.toValue() : userId;
     const user = await prisma.user.findUnique({
-      where: { domainId: id },
+      where: { domainId: id.toString() },
     });
     return user ? UserMap.toDomain(user) : null;
   }
-
+/* 
   public async findByResetToken(token: string): Promise<User> {
     const user = await prisma.user.findFirst({
       where: {
@@ -66,8 +70,8 @@ export default class UserRepo implements IUserRepo {
     });
     return user ? UserMap.toDomain(user) : null;
   }
-
-  public async findStaff(): Promise<User[]> {
+ */
+/*   public async findStaff(): Promise<User[]> {
     const staffRoleIds = [
       "22852d2a-646d-4c71-85f6-1605709f10e1",
       "fc01c9eb-a1da-4ded-96f5-9d1f97c8215b"
@@ -78,7 +82,7 @@ export default class UserRepo implements IUserRepo {
       },
     });
     return staff.map(UserMap.toDomain);
-  }
+  } */
 
   public async delete(id: string): Promise<void> {
     await prisma.user.delete({

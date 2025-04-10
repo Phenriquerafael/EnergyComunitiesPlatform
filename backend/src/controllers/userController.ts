@@ -5,16 +5,19 @@ import IUserService from '../services/IServices/IUserService';
 import IUserController from './IControllers/IUserController';
 import { IUserDTO } from '../dto/IUserDTO';
 import { Result } from '../core/logic/Result';
+import { Container } from '../container';
+import { UserMap } from '../mappers/UserMap';
+import IUserRepo from '../services/IRepos/IUserRepo';
 
 @Service()
 export default class UserController implements IUserController {
-  constructor(
-    @Inject(config.services.user.name) private userService: IUserService
-  ) {}
+  private get userServiceInstance(): IUserService {
+    return Container.get(config.services.role.name) as IUserService;
+  }
 
   public async isAdmin(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.userService.isAdmin(req.params.id);
+      const result = await this.userServiceInstance.isAdmin(req.params.id);
       if (result.isFailure) {
         return res.status(400).json({ message: result.error });
       }
@@ -26,7 +29,7 @@ export default class UserController implements IUserController {
 
   public async findStaff(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.userService.findStaff();
+      const result = await this.userServiceInstance.findStaff();
       if (result.isFailure) {
         return res.status(400).json({ message: result.error });
       }
@@ -38,7 +41,7 @@ export default class UserController implements IUserController {
 
   public async confirmAccount(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.userService.confirmAccount(req.query.token as string);
+      const result = await this.userServiceInstance.confirmAccount(req.query.token as string);
 
       if (result.isFailure) {
         return res.status(400).json({ message: result.error });
@@ -74,9 +77,31 @@ export default class UserController implements IUserController {
     }
   } */
 
+    public async getMe(req, res: Response) {
+      try {
+      const userRepo = Container.get(config.repos.user.name) as IUserRepo;
+     
+
+      if (!req.token || req.token === undefined) {
+          return res.status(401).json({ message: "Token inexistente ou inválido" });
+      }
+
+      const user = await userRepo.findByID(req.token.id);
+      if (!user) {
+          return res.status(401).json({ message: "Utilizador não registado" });
+      }
+
+      const userDTO = UserMap.toDTO(user) as IUserDTO;
+      return res.status(200).json(userDTO);
+      } catch (error) {
+      error.message = "Erro ao obter utilizador";
+      }
+  }
+
+
   public async signUp(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.userService.SignUp(req.body as IUserDTO);
+      const result = await this.userServiceInstance.SignUp(req.body as IUserDTO);
       if (result.isFailure) {
         return res.status(400).json({ message: result.error });
       }
@@ -89,7 +114,7 @@ export default class UserController implements IUserController {
   public async signIn(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      const result = await this.userService.SignIn(email, password);
+      const result = await this.userServiceInstance.SignIn(email, password);
       if (result.isFailure) {
         return res.status(401).json({ message: result.error });
       }
@@ -106,7 +131,7 @@ export default class UserController implements IUserController {
         return res.status(400).json({ message: 'No token provided' });
       }
 
-      const result = await this.userService.SignOut(token);
+      const result = await this.userServiceInstance.SignOut(token);
       if (result.isFailure) {
         return res.status(400).json({ message: result.error });
       }
@@ -120,7 +145,7 @@ export default class UserController implements IUserController {
   public async forgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
-      const result = await this.userService.ForgotPassword(email);
+      const result = await this.userServiceInstance.ForgotPassword(email);
       if (result.isFailure) {
         return res.status(400).json({ message: result.error });
       }
@@ -133,7 +158,7 @@ export default class UserController implements IUserController {
   public async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { token, newPassword } = req.body;
-      const result = await this.userService.ResetPassword(token, newPassword);
+      const result = await this.userServiceInstance.ResetPassword(token, newPassword);
       if (result.isFailure) {
         return res.status(400).json({ message: result.error });
       }

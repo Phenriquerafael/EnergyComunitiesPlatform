@@ -7,8 +7,8 @@ export default interface IUserRepo extends Repo<User> {
 	save(user: User): Promise<User>;
 	findByEmail(email: UserEmail | string): Promise<User>;
 	findByID(id: string): Promise<User>;
-	findByResetToken(token: string): Promise<User>;
+/* 	findByResetToken(token: string): Promise<User>; */
 	delete(id: string): Promise<void>;
-	findStaff(): Promise<User[]>;
+/* 	findStaff(): Promise<User[]>; */
 	
 }

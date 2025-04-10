@@ -44,33 +44,33 @@ export default {
   controllers: {
     role: {
       name: "RoleController",
-      path: "../controllers/roleController"
+      path: "../controllers/roleController.ts"
     },
     user:{
       name: "UserController",
-      path: "../controllers/userController"
+      path: "../controllers/userController.ts"
     },
   },
 
   repos: {
     role: {
       name: "RoleRepo",
-      path: "../repos/roleRepo"
+      path: "../repos/roleRepo.ts"
     },
     user: {
       name: "UserRepo",
-      path: "../repos/userRepo"
+      path: "../repos/userRepo.ts"
     }
   },
 
   services: {
     role: {
       name: "RoleService",
-      path: "../services/roleService"
+      path: "../services/roleService.ts"
     },
     user: {
       name: "UserService",
-      path: "../services/userService"
+      path: "../services/userService.ts"
     },
   },
 

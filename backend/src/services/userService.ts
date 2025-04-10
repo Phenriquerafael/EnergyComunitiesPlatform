@@ -22,7 +22,9 @@ export default class UserService implements IUserService {
     @Inject(config.repos.user.name) private userRepo: IUserRepo,
     @Inject(config.repos.role.name) private roleRepo: IRoleRepo,
     @Inject('logger') private logger
-  ) {}
+  ) {
+    console.log('RoleService instantiated'); // Debug
+  }
 
   public async isAdmin(id: string): Promise<Result<boolean>> {
     try {
@@ -45,7 +47,7 @@ export default class UserService implements IUserService {
   }
 
   public async findStaff(): Promise<Result<IUserDTO[]>> {
-    try {
+/*     try {
       const staff = await this.userRepo.findStaff();
       if (!staff || staff.length === 0) {
         return Result.fail<IUserDTO[]>('No staff found');
@@ -53,7 +55,8 @@ export default class UserService implements IUserService {
       return Result.ok<IUserDTO[]>(staff.map(staff => UserMap.toDTO(staff) as IUserDTO));
     } catch (error) {
       return Result.fail<IUserDTO[]>('Error while finding staff: ' + error.message);
-    }
+    } */
+   throw new Error('Not implemented yet');
   }
 
   public async getUser(id: string): Promise<Result<IUserDTO>> {

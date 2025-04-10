@@ -12,7 +12,9 @@ import { RoleEnum } from '../domain/Role/roleEnum';
 export default class RoleService implements IRoleService {
   constructor(
     @Inject(config.repos.role.name) private roleRepo: IRoleRepo
-  ) {}
+  ) {
+    console.log('RoleService instantiated'); // Debug
+    }
 
   public async findByName(roleName: string): Promise<Result<IRoleDTO>> {
     try {

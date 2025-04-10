@@ -5,12 +5,13 @@ import IRoleController from './IControllers/IRoleController';
 import IRoleService from '../services/IServices/IRoleService';
 import IRoleDTO from '../dto/IRoleDTO';
 import { Result } from '../core/logic/Result';
+import { Container } from '../container';
 
 @Service()
 export default class RoleController implements IRoleController {
-  constructor(
-    @Inject(config.services.role.name) private roleServiceInstance: IRoleService
-  ) {}
+  private get roleServiceInstance(): IRoleService {
+    return Container.get(config.services.role.name) as IRoleService;
+  }
 
   public async getRole(req: Request, res: Response, next: NextFunction) {
     try {
