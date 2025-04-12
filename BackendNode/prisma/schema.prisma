@@ -36,7 +36,7 @@ model User {
 
 model Profile {
   id                      String @id @default(uuid())
-  timeStampIntervalUnit   String
+  timeStampUnit           String
   timeStampIntervalNumber Int
   stateOfCharge           String
   photovoltaicEnergyLoad  String
@@ -44,6 +44,7 @@ model Profile {
   boughtEnergyPrice       String
   soldEnergyAmount        String
   soldEnergyPrice         String
+  profileLoad             String
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

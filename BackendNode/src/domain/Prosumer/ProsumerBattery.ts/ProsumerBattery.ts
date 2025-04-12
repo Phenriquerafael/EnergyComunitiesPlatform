@@ -1,19 +1,27 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
-import { BatteryDescription } from "./BatteryDescription";
+import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
+import { BatteryDescription as BatteryInformation } from "./BatteryDescription";
 import { Efficiency } from "./Efficiency";
 import { MaxCapacity } from "./MaxCapacity";
 import { MaxChargeDischarge } from "./MaxChargeDischarge";
+import { Guard } from "../../../core/logic/Guard";
+import { Result } from "../../../core/logic/Result";
 
 interface ProsumerBatteryProps {
-    batteryDescription: BatteryDescription;
+    batteryInformation: BatteryInformation;
     efficiency: Efficiency;
     maxCapacity: MaxCapacity;
     maxChargeDischarge: MaxChargeDischarge;
 }
 
 export class ProsumerBattery extends AggregateRoot<ProsumerBatteryProps> {
-    get batteryDescription(): BatteryDescription {
-        return this.props.batteryDescription;
+    
+    get id (): UniqueEntityID {
+        return this._id;
+    }
+    
+    get batteryInformation(): BatteryInformation {
+        return this.props.batteryInformation;
     }
 
     get efficiency(): Efficiency {
@@ -28,12 +36,26 @@ export class ProsumerBattery extends AggregateRoot<ProsumerBatteryProps> {
         return this.props.maxChargeDischarge;
     }
 
-    constructor(props: ProsumerBatteryProps) {
-        super(props);
+    constructor(props: ProsumerBatteryProps, id?: UniqueEntityID) {
+        super(props, id);
     }       
 
-    static create(props: ProsumerBatteryProps): ProsumerBattery {
-        return new ProsumerBattery(props);
+    static create(props: ProsumerBatteryProps, id?: UniqueEntityID): Result<ProsumerBattery> {
+        const guardedProps = [
+            { argument: props.batteryInformation, argumentName: 'batteryInformation' },
+            { argument: props.efficiency, argumentName: 'efficiency' },
+            { argument: props.maxCapacity, argumentName: 'maxCapacity' },
+            { argument: props.maxChargeDischarge, argumentName: 'maxChargeDischarge' }
+        ];
+        
+        const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
+        if (!guardResult.succeeded) {
+            return Result.fail(guardResult.message);
+        }else {
+            const prosumerBattery = new ProsumerBattery(props, id);
+            return Result.ok(prosumerBattery);
+        }
+
     }
 
 }
