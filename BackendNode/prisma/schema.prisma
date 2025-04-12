@@ -17,17 +17,62 @@ model Role {
 }
 
 model User {
-  id              String   @id @default(uuid())
-  domainId        String   @unique
+  id              String  @id @default(uuid())
+  domainId        String  @unique
   firstName       String
   lastName        String
-  email           String   @unique
+  email           String  @unique
   phoneNumber     String
   password        String?
-  isEmailVerified Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  isEmailVerified Boolean @default(false)
 
-  roleId          String?
-  role            Role?    @relation("RoleUsers", fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roleId   String?
+  role     Role?     @relation("RoleUsers", fields: [roleId], references: [id])
+  Prosumer Prosumer?
+}
+
+model Profile {
+  id                      String @id @default(uuid())
+  timeStampIntervalUnit   String
+  timeStampIntervalNumber Int
+  stateOfCharge           String
+  photovoltaicEnergyLoad  String
+  boughtEnergyAmount      String
+  boughtEnergyPrice       String
+  soldEnergyAmount        String
+  soldEnergyPrice         String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Prosumer  Prosumer?
+}
+
+model Battery {
+  id            String @id @default(uuid())
+  profileId     String @unique
+  efficiency    String
+  maxCapacity   String
+  maxCharge     String
+  maxDischarge  String
+  stateOfCharge String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Prosumer  Prosumer?
+}
+
+model Prosumer {
+  id        String  @id @default(uuid())
+  profileId String  @unique
+  profile   Profile @relation(fields: [profileId], references: [id])
+  batteryId String  @unique
+  battery   Battery @relation(fields: [batteryId], references: [id])
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
