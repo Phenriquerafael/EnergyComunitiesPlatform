@@ -1,7 +1,7 @@
 import { Service, Inject } from 'typedi';
 import config from '../../config';
 import IRoleDTO from '../dto/IRoleDTO';
-import IRoleRepo from '../services/IRepos/IRoleRepo';
+import IRoleRepo from '../repos/IRepos/IRoleRepo';
 import IRoleService from './IServices/IRoleService';
 import { Result } from '../core/logic/Result';
 import { RoleMap } from '../mappers/RoleMap';
@@ -13,7 +13,7 @@ export default class RoleService implements IRoleService {
   constructor(
     @Inject(config.repos.role.name) private roleRepo: IRoleRepo
   ) {
-    console.log('RoleService instantiated'); // Debug
+    /* console.log('RoleService instantiated'); // Debug */
     }
 
   public async findByName(roleName: string): Promise<Result<IRoleDTO>> {

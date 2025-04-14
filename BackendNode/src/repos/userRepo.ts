@@ -1,6 +1,6 @@
 import { Service, Inject } from 'typedi';
 import prisma from '../../prisma/prismaClient';
-import IUserRepo from "../services/IRepos/IUserRepo";
+import IUserRepo from "./IRepos/IUserRepo";
 import { User } from '../domain/User/user';
 import { UserId } from '../domain/User/userId';
 import { UserEmail } from '../domain/User/userEmail';
@@ -18,7 +18,7 @@ export default class UserRepo implements IUserRepo {
   public async exists(userId: UserId | string): Promise<boolean> {
     const id = userId instanceof UserId ? userId.id.toValue().toString() : userId;
     const user = await prisma.user.findUnique({
-      where: { domainId: id.toString() },
+      where: { id: id.toString() },
     });
     return !!user;
   }
@@ -26,7 +26,7 @@ export default class UserRepo implements IUserRepo {
   public async save(user: User): Promise<User> {
     const id = user.id.toValue();
     const existing = await prisma.user.findUnique({
-      where: { domainId: id.toString() },
+      where: { id: id.toString() },
     });
 
     const rawUser = UserMap.toPersistence(user);
@@ -36,12 +36,13 @@ export default class UserRepo implements IUserRepo {
       return UserMap.toDomain(created);
     } else {
       await prisma.user.update({
-        where: { domainId: id.toString() },
+        where: { id: id.toString() },
         data: rawUser,
       });
       return user;
     }
   }
+
 
   public async findByEmail(email: UserEmail | string): Promise<User> {
     const emailStr = email.toString();
@@ -54,7 +55,7 @@ export default class UserRepo implements IUserRepo {
   public async findByID(userId: UserId | string): Promise<User> {
     const id = userId instanceof UserId ? userId.id.toValue() : userId;
     const user = await prisma.user.findUnique({
-      where: { domainId: id.toString() },
+      where: { id: id.toString() },
     });
     return user ? UserMap.toDomain(user) : null;
   }
@@ -86,7 +87,7 @@ export default class UserRepo implements IUserRepo {
 
   public async delete(id: string): Promise<void> {
     await prisma.user.delete({
-      where: { domainId: id },
+      where: { id: id },
     });
   }
 }

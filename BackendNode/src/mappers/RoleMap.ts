@@ -21,7 +21,7 @@ export class RoleMap extends Mapper<Role> {
   public static toDomain (role: any | Model<IRolePersistence & Document> ): Role {
     const roleOrError = Role.create(
       role,
-      new UniqueEntityID(role.domainId)
+      new UniqueEntityID(role.id)
     );
 
     roleOrError.isFailure ? console.log(roleOrError.error) : '';
@@ -31,7 +31,7 @@ export class RoleMap extends Mapper<Role> {
 
   public static toPersistence (role: Role): any {
     return {
-      domainId: role.id.toString(),
+      /* domainId: role.id.toString(), */
       name: role.name
     }
   }

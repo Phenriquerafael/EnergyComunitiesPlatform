@@ -29,7 +29,6 @@ export default (app: Router) => {
 
     const ctrl = Container.get(config.controllers.user.name) as IUserController;
     
-
     route.get("/test", (req, res) => { res.send("Backend Connected");});
 
     route.post(

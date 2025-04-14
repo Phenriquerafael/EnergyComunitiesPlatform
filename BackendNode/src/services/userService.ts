@@ -5,8 +5,8 @@ import argon2 from 'argon2';
 import IUserService from '../services/IServices/IUserService';
 import { UserMap } from '../mappers/UserMap';
 import { IUserDTO } from '../dto/IUserDTO';
-import IUserRepo from './IRepos/IUserRepo';
-import IRoleRepo from './IRepos/IRoleRepo';
+import IUserRepo from '../repos/IRepos/IUserRepo';
+import IRoleRepo from '../repos/IRepos/IRoleRepo';
 import { Result } from '../core/logic/Result';
 import { UserPassword } from '../domain/User/userPassword';
 import { UserEmail } from '../domain/User/userEmail';
@@ -23,7 +23,7 @@ export default class UserService implements IUserService {
     @Inject(config.repos.role.name) private roleRepo: IRoleRepo,
     @Inject('logger') private logger
   ) {
-    console.log('RoleService instantiated'); // Debug
+    console.log('UserService instantiated'); // Debug
   }
 
   public async isAdmin(id: string): Promise<Result<boolean>> {
@@ -88,10 +88,10 @@ export default class UserService implements IUserService {
 
   public async SignUp(userDTO: IUserDTO): Promise<Result<{ userDTO: IUserDTO, token: string }>> {
     try {
-      const userDocument = await this.userRepo.findByEmail(userDTO.email);
+/*       const userDocument = await this.userRepo.findByEmail(userDTO.email);
       if (userDocument) {
         return Result.fail<{ userDTO: IUserDTO, token: string }>('User already exists: ' + userDTO.email);
-      }
+      } */
 
       if (!userDTO.email || !userDTO.password || !userDTO.firstName || !userDTO.lastName) {
         return Result.fail<{ userDTO: IUserDTO, token: string }>('Missing required fields');
@@ -125,7 +125,9 @@ export default class UserService implements IUserService {
         phoneNumber: phoneNumber,
         role: role,
         password: password,
-        isEmailVerified: false,
+        //isEmailVerified: false, 
+        // Uncomment this line if you want to set isEmailVerified to false by default
+        isEmailVerified: true,
       });
 
       if (userOrError.isFailure) {

@@ -1,5 +1,5 @@
 
 export interface IRolePersistence {
-  domainId: string;
+  id: string;
   name: string;
 }

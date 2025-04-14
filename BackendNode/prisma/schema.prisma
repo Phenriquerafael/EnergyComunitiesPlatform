@@ -9,7 +9,7 @@ datasource db {
 
 model Role {
   id        String   @id @default(uuid())
-  domainId  String   @unique
+  /* domainId  String   @unique */
   name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -18,7 +18,7 @@ model Role {
 
 model User {
   id              String  @id @default(uuid())
-  domainId        String  @unique
+  /* domainId        String  @unique */
   firstName       String
   lastName        String
   email           String  @unique
@@ -29,13 +29,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  roleId   String?
+  roleId   String?  
   role     Role?     @relation("RoleUsers", fields: [roleId], references: [id])
   Prosumer Prosumer?
 }
 
 model Profile {
   id                      String @id @default(uuid())
+  /* domainId                String @unique */
   timeStampUnit           String
   timeStampIntervalNumber Int
   stateOfCharge           String
@@ -53,6 +54,7 @@ model Profile {
 
 model Battery {
   id            String @id @default(uuid())
+  /* domainId      String @unique */
   profileId     String @unique
   efficiency    String
   maxCapacity   String
@@ -67,6 +69,7 @@ model Battery {
 
 model Prosumer {
   id        String  @id @default(uuid())
+  /* domainId  String  @unique */
   profileId String  @unique
   profile   Profile @relation(fields: [profileId], references: [id])
   batteryId String  @unique

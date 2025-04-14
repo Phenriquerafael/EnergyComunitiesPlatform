@@ -36,7 +36,7 @@ export class UserMap extends Mapper<User> {
     const phoneNumberOrError = PhoneNumber.create(raw.phoneNumber);
     const userPasswordOrError = UserPassword.create({value: raw.password, hashed: true});
     const repo = Container.get(RoleRepo);
-    const role = await repo.findByDomainId(raw.role);
+    const role = await repo.findByDomainId(raw.roleId);
 
     const userOrError = User.create({
       firstName: raw.firstName,
@@ -53,17 +53,17 @@ export class UserMap extends Mapper<User> {
     return userOrError.isSuccess ? userOrError.getValue() : null;
   }
 
-  public static toPersistence (user: User): any {
-    const a = {
-      domainId: user.id.toString(),
+  public static toPersistence(user: User): any {
+    return {
+      /* domainId: user.id.toString(), */
+      id: user.id.toString(),
       email: user.email.value,
       phoneNumber: user.phoneNumber.value,
       password: user.password.value,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: user.role.id.toValue(),
+      roleId: user.role ? user.role.id.toValue() : null, // Use roleId instead of role
       isEmailVerified: user.isEmailVerified
-    }
-    return a;
+    };
   }
 }

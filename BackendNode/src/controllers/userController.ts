@@ -7,12 +7,12 @@ import { IUserDTO } from '../dto/IUserDTO';
 import { Result } from '../core/logic/Result';
 import { Container } from '../container';
 import { UserMap } from '../mappers/UserMap';
-import IUserRepo from '../services/IRepos/IUserRepo';
+import IUserRepo from '../repos/IRepos/IUserRepo';
 
 @Service()
 export default class UserController implements IUserController {
   private get userServiceInstance(): IUserService {
-    return Container.get(config.services.role.name) as IUserService;
+    return Container.get(config.services.user.name) as IUserService;
   }
 
   public async isAdmin(req: Request, res: Response, next: NextFunction) {
