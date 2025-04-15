@@ -1,11 +1,11 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 
-interface BatteryDescriptionProps {
+interface BatteryInformationsProps {
     name: string;
     description: string;
 }
 
-export class BatteryDescription extends AggregateRoot<BatteryDescriptionProps> {
+export class BatteryDescription extends AggregateRoot<BatteryInformationsProps> {
     get name(): string {
         return this.props.name;
     }
@@ -22,11 +22,11 @@ export class BatteryDescription extends AggregateRoot<BatteryDescriptionProps> {
         this.props.description = value;
     }
 
-    constructor(props: BatteryDescriptionProps) {
+    constructor(props: BatteryInformationsProps) {
         super(props);
     }
     
-    static create(props: BatteryDescriptionProps): BatteryDescription {
+    static create(props: BatteryInformationsProps): BatteryDescription {
         return new BatteryDescription(props);
     }
 }

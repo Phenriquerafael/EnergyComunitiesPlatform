@@ -31,7 +31,7 @@ export class RoleMap extends Mapper<Role> {
 
   public static toPersistence (role: Role): any {
     return {
-      /* domainId: role.id.toString(), */
+      id: role.id.toString(),
       name: role.name
     }
   }

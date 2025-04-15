@@ -1,20 +1,20 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
-import { BatteryDescription as BatteryInformation } from "./BatteryDescription";
+import { BatteryDescription as BatteryInformation } from "./BatteryInformation";
 import { Efficiency } from "./Efficiency";
 import { MaxCapacity } from "./MaxCapacity";
 import { MaxChargeDischarge } from "./MaxChargeDischarge";
 import { Guard } from "../../../core/logic/Guard";
 import { Result } from "../../../core/logic/Result";
 
-interface ProsumerBatteryProps {
+interface BatteryProps {
     batteryInformation: BatteryInformation;
     efficiency: Efficiency;
     maxCapacity: MaxCapacity;
     maxChargeDischarge: MaxChargeDischarge;
 }
 
-export class ProsumerBattery extends AggregateRoot<ProsumerBatteryProps> {
+export class Battery extends AggregateRoot<BatteryProps> {
     
     get id (): UniqueEntityID {
         return this._id;
@@ -36,11 +36,11 @@ export class ProsumerBattery extends AggregateRoot<ProsumerBatteryProps> {
         return this.props.maxChargeDischarge;
     }
 
-    constructor(props: ProsumerBatteryProps, id?: UniqueEntityID) {
+    constructor(props: BatteryProps, id?: UniqueEntityID) {
         super(props, id);
     }       
 
-    static create(props: ProsumerBatteryProps, id?: UniqueEntityID): Result<ProsumerBattery> {
+    static create(props: BatteryProps, id?: UniqueEntityID): Result<Battery> {
         const guardedProps = [
             { argument: props.batteryInformation, argumentName: 'batteryInformation' },
             { argument: props.efficiency, argumentName: 'efficiency' },
@@ -52,7 +52,7 @@ export class ProsumerBattery extends AggregateRoot<ProsumerBatteryProps> {
         if (!guardResult.succeeded) {
             return Result.fail(guardResult.message);
         }else {
-            const prosumerBattery = new ProsumerBattery(props, id);
+            const prosumerBattery = new Battery(props, id);
             return Result.ok(prosumerBattery);
         }
 

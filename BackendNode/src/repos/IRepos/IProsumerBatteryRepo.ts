@@ -1,8 +1,8 @@
-import { ProsumerBattery } from "../../domain/Prosumer/ProsumerBattery.ts/ProsumerBattery";
+import { Battery } from "../../domain/Prosumer/Battery.ts/Battery";
 
 export default interface IProsumerBatteryRepo {
-  save(battery: ProsumerBattery ): Promise<ProsumerBattery>;
-  findById(id: string): Promise<ProsumerBattery>;
-  findAll(): Promise<ProsumerBattery[]>;
+  save(battery: Battery ): Promise<Battery>;
+  findById(id: string): Promise<Battery>;
+  findAll(): Promise<Battery[]>;
 }
 

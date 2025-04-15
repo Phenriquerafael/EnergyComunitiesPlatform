@@ -4,11 +4,11 @@ import { Guard } from "../../core/logic/Guard";
 import { Result } from "../../core/logic/Result";
 import { User } from "../User/user";
 import { Profile } from "./Profile/Profile";
-import { ProsumerBattery } from "./ProsumerBattery.ts/ProsumerBattery";
+import { Battery } from "./Battery.ts/Battery";
 
 interface ProsumerProps {
     profile: Profile;
-    battery: ProsumerBattery;
+    battery: Battery;
     user: User;
 }
 
@@ -22,7 +22,7 @@ export class Prosumer extends AggregateRoot<ProsumerProps> {
         return this.props.profile;
     }
 
-    get battery(): ProsumerBattery {
+    get battery(): Battery {
         return this.props.battery;
     }
 
@@ -34,7 +34,7 @@ export class Prosumer extends AggregateRoot<ProsumerProps> {
         this.props.profile = value;
     }
 
-    set battery(value: ProsumerBattery) {
+    set battery(value: Battery) {
         this.props.battery = value;
     }
 

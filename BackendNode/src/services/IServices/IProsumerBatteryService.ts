@@ -1,9 +1,9 @@
 import { Result } from "../../core/logic/Result";
-import IProsumerBatteryDTO from "../../dto/IProsumerBatteryDTO";
+import IBatteryDTO from "../../dto/IBatteryDTO";
 
 export default interface IProsumerBatteryService {
-    createProsumerBattery(prosumerBatteryDTO: IProsumerBatteryDTO): Promise<Result<IProsumerBatteryDTO>>;
-    updateProsumerBattery(prosumerBatteryDTO: IProsumerBatteryDTO): Promise<Result<IProsumerBatteryDTO>>;
-    getProsumerBattery(prosumerBatteryId: string): Promise<Result<IProsumerBatteryDTO>>;
-    findAll(): Promise<Result<IProsumerBatteryDTO[]>>;
+    createProsumerBattery(prosumerBatteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>>;
+    updateProsumerBattery(prosumerBatteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>>;
+    getProsumerBattery(prosumerBatteryId: string): Promise<Result<IBatteryDTO>>;
+    findAll(): Promise<Result<IBatteryDTO[]>>;
 }
