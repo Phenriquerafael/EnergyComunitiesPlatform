@@ -7,7 +7,6 @@ import { Profile } from "./Profile/Profile";
 import { Battery } from "./Battery.ts/Battery";
 
 interface ProsumerProps {
-    profile: Profile;
     battery: Battery;
     user: User;
 }
@@ -18,10 +17,6 @@ export class Prosumer extends AggregateRoot<ProsumerProps> {
         return this._id;
     }
 
-    get profile(): Profile {
-        return this.props.profile;
-    }
-
     get battery(): Battery {
         return this.props.battery;
     }
@@ -30,9 +25,6 @@ export class Prosumer extends AggregateRoot<ProsumerProps> {
         return this.props.user;
     }
 
-    set profile(value: Profile) {
-        this.props.profile = value;
-    }
 
     set battery(value: Battery) {
         this.props.battery = value;

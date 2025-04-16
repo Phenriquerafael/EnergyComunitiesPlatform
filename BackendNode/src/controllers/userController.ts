@@ -86,7 +86,7 @@ export default class UserController implements IUserController {
           return res.status(401).json({ message: "Token inexistente ou inválido" });
       }
 
-      const user = await userRepo.findByID(req.token.id);
+      const user = await userRepo.findById(req.token.id);
       if (!user) {
           return res.status(401).json({ message: "Utilizador não registado" });
       }

@@ -1,12 +1,16 @@
 import { Mapper } from "../core/infra/Mapper";
 
-import { Document, Model } from 'mongoose';
+import { Battery } from '../domain/Prosumer/Battery.ts/Battery';
+import { BatteryDescription as BatteryInformation } from '../domain/Prosumer/Battery.ts/BatteryInformation';
+import { Efficiency } from '../domain/Prosumer/Battery.ts/Efficiency';
+import { MaxCapacity } from '../domain/Prosumer/Battery.ts/MaxCapacity';
+import { MaxChargeDischarge } from '../domain/Prosumer/Battery.ts/MaxChargeDischarge';
 
 
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import { Battery } from "../domain/Prosumer/Battery.ts/Battery";
 import IBatteryDTO from "../dto/IBatteryDTO";
 import IBatteryPersistence from "../dataschema/IBatteryPersistence";
+import { Result } from "../core/logic/Result";
 
 
 
@@ -25,15 +29,32 @@ export class BatteryMap extends Mapper<Battery> {
     } as IBatteryDTO;
   }
 
-  public static toDomain (battery: any | Model<IBatteryPersistence & Document> ): Battery {
-    const batteryOrError = Battery.create(
-      battery,
-      new UniqueEntityID(battery.id)
-    );
+  public static toDomain (batteryDTO:IBatteryDTO ): Result<Battery> {
+const batteryInformation = BatteryInformation.create({
+        name: batteryDTO.name,
+        description: batteryDTO.description,
+      });
 
-    batteryOrError.isFailure ? console.log(batteryOrError.error) : '';
+      const efficiency = Efficiency.create({
+        value: batteryDTO.efficiency,
+      });
 
-    return batteryOrError.isSuccess ? batteryOrError.getValue() : null;
+      const maxCapacity = MaxCapacity.create({
+        value: batteryDTO.maxCapacity,
+      });
+
+      const maxChargeDischarge = MaxChargeDischarge.create({
+        maxCharge: batteryDTO.maxChargeDischarge,
+        maxDischarge: batteryDTO.maxChargeDischarge,
+      });
+
+      const prosumerBatteryProps = {
+        batteryInformation: batteryInformation,
+        efficiency: efficiency,
+        maxCapacity: maxCapacity,
+        maxChargeDischarge: maxChargeDischarge,
+      };
+      return Battery.create(prosumerBatteryProps);
   }
 
   public static toPersistence (battery: Battery): any {

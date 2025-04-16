@@ -52,7 +52,7 @@ export default class UserRepo implements IUserRepo {
     return user ? UserMap.toDomain(user) : null;
   }
 
-  public async findByID(userId: UserId | string): Promise<User> {
+  public async findById(userId: UserId | string): Promise<User> {
     const id = userId instanceof UserId ? userId.id.toValue() : userId;
     const user = await prisma.user.findUnique({
       where: { id: id.toString() },

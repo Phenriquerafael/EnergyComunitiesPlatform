@@ -1,7 +1,9 @@
+
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 import { Guard } from "../../../core/logic/Guard";
 import { Result } from "../../../core/logic/Result";
+import { Prosumer } from "../Prosumer";
 import { BoughtEnergy } from "./BoughtEnergy";
 import { PhotovoltaicEnergyLoad } from "./PhotovoltaicEnergyLoad";
 import { ProfileLoad } from "./ProfileLoad";
@@ -10,7 +12,7 @@ import { StateOfCharge } from "./StateOfCharge";
 import { TimeStamp } from "./TimeStamp";
 
 interface ProfileProps {
-    prosumerId: string;
+    prosumer: Prosumer;
     timestamp:TimeStamp;
     profileLoad: ProfileLoad;
     stateOfCharge: StateOfCharge;
@@ -25,8 +27,8 @@ export class Profile extends AggregateRoot<ProfileProps> {
         return this._id;
     }
 
-    get prosumerId(): string {
-        return this.props.prosumerId;
+    get prosumer(): Prosumer {
+        return this.props.prosumer;
     }
     get timestamp(): TimeStamp {
         return this.props.timestamp;
@@ -69,6 +71,10 @@ export class Profile extends AggregateRoot<ProfileProps> {
         this.props.soldEnergy = value;
     }
 
+    set prosumer(value: Prosumer) {
+        this.props.prosumer = value;
+    }
+
 
     private constructor(props: ProfileProps, id?: UniqueEntityID) {
         super(props, id);
@@ -76,7 +82,7 @@ export class Profile extends AggregateRoot<ProfileProps> {
 
     public static create(props: ProfileProps, id?: UniqueEntityID): Result<Profile> {
         const guardedProps = [
-            { argument: props.prosumerId, argumentName: 'prosumerId' },
+            { argument: props.prosumer, argumentName: 'prosumer' },
             { argument: props.timestamp, argumentName: 'timestamp' },
             { argument: props.profileLoad, argumentName: 'profileLoad' },
             { argument: props.stateOfCharge, argumentName: 'stateOfCharge' },

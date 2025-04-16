@@ -28,7 +28,7 @@ export default class UserService implements IUserService {
 
   public async isAdmin(id: string): Promise<Result<boolean>> {
     try {
-      const user = await this.userRepo.findByID(id);
+      const user = await this.userRepo.findById(id);
       if (!user) {
         return Result.fail<boolean>('User not found');
       }
@@ -61,7 +61,7 @@ export default class UserService implements IUserService {
 
   public async getUser(id: string): Promise<Result<IUserDTO>> {
     try {
-      const user = await this.userRepo.findByID(id);
+      const user = await this.userRepo.findById(id);
       if (!user) {
         return Result.fail<IUserDTO>('User not found');
       }
@@ -74,7 +74,7 @@ export default class UserService implements IUserService {
   public async confirmAccount(token: string): Promise<Result<void>> {
     try {
       const payload = jwt.verify(token, config.jwtSecret) as { id: string };
-      const user = await this.userRepo.findByID(payload.id);
+      const user = await this.userRepo.findById(payload.id);
       if (!user) {
         return Result.fail<void>('User not found');
       }
@@ -160,7 +160,7 @@ export default class UserService implements IUserService {
   public async DeleteUnconfirmedUser(user: User): Promise<void> {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 5)); // 5 minutes
-      const currentUser = await this.userRepo.findByID(user.id.toString());
+      const currentUser = await this.userRepo.findById(user.id.toString());
       if (!currentUser) {
         this.logger.silly('User already deleted');
         return;
@@ -277,7 +277,7 @@ export default class UserService implements IUserService {
   public async ResetPassword(token: string, newPassword: string): Promise<Result<string>> {
     try {
       const payload = jwt.verify(token, config.jwtSecret) as { id: string };
-      const user = await this.userRepo.findByID(payload.id);
+      const user = await this.userRepo.findById(payload.id);
       if (!user) {
         return Result.fail<string>('Invalid or expired reset token');
       }

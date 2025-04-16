@@ -5,6 +5,6 @@ export default interface IProfileService {
     createProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>>;
     updateProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>>;
     getProfile(profileId: string): Promise<Result<IProfileDTO>>;
-    findByUserId(userId: string): Promise<Result<IProfileDTO>>;
+    findByProsumerId(userId: string): Promise<Result<IProfileDTO>>;
     findAll(): Promise<Result<IProfileDTO[]>>;
 }

@@ -9,7 +9,9 @@ datasource db {
 
 model Role {
   id        String   @id @default(uuid())
-  /* domainId  String   @unique */
+  /**
+   * domainId  String   @unique
+   */
   name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -18,7 +20,9 @@ model Role {
 
 model User {
   id              String  @id @default(uuid())
-  /* domainId        String  @unique */
+  /**
+   * domainId        String  @unique
+   */
   firstName       String
   lastName        String
   email           String  @unique
@@ -29,14 +33,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  roleId   String?  
+  roleId   String?
   role     Role?     @relation("RoleUsers", fields: [roleId], references: [id])
   Prosumer Prosumer?
 }
 
 model Profile {
-  id                      String @id @default(uuid())
-  /* domainId                String @unique */
+  id                      String   @id @default(uuid())
+  prosumerId              String   @unique
+  prosumer                Prosumer @relation(fields: [prosumerId], references: [id])
   timeStampUnit           String
   timeStampIntervalNumber Int
   stateOfCharge           String
@@ -47,14 +52,12 @@ model Profile {
   soldEnergyPrice         String
   profileLoad             String
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Prosumer  Prosumer?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Battery {
   id            String @id @default(uuid())
-  /* domainId      String @unique */
   profileId     String @unique
   efficiency    String
   maxCapacity   String
@@ -68,10 +71,11 @@ model Battery {
 }
 
 model Prosumer {
-  id        String  @id @default(uuid())
-  /* domainId  String  @unique */
-  profileId String  @unique
-  profile   Profile @relation(fields: [profileId], references: [id])
+  id String @id @default(uuid())
+  /**
+   * domainId  String  @unique
+   */
+
   batteryId String  @unique
   battery   Battery @relation(fields: [batteryId], references: [id])
   userId    String  @unique
@@ -79,4 +83,5 @@ model Prosumer {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  profile   Profile?
 }
