@@ -57,23 +57,95 @@ export default class ProsumerService implements IProsumerService {
     }
 
     public async updateProsumer(prosumerDTO: IProsumerDTO): Promise<Result<IProsumerDTO>> {
-        throw new Error("Method not implemented.");
+        try {
+            const prosumerOrError = await this.prosumerRepo.findById(prosumerDTO.id);
+            if (prosumerOrError.isFailure) {
+                return Result.fail<IProsumerDTO>("Prosumer doesn't exist");
+            }
+            if (prosumerOrError.getValue().battery.id.toString() !== prosumerDTO.batteryId && prosumerDTO.batteryId !== "") {
+                const batteryOrError = await this.batteryRepo.findById(prosumerDTO.batteryId);
+                if (batteryOrError.isFailure) {
+                    return Result.fail<IProsumerDTO>("Battery doesn't exist");
+                }
+                prosumerOrError.getValue().battery = batteryOrError.getValue();
+            }
+            if (prosumerOrError.getValue().user.id.toString() !== prosumerDTO.userId && prosumerDTO.userId !== "") {
+                 const userOrError = await this.userRepo.findById(prosumerDTO.userId);
+               /* if (userOrError.isFailure) {
+                    return Result.fail<IProsumerDTO>("User doesn't exist");
+                } */
+               
+                prosumerOrError.getValue().user = userOrError/* .getValue() */;
+            }
+
+            const updatedProsumer = await this.prosumerRepo.save(prosumerOrError.getValue());
+            if (updatedProsumer.isFailure) {
+                return Result.fail<IProsumerDTO>("Error updating prosumer");
+            }
+            return Result.ok<IProsumerDTO>(ProsumerMap.toDTO(updatedProsumer.getValue()));
+        } catch (error) {
+            console.log("Error updating prosumer: ", error);
+            return Result.fail<IProsumerDTO>("Error updating prosumer");
+            
+        }
     }
 
     public async getProsumer(prosumerId: string): Promise<Result<IProsumerDTO>> {
-        throw new Error("Method not implemented.");
+        try {
+         const prosumerOrError = await this.prosumerRepo.findById(prosumerId);
+         if (prosumerOrError.isFailure) {
+                return Result.fail<IProsumerDTO>("Prosumer doesn't exist");
+            }
+            return Result.ok<IProsumerDTO>(ProsumerMap.toDTO(prosumerOrError.getValue()));   
+        } catch (error) {
+            console.log("Error getting prosumer: ", error);
+            return Result.fail<IProsumerDTO>("Error getting prosumer");
+            
+        }
     }
 
     public async findAll(): Promise<Result<IProsumerDTO[]>> {
-        throw new Error("Method not implemented.");
+        try {
+            const promsumersOrError = await this.prosumerRepo.findAll();
+            if (promsumersOrError.isFailure) {
+                return Result.fail<IProsumerDTO[]>("Error getting all promsumers");
+            }
+            const promsumers = promsumersOrError.getValue();
+            const promsumersDTO = promsumers.map((prosumer) => ProsumerMap.toDTO(prosumer));
+            return Result.ok<IProsumerDTO[]>(promsumersDTO);
+        } catch (error) {
+            console.log("Error getting all promsumers: ", error);
+            return Result.fail<IProsumerDTO[]>("Error getting all promsumers");
+            
+        }
     }
 
     public async findByUserId(userId: string): Promise<Result<IProsumerDTO>> {
-        throw new Error("Method not implemented.");
+        try {
+            const prosumerOrError = await this.prosumerRepo.findByUserId(userId);
+            if (prosumerOrError.isFailure) {
+                return Result.fail<IProsumerDTO>("Prosumer doesn't exist");
+            }
+            return Result.ok<IProsumerDTO>(ProsumerMap.toDTO(prosumerOrError.getValue()));
+        } catch (error) {
+            console.log("Error finding prosumer by userId: ", error);
+            return Result.fail<IProsumerDTO>("Error finding prosumer by userId");
+            
+        }
     }
 
     public async findByBatteryId(batteryId: string): Promise<Result<IProsumerDTO>> {
-        throw new Error("Method not implemented.");
+        try {
+            const prosumerOrError = await this.prosumerRepo.findByBatteryId(batteryId);
+            if (prosumerOrError.isFailure) {
+                return Result.fail<IProsumerDTO>("Prosumer doesn't exist");
+            }
+            return Result.ok<IProsumerDTO>(ProsumerMap.toDTO(prosumerOrError.getValue()));
+        } catch (error) {
+            console.log("Error finding prosumer by batteryId: ", error);
+            return Result.fail<IProsumerDTO>("Error finding prosumer by batteryId");
+            
+        }
     }
 
 }

@@ -1,26 +1,33 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "Role" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-  - You are about to drop the column `domainId` on the `Role` table. All the data in the column will be lost.
-  - You are about to drop the column `domainId` on the `User` table. All the data in the column will be lost.
-  - A unique constraint covering the columns `[roleId]` on the table `User` will be added. If there are existing duplicate values, this will fail.
+    CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
+);
 
-*/
--- DropIndex
-DROP INDEX "Role_domainId_key";
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phoneNumber" TEXT NOT NULL,
+    "password" TEXT,
+    "isEmailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "roleId" TEXT,
 
--- DropIndex
-DROP INDEX "User_domainId_key";
-
--- AlterTable
-ALTER TABLE "Role" DROP COLUMN "domainId";
-
--- AlterTable
-ALTER TABLE "User" DROP COLUMN "domainId";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Profile" (
     "id" TEXT NOT NULL,
+    "prosumerId" TEXT NOT NULL,
     "timeStampUnit" TEXT NOT NULL,
     "timeStampIntervalNumber" INTEGER NOT NULL,
     "stateOfCharge" TEXT NOT NULL,
@@ -39,12 +46,11 @@ CREATE TABLE "Profile" (
 -- CreateTable
 CREATE TABLE "Battery" (
     "id" TEXT NOT NULL,
-    "profileId" TEXT NOT NULL,
+    "name" TEXT,
+    "description" TEXT,
     "efficiency" TEXT NOT NULL,
     "maxCapacity" TEXT NOT NULL,
-    "maxCharge" TEXT NOT NULL,
-    "maxDischarge" TEXT NOT NULL,
-    "stateOfCharge" TEXT NOT NULL,
+    "maxChargeDischarge" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -54,7 +60,6 @@ CREATE TABLE "Battery" (
 -- CreateTable
 CREATE TABLE "Prosumer" (
     "id" TEXT NOT NULL,
-    "profileId" TEXT NOT NULL,
     "batteryId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -64,10 +69,13 @@ CREATE TABLE "Prosumer" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Battery_profileId_key" ON "Battery"("profileId");
+CREATE UNIQUE INDEX "Role_name_key" ON "Role"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Prosumer_profileId_key" ON "Prosumer"("profileId");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Profile_prosumerId_key" ON "Profile"("prosumerId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Prosumer_batteryId_key" ON "Prosumer"("batteryId");
@@ -75,11 +83,11 @@ CREATE UNIQUE INDEX "Prosumer_batteryId_key" ON "Prosumer"("batteryId");
 -- CreateIndex
 CREATE UNIQUE INDEX "Prosumer_userId_key" ON "Prosumer"("userId");
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_roleId_key" ON "User"("roleId");
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Prosumer" ADD CONSTRAINT "Prosumer_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Profile" ADD CONSTRAINT "Profile_prosumerId_fkey" FOREIGN KEY ("prosumerId") REFERENCES "Prosumer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Prosumer" ADD CONSTRAINT "Prosumer_batteryId_fkey" FOREIGN KEY ("batteryId") REFERENCES "Battery"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

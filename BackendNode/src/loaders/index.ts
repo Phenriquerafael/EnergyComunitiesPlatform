@@ -33,12 +33,66 @@ export default async ({ expressApp }) => {
     name: config.services.user.name,
     path: config.services.user.path
   };
+  const batteryController = {
+    name: config.controllers.battery.name,
+    path: config.controllers.battery.path
+  };
+  const batteryRepo = {
+    name: config.repos.battery.name,
+    path: config.repos.battery.path
+  };
+  const batteryService = {
+    name: config.services.battery.name,
+    path: config.services.battery.path
+  };
+  const profileController = {
+    name: config.controllers.profile.name,
+    path: config.controllers.profile.path
+  };
+  const profileRepo = {
+    name: config.repos.profile.name,
+    path: config.repos.profile.path
+  };
+  const profileService = {
+    name: config.services.profile.name,
+    path: config.services.profile.path
+  };
+  const prosumerController = {
+    name: config.controllers.prosumer.name,
+    path: config.controllers.prosumer.path
+  };
+  const prosumerRepo = {
+    name: config.repos.prosumer.name,
+    path: config.repos.prosumer.path
+  };
+  const prosumerService = {
+    name: config.services.prosumer.name,
+    path: config.services.prosumer.path
+  };
 
   await dependencyInjectorLoader({
     prismaClient: prisma,
-    controllers: [roleController, userController],
-    repos: [roleRepo, userRepo],
-    services: [roleService, userService]
+    controllers: [
+      roleController,
+      userController,
+      batteryController,
+      profileController,
+      prosumerController
+    ],
+    repos: [
+      roleRepo,
+      userRepo,
+      batteryRepo,
+      prosumerRepo,
+      profileRepo,
+    ],
+    services: [
+      roleService,
+      userService,
+      batteryService,
+      profileService,
+      prosumerService
+    ]
   });
 
   Logger.info('✌️ Controllers, Repositories, Services, etc. loaded with Prisma');

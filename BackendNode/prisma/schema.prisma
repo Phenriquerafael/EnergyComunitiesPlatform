@@ -1,10 +1,12 @@
 generator client {
   provider = "prisma-client-js"
+
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Role {
@@ -58,16 +60,14 @@ model Profile {
 
 model Battery {
   id            String @id @default(uuid())
-  profileId     String @unique
+  name          String?
+  description   String?
   efficiency    String
   maxCapacity   String
-  maxCharge     String
-  maxDischarge  String
-  stateOfCharge String
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Prosumer  Prosumer?
+  maxChargeDischarge     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  Prosumer      Prosumer?
 }
 
 model Prosumer {

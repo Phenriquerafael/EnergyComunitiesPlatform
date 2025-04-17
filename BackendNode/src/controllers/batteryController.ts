@@ -1,22 +1,22 @@
 import { Request, Response, NextFunction } from "express";
 import { Container } from "../container";
-import IProsumerBatteryController from "./IControllers/IProsumerBatteryController";
-import IProsumerBatteryService from "../services/IServices/IProsumerBatteryService";
+import IBatteryController from "./IControllers/IProsumerBatteryController";
+import IBatteryService from "../services/IServices/IProsumerBatteryService";
 import config from "../../config";
 import { Service } from "typedi";
 import { Result } from "../core/logic/Result";
 import IBatteryDTO from "../dto/IBatteryDTO";
 
 @Service()
-export default class ProsumerBatteryController implements IProsumerBatteryController {
+export default class BatteryController implements IBatteryController {
 
-  private get prosumerBatteryServiceInstance(): IProsumerBatteryService {
-    return Container.get(config.services.role.name) as IProsumerBatteryService;
+  private get batteryServiceInstance(): IBatteryService {
+    return Container.get(config.services.battery.name) as IBatteryService;
   }  
   
-  public async createProsumerBattery(req: Request, res: Response, next: NextFunction) {
+  public async createBattery(req: Request, res: Response, next: NextFunction) {
       try {
-        const prosumerBatteryOrError = await this.prosumerBatteryServiceInstance.createProsumerBattery(req.body);
+        const prosumerBatteryOrError = await this.batteryServiceInstance.createBattery(req.body);
         
         if (prosumerBatteryOrError.isFailure) {
           return res.status(400).json({ message: prosumerBatteryOrError.error });
@@ -29,9 +29,9 @@ export default class ProsumerBatteryController implements IProsumerBatteryContro
         
       }
   }
-  public async updateProsumerBattery(req: Request, res: Response, next: NextFunction) {
+  public async updateBattery(req: Request, res: Response, next: NextFunction) {
       try {
-        const prosumerBatteryOrError = await this.prosumerBatteryServiceInstance.updateProsumerBattery(req.body);
+        const prosumerBatteryOrError = await this.batteryServiceInstance.updateBattery(req.body);
         
         if (prosumerBatteryOrError.isFailure) {
           return res.status(400).json({ message: prosumerBatteryOrError.error });
@@ -44,9 +44,9 @@ export default class ProsumerBatteryController implements IProsumerBatteryContro
         
       }
   }
-  public async getProsumerBattery(req: Request, res: Response, next: NextFunction) {
+  public async getBattery(req: Request, res: Response, next: NextFunction) {
       try {
-        const prosumerBatteryOrError = await this.prosumerBatteryServiceInstance.getProsumerBattery(req.params.id);
+        const prosumerBatteryOrError = await this.batteryServiceInstance.getBattery(req.params.id);
         
         if (prosumerBatteryOrError.isFailure) {
           return res.status(404).json({ message: prosumerBatteryOrError.error });
@@ -61,7 +61,7 @@ export default class ProsumerBatteryController implements IProsumerBatteryContro
   }
   public async findAll(req: Request, res: Response, next: NextFunction) {
       try {
-        const prosumerBatteriesOrError = await this.prosumerBatteryServiceInstance.findAll() as Result<IBatteryDTO[]>;
+        const prosumerBatteriesOrError = await this.batteryServiceInstance.findAll() as Result<IBatteryDTO[]>;
         
         if (prosumerBatteriesOrError.isFailure) {
           return res.status(404).json({ message: prosumerBatteriesOrError.error });

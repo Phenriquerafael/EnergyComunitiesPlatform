@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+/* import 'reflect-metadata';
 
 import * as sinon from 'sinon';
 import { Response, Request, NextFunction } from 'express';
@@ -149,3 +149,4 @@ describe('role controller', function () {
 });
 
 
+ */

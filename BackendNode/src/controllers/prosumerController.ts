@@ -10,7 +10,7 @@ import { Result } from "../core/logic/Result";
 @Service()
 export default class ProsumerController implements IProsumerController {
     private get prosumerServiceInstance(): IProsumerService {
-        return Container.get(config.services.role.name) as IProsumerService;
+        return Container.get(config.services.prosumer.name) as IProsumerService;
     }
 
   public async createProsumer(req: Request, res: Response, next: NextFunction) {

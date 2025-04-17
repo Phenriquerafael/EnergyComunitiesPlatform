@@ -12,9 +12,9 @@ export default class BatteryService implements IBatteryService {
     /* console.log('ProsumerBatteryService instantiated'); // Debug */
   }
 
-  public async createProsumerBattery(prosumerBatteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>> {
+  public async createBattery(batteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>> {
     try {
-      const prosumerBattery = BatteryMap.toDomain(prosumerBatteryDTO);
+      const prosumerBattery = BatteryMap.toDomain(batteryDTO);
 
         if (prosumerBattery.isFailure) {
             return Result.fail<IBatteryDTO>('Error creating prosumer battery');
@@ -29,7 +29,7 @@ export default class BatteryService implements IBatteryService {
     }
   }
 
-  public async updateProsumerBattery(prosumerBatteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>> {
+  public async updateBattery(prosumerBatteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>> {
     try {
       if (!prosumerBatteryDTO.id) {
         return Result.fail<IBatteryDTO>('Prosumer battery ID is required');
@@ -70,7 +70,7 @@ export default class BatteryService implements IBatteryService {
     }
   }
 
-  public async getProsumerBattery(prosumerBatteryId: string): Promise<Result<IBatteryDTO>> {
+  public async getBattery(prosumerBatteryId: string): Promise<Result<IBatteryDTO>> {
     try {
       if (!prosumerBatteryId) {
         return Result.fail<IBatteryDTO>('Prosumer battery ID is required');

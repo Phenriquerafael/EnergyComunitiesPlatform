@@ -1,4 +1,7 @@
 import dotenv from 'dotenv';
+import { Battery } from './src/domain/Prosumer/Battery.ts/Battery';
+import path from 'path';
+import { profile } from 'console';
 
 // Set the NODE_ENV to 'development' by default
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -50,6 +53,19 @@ export default {
       name: "UserController",
       path: "../controllers/userController.ts"
     },
+    battery:{
+      name: "BatteryController",
+      path: "../controllers/batteryController.ts"
+    },
+    prosumer:{
+      name: "ProsumerController",
+      path: "../controllers/prosumerController.ts"
+    },
+    profile:{
+      name: "ProfileController",
+      path: "../controllers/profileController.ts"
+    },
+    // Add other controllers here
   },
 
   repos: {
@@ -60,7 +76,21 @@ export default {
     user: {
       name: "UserRepo",
       path: "../repos/userRepo.ts"
-    }
+    },
+    battery: {
+      name: "BatteryRepo",
+      path: "../repos/batteryRepo.ts"
+    },
+    profile: {
+      name: "ProfileRepo",
+      path: "../repos/profileRepo.ts"
+    },
+    prosumer: {
+      name: "ProsumerRepo",
+      path: "../repos/prosumerRepo.ts"
+    },
+
+    // Add other repos here
   },
 
   services: {
@@ -72,6 +102,20 @@ export default {
       name: "UserService",
       path: "../services/userService.ts"
     },
+
+    battery: {
+      name: "BatteryService",
+      path: "../services/batteryService.ts"
+    },
+    prosumer: {
+      name: "ProsumerService",
+      path: "../services/prosumerService.ts"
+    },
+    profile: {
+      name: "ProfileService",
+      path: "../services/profileService.ts"
+    },
+    // Add other services here
   },
 
 

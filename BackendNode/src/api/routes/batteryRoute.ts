@@ -2,30 +2,51 @@ import { Router } from "express";
 import config from "../../../config";
 import { Container } from "../../container";
 import IBatteryController from "../../controllers/IControllers/IProsumerBatteryController";
+import { celebrate, Joi, Segments } from "celebrate";
 
 const route = Router();
 
 export default (app: Router) => {
-  app.use('/prosumerBatteries', route);
+  app.use('/batteries', route);
   const ctrl = Container.get(config.controllers.battery.name) as IBatteryController;
 
-    if (!ctrl || typeof ctrl.createProsumerBattery !== 'function') {
+    if (!ctrl || typeof ctrl.createBattery !== 'function') {
         throw new Error(`ProsumerBatteryController not properly loaded: ${JSON.stringify(ctrl)}`);
     }
 
+
     route.post(
         '/',
-        (req, res, next) => ctrl.createProsumerBattery(req, res, next)
+        celebrate({
+            body: Joi.object({
+                name: Joi.string().optional(),
+                description: Joi.string().optional(),
+                efficiency: Joi.string().required(),
+                maxCapacity: Joi.string().required(),
+                maxChargeDischarge: Joi.string().required(),
+            }),
+        }),
+        (req, res, next) => ctrl.createBattery(req, res, next)
     );
 
-    route.put(
+    route.patch(
         '/',
-        (req, res, next) => ctrl.updateProsumerBattery(req, res, next)
+        celebrate({
+            body: Joi.object({
+                id: Joi.string().required(),
+                name: Joi.string().optional(),
+                description: Joi.string().optional(),
+                efficiency: Joi.string().optional(),
+                maxCapacity: Joi.string().optional(),
+                maxChargeDischarge: Joi.string().optional(),
+            }),
+        }),
+        (req, res, next) => ctrl.updateBattery(req, res, next)
     );
 
     route.get(
-        '/:id',
-        (req, res, next) => ctrl.getProsumerBattery(req, res, next)
+        'id/:id',
+        (req, res, next) => ctrl.getBattery(req, res, next)
     );
 
     route.get(

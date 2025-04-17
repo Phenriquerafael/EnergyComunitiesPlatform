@@ -10,7 +10,7 @@ import { Result } from "../core/logic/Result";
 @Service()
 export default class ProfileController implements IProfileController {
   private get profileServiceInstance(): IProfileService {
-    return Container.get(config.services.role.name) as IProfileService;
+    return Container.get(config.services.profile.name) as IProfileService;
   }
   
   public async createProfile(req: Request, res: Response, next: NextFunction) {

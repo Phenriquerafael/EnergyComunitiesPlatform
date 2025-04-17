@@ -54,7 +54,9 @@ const batteryInformation = BatteryInformation.create({
         maxCapacity: maxCapacity,
         maxChargeDischarge: maxChargeDischarge,
       };
-      return Battery.create(prosumerBatteryProps);
+      return Battery.create(prosumerBatteryProps,
+      new UniqueEntityID(batteryDTO.id)
+      );
   }
 
   public static toPersistence (battery: Battery): any {
