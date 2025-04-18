@@ -60,42 +60,42 @@ export default class UserController implements IUserController {
     }
   }
 
-  /*   public async getMe(req, res: Response, next: NextFunction) {
-      try {
-        if (!req.token || req.token === undefined) {
-          return res.status(401).json({ message: 'Token inexistente ou inválido' });
-        }
-
-        const result = await this.userService.getMe(req.token.id);
-        if (result.isFailure) {
-          return res.status(401).json({ message: result.error });
-        }
-
-        return res.status(200).json({ data: result.getValue() });
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-      }
-    } */
-
-  public async getMe(req, res: Response) {
+/*   public async getMe(req, res: Response, next: NextFunction) {
     try {
-      const userRepo = Container.get(config.repos.user.name) as IUserRepo;
+      if (!req.token || req.token === undefined) {
+        return res.status(401).json({ message: 'Token inexistente ou inválido' });
+      }
 
+      const result = await this.userService.getMe(req.token.id);
+      if (result.isFailure) {
+        return res.status(401).json({ message: result.error });
+      }
+
+      return res.status(200).json({ data: result.getValue() });
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
+  } */
+
+    public async getMe(req, res: Response) {
+      try {
+      const userRepo = Container.get(config.repos.user.name) as IUserRepo;
+     
 
       if (!req.token || req.token === undefined) {
-        return res.status(401).json({ message: "Token inexistente ou inválido" });
+          return res.status(401).json({ message: "Token inexistente ou inválido" });
       }
 
       const user = await userRepo.findById(req.token.id);
       if (!user) {
-        return res.status(401).json({ message: "Utilizador não registado" });
+          return res.status(401).json({ message: "Utilizador não registado" });
       }
 
       const userDTO = UserMap.toDTO(user) as IUserDTO;
       return res.status(200).json(userDTO);
-    } catch (error) {
+      } catch (error) {
       error.message = "Erro ao obter utilizador";
-    }
+      }
   }
 
 
@@ -163,45 +163,6 @@ export default class UserController implements IUserController {
         return res.status(400).json({ message: result.error });
       }
       return res.status(200).json({ message: result.getValue() });
-    } catch (error) {
-      return next(error);
-    }
-  }
-
-  public async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const users = await this.userServiceInstance.getAllUsers();
-      res.json(users);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  public async updateUser(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const { firstName, lastName, phoneNumber, email, role, password } = req.body;
-
-      // Gather the data to update from the request body
-      const userDTO: IUserDTO = {
-        firstName: firstName ?? undefined,  // Optional fields
-        lastName: lastName ?? undefined,
-        phoneNumber: phoneNumber ?? undefined,
-        email: email ?? undefined,
-        role: role ?? undefined,
-        password: password ?? undefined
-      };
-
-      // Call the userService's update method to handle the actual update logic
-      const result = await this.userServiceInstance.updateUser(id, userDTO);
-
-      // If the update failed, return an error response
-      if (result.isFailure) {
-        return res.status(400).json({ message: result.error });
-      }
-
-      // Successfully updated user
-      return res.status(200).json({ message: 'User updated successfully', data: result.getValue() });
     } catch (error) {
       return next(error);
     }

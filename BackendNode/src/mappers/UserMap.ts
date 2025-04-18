@@ -46,7 +46,7 @@ export class UserMap extends Mapper<User> {
       password: userPasswordOrError.getValue(),
       role: role,
       isEmailVerified: raw.isEmailVerified
-    }, new UniqueEntityID(raw.id))
+    }, new UniqueEntityID(raw.domainId))
 
     userOrError.isFailure ? console.log(userOrError.error) : '';
     

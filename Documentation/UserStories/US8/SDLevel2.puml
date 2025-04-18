@@ -1,0 +1,9 @@
+@startuml
+participant "SPA" as SPA
+participant "APP" as APP
+
+
+SPA -> APP: 1: post(/api/pacients)
+APP -> APP: 1.1: Handles request body, creates pacient and saves it to DB
+APP --> SPA: 1.2: response status
+@enduml

@@ -1,0 +1,91 @@
+@startuml
+skinparam style strictuml
+hide methods
+
+' Classes from DDD aggregates
+class Prosumer {
+  - prosumerId: String
+}
+
+class Profile {
+  - profileId: String
+  - profileTimeStamp: TimeStamp
+  - profileLoad: float
+  - soldEnergy: float
+  - boughtEnergy: float
+  - photovoltaicEnergyLoad: float
+  - stateOfCharge: float
+}
+
+class User {
+  - userId: String
+  - userName: String
+  - userEmail: String
+  - userPassword: String
+  - userPhone: String
+}
+
+class Administrator {
+  - adminId: String
+}
+
+class CommunityManager {
+  - communityManagerId: String
+}
+
+class Battery {
+  - batteryId: String
+  - batteryName: String
+  - maxCapacity: float
+  - efficiency: float
+  - maxChargeDischarge: float
+}
+
+class Community {
+  - communityId: String
+  - communityName: String
+  - communityProsumerIds: String[*]
+}
+
+class MembershipRequest {
+  - requestId: String
+  - prosumerId: String
+  - communityId: String
+  - status: String
+  - timeStamp: TimeStamp
+}
+
+class CommunityEnergyProfile {
+  - communityEnergyProfileId: String
+  - timeStamp: TimeStamp
+  - totalProduction: float
+  - totalConsumption: float
+  - sharedEnergy: float
+}
+
+class TimeStamp {
+  - intervalOfTime: String
+  - numberOfIntervals: int
+}
+
+' Relationships
+Prosumer --> "1" Profile
+Prosumer --> "1" Battery
+Prosumer --|> "1" User
+Prosumer --> "1..*" MembershipRequest
+
+Profile --> "1" TimeStamp
+
+User <|-- Administrator
+User <|-- CommunityManager
+
+Community --> "1..*" Prosumer
+Community --> "1" CommunityManager
+Community --> "1..*" CommunityEnergyProfile
+CommunityManager --> "1..*" MembershipRequest
+
+CommunityEnergyProfile --> "1" TimeStamp
+
+note right of Profile: Balance of the Prosumer in kW/h, positive values lead to buy energy from the grid
+
+@enduml

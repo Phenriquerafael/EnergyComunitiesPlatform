@@ -27,7 +27,6 @@ export class ProsumerMap {
         };
 
         return Prosumer.create(prosumerProps,new UniqueEntityID(id));
-        throw new Error("Method not implemented.");
     }
 
     public static async toDomain(raw: IProsumerPersistence): Promise<Result<Prosumer>> {

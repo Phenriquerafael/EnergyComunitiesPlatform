@@ -1,0 +1,27 @@
+@startuml
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: US010
+
+actor "Admin" as Admin
+participant "UI" as UI
+
+activate Admin
+Admin -> UI : 1 : Starts the deleting patient profile process
+activate UI
+UI --> Admin : 1.1 : Shows list of patients \n and asks to type patient id for deletion 
+deactivate UI
+Admin -> UI : 2 : Inserts requested data
+activate UI
+UI --> Admin : 1.1 : asks confirmation
+deactivate UI
+Admin -> UI : 2 : Confirms 
+activate UI
+UI --> Admin : 2.1 : Shows success confirmation and deletes patient information
+
+
+deactivate UI
+
+@enduml

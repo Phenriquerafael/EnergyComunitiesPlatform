@@ -1,0 +1,24 @@
+@startuml
+
+' Diagrama de Atividades
+start
+
+:Load Data (PLoad, PPV, Cbuy, Csell);
+:Define parameters (η, SOCmax, SOCmin, Pmax, Pmin);
+:Define time intervals (T, Δt);
+:Initialize variables (SOC, Pcharge, Pdischarge, Ccost, Cprofit);
+
+if (First period of the day?) then (Yes)
+    :initial SOC = SOC of the previous day;
+else (No)
+    :Update SOC on charge and discharge;
+endif
+
+:Define objective (Minimize cost);
+:Define restraints (SOC, Pcharge, Pdischarge);
+:Solve solution (GUROBI);
+:Store Results;
+stop
+
+@enduml
+ 

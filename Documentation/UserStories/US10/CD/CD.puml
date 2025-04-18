@@ -1,0 +1,60 @@
+@startuml
+
+!define ENTITY(x) class x << (E,#FFAAAA) >>
+!define SERVICE(x) class x << (S,#ADD1B2) >>
+!define CONTROLLER(x) class x << (C,#FFBB44) >>
+!define REPOSITORY(x) class x << (R,#FFCC77) >>
+!define MAPPER(x) class x << (M,#66B2FF) >>
+!define DTO(x) class x << (D,#FFFF66) >>
+!define VALUE_OBJECT(x) class x << (V,#D1E7DD) >>
+
+CONTROLLER(PatientController) {
+    +editPatient(patientDTO: PatientDTO): PatientDTO
+    +deletePatient(patientId: Long): void
+}
+
+SERVICE(PatientService) {
+    +editPatient(patientDTO: PatientDTO): PatientDTO
+    +deletePatient(patientId: Long): void
+    -findByDomainId(id: Long): Patient
+}
+
+ENTITY(Patient) {
+    -id: Long
+    -name: String
+    -contactInformation: ContactInformation
+    +edit(): void
+}
+
+VALUE_OBJECT(ContactInformation) {
+    -email: String
+    -phoneNumber: String
+}
+
+REPOSITORY(PatientRepo) {
+    +findByDomainId(id: Long): Patient
+    +save(patient: Patient): void
+    +delete(patientId: Long): void
+}
+
+DTO(PatientDTO) {
+    -id: Long
+    -name: String
+    -email: String
+    -phoneNumber: String
+}
+
+MAPPER(PatientMapper) {
+    +toDTO(patient: Patient): PatientDTO
+    +toEntity(patientDTO: PatientDTO): Patient
+}
+
+PatientController --> PatientService : calls
+PatientService --> PatientRepo : uses
+PatientService --> PatientMapper : maps to DTO
+PatientRepo --> Patient : fetches
+Patient --> PatientService : returns
+PatientMapper --> PatientDTO : converts to
+PatientService --> PatientController : returns DTO
+
+@enduml

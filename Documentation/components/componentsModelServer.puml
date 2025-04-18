@@ -1,0 +1,43 @@
+@startuml 
+
+interface API_Optimization
+interface API_Exterior
+interface DB
+
+component "Server" {
+component Controllers
+component Domain
+component Services
+component Repositories
+component Authorizer
+component Dto
+component Logs 
+component Mapper
+
+Controllers -(0- Services
+Services -(0- Domain
+Services -(0- Authorizer
+Services -(0- Logs
+Services -(0- Mapper
+Mapper -(0- Dto
+Repositories -0)- Services
+
+
+
+port P1
+port P2
+port P3
+
+}
+
+
+P2 -- Repositories
+API_Exterior -- P1
+P1 -- Controllers
+DB -- P2
+API_Optimization -- P3
+P3 -- Services
+
+
+
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+skinparam style strictuml
+
+class Prosumer {
+  - pvProduction: float
+  - load: float
+  - pLoad: float
+  - pESSCharge: float
+  - pESSDischarge: float
+  - pPV_ESS: float
+  + calculatePLoad(): float
+  + decideExchange(): void
+  + decideBatteryUsage(): void
+}
+
+class Battery {
+  - capacity: float
+  - stateOfCharge: float
+  + charge(amount: float): void
+  + discharge(amount: float): void
+}
+
+class Community {
+  - peers: List<Prosumer>
+  + hasEnergy(): bool
+  + needsEnergy(): bool
+  + receiveEnergy(from: Prosumer): void
+  + provideEnergy(to: Prosumer): void
+}
+
+class Exchange {
+  - pSell: float
+  - pBuy: float
+  + registerSell(from: Prosumer, amount: float): void
+  + registerBuy(to: Prosumer, amount: float): void
+}
+
+Prosumer --> Battery
+Prosumer --> Community
+Prosumer --> Exchange
+Community --> "0..*" Prosumer
+
+@enduml

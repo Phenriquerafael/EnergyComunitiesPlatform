@@ -1,0 +1,36 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+
+
+package "Frameworks & Drivers" {
+    component Database
+    component Routing
+}
+
+
+package "Interface Adapters"{
+    component Repositories
+    component Controllers
+}
+
+
+Routing ..> Controllers
+Database <.. Repositories
+
+package "Application Business Rules"{
+    component Services
+}
+
+Controllers ..> Services
+
+package "Enterprise Business Rules"{
+    component Domain
+    component IRepositories
+}
+
+Services ..> Domain
+Services ..> IRepositories
+Repositories ..|> IRepositories
+
+@enduml

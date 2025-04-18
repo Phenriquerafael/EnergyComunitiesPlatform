@@ -1,0 +1,45 @@
+@startuml
+
+!define ENTITY(x) class x << (E,#FFAAAA) >>
+!define SERVICE(x) class x << (S,#ADD1B2) >>
+!define CONTROLLER(x) class x << (C,#FFBB44) >>
+!define REPOSITORY(x) class x << (R,#FFCC77) >>
+!define MAPPER(x) class x << (M,#66B2FF) >>
+!define DTO(x) class x << (D,#FFFF66) >>
+
+CONTROLLER(PatientController) {
+    +editPatient(patientDTO: PatientDTO): PatientDTO
+}
+
+SERVICE(PatientService) {
+    +editPatient(patientDTO: PatientDTO): PatientDTO
+    -findByDomainId(id: Long): Patient
+}
+
+ENTITY(Patient) {
+    -id: Long
+    +edit(): void
+}
+
+REPOSITORY(PatientRepo) {
+    +findByDomainId(id: Long): Patient
+    +save(patient: Patient): void
+}
+
+DTO(PatientDTO) {
+    -id: Long
+}
+
+MAPPER(PatientMapper) {
+    +toDTO(patient: Patient): PatientDTO
+}
+
+PatientController --> PatientService : calls
+PatientService --> PatientRepo : uses
+PatientService --> PatientMapper : maps to DTO
+PatientRepo --> Patient : fetches
+Patient --> PatientService : returns
+PatientMapper --> PatientDTO : converts to
+PatientService --> PatientController : returns DTO
+
+@enduml

@@ -1,0 +1,110 @@
+@startuml
+skinparam backgroundColor #fcf9ea
+skinparam titleBorderRoundCorner 15
+skinparam titleFontSize 30
+skinparam classAttributeIconSize 0
+skinparam titleFontName Arial Black
+skinparam titleFontColor #f8a978
+skinparam roundcorner 20
+skinparam stereotypeCBackgroundColor ffc5a1
+
+package "Patient Management" {
+    class Patient {
+        - patientId: String
+        - dateOfBirth: Date
+        - medicalRecordNumber: String
+        - state: String
+    }
+
+    class ContactInformation {
+        - email: String
+        - phoneNumber: String
+    }
+
+    class MedicalRecord {
+        - medicalConditions: String
+    }
+
+    class Allergies {
+        - allergies: String
+    }
+
+    class Name {
+        - firstName: String
+        - lastName: String
+    }
+
+    class DateOfBirth {
+        - dateOfBirth: Date
+    }
+
+    class MedicalRecordNumber {
+        - medicalRecordNumber: String
+    }
+
+    class UsernameUser {
+        - username: String
+    }
+
+    class PatientService {
+        + getPatients(): List<Patient>
+        + deletePatient(patientId: String): void
+        + updatePatient(patient: Patient): void
+    }
+
+    class PatientRepo {
+        + findAll(): List<Patient>
+        + findById(patientId: String): Patient
+        + save(patient: Patient): void
+        + delete(patientId: String): void
+    }
+
+    class PatientController {
+        + handleGetPatients(): List<Patient>
+        + handleDeletePatient(patientId: String): void
+        + handleUpdatePatient(patient: Patient): void
+    }
+
+    class AppointmentHistory {
+        - historyId: String
+        - appointmentDate: Date
+        - patientId: String
+    }
+
+    class OperationRequest {
+        - requestId: String
+        - operationType: String
+        - patientId: String
+    }
+
+    class Allergie {
+        - allergyId: String
+        - description: String
+    }
+
+    class Stuff {
+        - stuffId: String
+        - details: String
+    }
+
+    Patient "1" -- "0..1" Name
+    Patient "1" -- "1" DateOfBirth
+    Patient "1" -- "1" MedicalRecordNumber
+    Patient "1" -- "1" MedicalRecord
+    Patient "1" -- "1" Allergies
+    Patient "1" -- "1" State
+    Patient "1" -- "1" ContactInformation
+    ContactInformation "1" -- "1" EmailAdress
+    ContactInformation "1" -- "1" PhoneNumber : regular
+    Patient "1" -- "1" PhoneNumber : emergency
+    Patient "1" -- "0..1" UsernameUser
+    MedicalRecordNumber "1" -- "0..*" AppointmentHistory
+    MedicalRecordNumber "1" -- "0..*" OperationRequest
+    Allergies "1" -- "0..*" Allergie
+    MedicalRecord "1" -- "0..*" Stuff
+
+    PatientController --> PatientService
+    PatientService --> PatientRepo
+}
+
+@enduml
