@@ -60,9 +60,9 @@ export class User extends AggregateRoot<UserProps> {
   get role (): Role {
     return this.props.role;
   }
-  
+
   set role (value: Role) {
-      this.props.role = value;
+    this.props.role = value;
   }
 
   get isEmailVerified (): boolean {
@@ -77,8 +77,45 @@ export class User extends AggregateRoot<UserProps> {
   public updatePassword(newPassword: UserPassword): void {
     this.props.password = newPassword;
   }
-  
 
+  public updateFirstName(firstName: string): Result<void> {
+    if (!firstName || firstName.trim().length === 0) {
+      return Result.fail<void>('First name cannot be empty');
+    }
+
+    if (firstName.length > 50) {
+      return Result.fail<void>('First name must be less than 50 characters');
+    }
+
+    this.props.firstName = firstName;
+    return Result.ok<void>();
+  }
+
+  public updateLastName(lastName: string): Result<void> {
+    if (!lastName || lastName.trim().length === 0) {
+      return Result.fail<void>('Last name cannot be empty');
+    }
+
+    if (lastName.length > 50) {
+      return Result.fail<void>('Last name must be less than 50 characters');
+    }
+
+    this.props.lastName = lastName;
+    return Result.ok<void>();
+  }
+
+  public updateEmail(email: UserEmail): Result<void> {
+    if (!email.isValid()) {
+      return Result.fail<void>('Invalid email format');
+    }
+
+    this.props.email = email;
+    return Result.ok<void>();
+  }
+
+  public updatePhoneNumber(phoneNumber: PhoneNumber): void {
+    this.props.phoneNumber = phoneNumber;
+  }
 
   private constructor (props: UserProps, id?: UniqueEntityID) {
     super(props, id);
@@ -93,9 +130,9 @@ export class User extends AggregateRoot<UserProps> {
       { argument: props.role, argumentName: 'role' },
       { argument: props.isEmailVerified, argumentName: 'isEmailVerified' }
     ];
-  
+
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
-  
+
     if (!guardResult.succeeded) {
       return Result.fail<User>(guardResult.message);
     } else {
@@ -107,5 +144,5 @@ export class User extends AggregateRoot<UserProps> {
   public toString (): string {
     return `${this.firstName} ${this.lastName} - ${this.phoneNumber.value}\n${this.email.value}`;
   }
-  
+
 }

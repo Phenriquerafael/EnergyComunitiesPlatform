@@ -11,7 +11,7 @@ export class PhoneNumber extends ValueObject<PhoneNumberProps> {
   get value (): string {
     return this.props.value;
   }
-  
+
   private constructor (props: PhoneNumberProps) {
     super(props);
   }
@@ -23,5 +23,11 @@ export class PhoneNumber extends ValueObject<PhoneNumberProps> {
     } else {
       return Result.ok<PhoneNumber>(new PhoneNumber({ value: phoneNumber }))
     }
+  }
+
+  public isValid(): boolean {
+    // Regex to validate phone number format (for a simple international phone number)
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    return phoneRegex.test(this.value);
   }
 }
