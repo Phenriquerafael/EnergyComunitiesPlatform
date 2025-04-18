@@ -4,6 +4,9 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
+
+
 
         {
             "type": "node",
@@ -12,7 +15,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\backend\\src\\app.ts",
+            "program": "C:\\Users\\phenr\\OneDrive\\Documentos\\GitHub\\EnergyComunitiesPlatform\\BackendNode\\src\\app.ts",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]

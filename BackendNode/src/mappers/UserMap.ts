@@ -14,6 +14,7 @@ import { User } from '../domain/User/user';
 import { UserEmail } from '../domain/User/userEmail';
 import { PhoneNumber } from '../domain/User/phoneNumber';
 import { UserPassword } from '../domain/User/userPassword';
+import { Result } from '../core/logic/Result';
 
 
 export class UserMap extends Mapper<User> {
@@ -31,7 +32,7 @@ export class UserMap extends Mapper<User> {
     } as IUserDTO;
   }
 
-  public static async toDomain (raw: any): Promise<User> {
+  public static async toDomain (raw: any): Promise<Result<User>> {
     const userEmailOrError = UserEmail.create(raw.email);
     const phoneNumberOrError = PhoneNumber.create(raw.phoneNumber);
     const userPasswordOrError = UserPassword.create({value: raw.password, hashed: true});
@@ -48,9 +49,11 @@ export class UserMap extends Mapper<User> {
       isEmailVerified: raw.isEmailVerified
     }, new UniqueEntityID(raw.id))
 
-    userOrError.isFailure ? console.log(userOrError.error) : '';
+    if (userOrError.isFailure) {
+      return Result.fail<User>(userOrError.errorValue());
+    }
     
-    return userOrError.isSuccess ? userOrError.getValue() : null;
+    return userOrError;
   }
 
   public static toPersistence(user: User): any {

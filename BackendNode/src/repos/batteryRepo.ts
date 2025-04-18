@@ -16,7 +16,7 @@ export default class BatteryRepo implements IBatteryRepo {
 
             if (!existingBattery) {
                 const createdBattery = await prisma.battery.create({ data: rawBattery });
-                const batteryOrError = BatteryMap.toDomain(createdBattery);
+                const batteryOrError = BatteryMap.toDomainFromDTO(createdBattery);
                 if (batteryOrError.isFailure) {
                     return Result.fail<Battery>(batteryOrError.error);
                 }
@@ -26,7 +26,7 @@ export default class BatteryRepo implements IBatteryRepo {
                     where: { id: battery.id.toString() },
                     data: rawBattery,
                 });
-                return Result.ok<Battery>(BatteryMap.toDomain(updatedBattery).getValue()); 
+                return Result.ok<Battery>(BatteryMap.toDomainFromDTO(updatedBattery).getValue()); 
             }
         } catch (error) {
             console.error("Error saving battery: ", error);
@@ -41,7 +41,7 @@ export default class BatteryRepo implements IBatteryRepo {
             if (!battery) {
                 return Result.fail<Battery>("Battery not found");
             }
-            const batteryOrError = BatteryMap.toDomain(battery);
+            const batteryOrError = BatteryMap.toDomainFromDTO(battery);
             if (batteryOrError.isFailure) {
                 return Result.fail<Battery>(batteryOrError.error);
             }
@@ -57,7 +57,7 @@ export default class BatteryRepo implements IBatteryRepo {
         if (!batteries) {
             return Result.fail<Battery[]>("No batteries found");
         }
-        const batteryOrErrors = batteries.map((battery) => BatteryMap.toDomain(battery));
+        const batteryOrErrors = batteries.map((battery) => BatteryMap.toDomainFromDTO(battery));
         const failedBatteries = batteryOrErrors.filter((battery) => battery.isFailure);
         if (failedBatteries.length > 0) {
             return Result.fail<Battery[]>(

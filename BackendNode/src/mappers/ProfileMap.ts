@@ -57,8 +57,9 @@ export class ProfileMap {
       price: rawProfile.soldEnergyPrice,
       amount: rawProfile.soldEnergyAmount,
     });
+    
 
-    const prosumerOrError = await ProsumerMap.toDomain(rawProfile.prosumer);
+    const prosumerOrError = await ProsumerMap.toDomain(/* rawProfile.prosumer */null);
 
     if (prosumerOrError.isFailure) {
       return Result.fail<Profile>(prosumerOrError.error);

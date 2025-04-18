@@ -14,7 +14,7 @@ export default class BatteryService implements IBatteryService {
 
   public async createBattery(batteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>> {
     try {
-      const prosumerBattery = BatteryMap.toDomain(batteryDTO);
+      const prosumerBattery = BatteryMap.toDomainFromDTO(batteryDTO);
 
         if (prosumerBattery.isFailure) {
             return Result.fail<IBatteryDTO>('Error creating prosumer battery');

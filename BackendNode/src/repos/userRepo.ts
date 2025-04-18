@@ -33,7 +33,7 @@ export default class UserRepo implements IUserRepo {
 
     if (!existing) {
       const created = await prisma.user.create({ data: rawUser });
-      return UserMap.toDomain(created);
+      return (await UserMap.toDomain(created)).getValue();
     } else {
       await prisma.user.update({
         where: { id: id.toString() },
@@ -45,7 +45,12 @@ export default class UserRepo implements IUserRepo {
 
   public async findAll(): Promise<User[]> {
     const users = await this.prisma.user.findMany();
-    return await Promise.all(users.map(user => UserMap.toDomain(user)));
+    const result: User[] = [];
+    for (const user of users) {
+      const domainUser = (await UserMap.toDomain(user)).getValue();
+      result.push(domainUser);
+    }
+    return result;
   }
 
 
@@ -54,7 +59,8 @@ export default class UserRepo implements IUserRepo {
     const user = await prisma.user.findUnique({
       where: { email: emailStr },
     });
-    return user ? UserMap.toDomain(user) : null;
+    const userResult = ((await UserMap.toDomain(user)).getValue()); 
+    return userResult;
   }
 
   public async findById(userId: UserId | string): Promise<User> {
@@ -62,7 +68,8 @@ export default class UserRepo implements IUserRepo {
     const user = await prisma.user.findUnique({
       where: { id: id.toString() },
     });
-    return user ? UserMap.toDomain(user) : null;
+    const userResult = ((await UserMap.toDomain(user)).getValue());
+    return userResult;
   }
   /*
     public async findByResetToken(token: string): Promise<User> {

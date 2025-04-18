@@ -29,7 +29,7 @@ export class BatteryMap extends Mapper<Battery> {
     } as IBatteryDTO;
   }
 
-  public static toDomain (batteryDTO:IBatteryDTO ): Result<Battery> {
+  public static toDomainFromDTO (batteryDTO:IBatteryDTO ): Result<Battery> {
 const batteryInformation = BatteryInformation.create({
         name: batteryDTO.name,
         description: batteryDTO.description,
@@ -57,6 +57,39 @@ const batteryInformation = BatteryInformation.create({
       return Battery.create(prosumerBatteryProps,
       new UniqueEntityID(batteryDTO.id)
       );
+  }
+
+  public static async toDomain (rawBattery: IBatteryPersistence): Promise<Result<Battery>> {
+    const batteryInformation = BatteryInformation.create({
+      name: rawBattery.name,
+      description: rawBattery.description,
+    });
+
+    const efficiency = Efficiency.create({
+      value: rawBattery.efficiency,
+    });
+
+    const maxCapacity = MaxCapacity.create({
+      value: rawBattery.maxCapacity,
+    });
+
+    const maxChargeDischarge = MaxChargeDischarge.create({
+      maxCharge: rawBattery.maxChargeDischarge,
+      maxDischarge: rawBattery.maxChargeDischarge,
+    });
+
+    const prosumerBatteryProps = {
+      batteryInformation: batteryInformation,
+      efficiency: efficiency,
+      maxCapacity: maxCapacity,
+      maxChargeDischarge: maxChargeDischarge,
+    };
+
+    const batteryOrError = Battery.create(prosumerBatteryProps, new UniqueEntityID(rawBattery.id));
+    if (batteryOrError.isFailure) {
+      return Result.fail<Battery>(batteryOrError.error);
+    }
+    return Result.ok<Battery>(batteryOrError.getValue());
   }
 
   public static toPersistence (battery: Battery): any {

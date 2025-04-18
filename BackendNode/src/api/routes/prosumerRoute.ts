@@ -2,11 +2,12 @@ import { Router } from "express";
 import config from "../../../config";
 import { Container } from "../../container";
 import IProsumerController from "../../controllers/IControllers/IProsumerController";
+import { celebrate, Joi } from "celebrate";
 
 const route = Router();
 
 export default (app: Router) => {
-  app.use('/roles', route);
+  app.use('/prosumers', route);
 
   const ctrl = Container.get(config.controllers.prosumer.name) as IProsumerController;  
 
@@ -16,11 +17,22 @@ export default (app: Router) => {
 
     route.post(
         '/',
+        celebrate({
+            body: Joi.object({
+                userId: Joi.string().required(),
+                batteryId: Joi.string().required(),
+            }),}),
         (req, res, next) => ctrl.createProsumer(req, res, next)
     );
 
-    route.put(
+    route.patch(
         '/',
+        celebrate({
+            body: Joi.object({
+                id: Joi.string().required(),
+                userId: Joi.string().optional(),
+                batteryId: Joi.string().optional(),
+            }),}),
         (req, res, next) => ctrl.updateProsumer(req, res, next)
     );
 
