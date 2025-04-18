@@ -25,12 +25,12 @@ export default class ProfileService implements IProfileService {
 
   public async createProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>> {
     try {
+      
       try {
         const prosumer = profileDTO.prosumerId ? await this.prosumerRepoInstance.findById(profileDTO.prosumerId) : null;
+        const profile = ProfileMap.toDomainFromDTO(profileDTO, prosumer.getValue());
 
-        const profile = ProfileMap.toDomain(profileDTO, prosumer ? prosumer.getValue() : null);
-
-        return this.profileRepoInstance.save(profile.getValue()).then((profile) => {
+        return this.profileRepoInstance.save(profile.getValue(),prosumer.getValue()).then((profile) => {
           return Result.ok<IProfileDTO>(ProfileMap.toDTO(profile.getValue()));
         });
       } catch (error) {
@@ -44,66 +44,84 @@ export default class ProfileService implements IProfileService {
   }
 
   public async updateProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>> {
-    const existingProfileOrError = await this.profileRepoInstance.findById(profileDTO.id!);
-    if (existingProfileOrError.isFailure) {
-      return Result.fail<IProfileDTO>('Profile not found');
-    }
-
-    const existingProfile = existingProfileOrError.getValue();
-
-    if (profileDTO.prosumerId) {
-      const prosumer = await this.prosumerRepoInstance.findById(profileDTO.prosumerId);
-      if (prosumer.isFailure) {
-        return Result.fail<IProfileDTO>('Prosumer not found');
+    try {
+      // Validate and fetch the prosumer if prosumerId is provided
+      let prosumer = null;
+      if (profileDTO.prosumerId) {
+        const prosumerOrError = await this.prosumerRepoInstance.findById(profileDTO.prosumerId);
+        if (prosumerOrError.isFailure) {
+          return Result.fail<IProfileDTO>('Prosumer not found');
+        }
+        prosumer = prosumerOrError.getValue();
       }
-      existingProfile.prosumer = prosumer.getValue();
-    }
 
-    if (profileDTO.intervalOfTime) {
-      existingProfile.timestamp.intervaleOfTime = profileDTO.intervalOfTime;
-    }
+      // Fetch the existing profile
+      const existingProfileOrError = await this.profileRepoInstance.findById(profileDTO.id!);
+      if (existingProfileOrError.isFailure) {
+        return Result.fail<IProfileDTO>('Profile not found');
+      }
 
-    if (profileDTO.numberOfIntervales) {
-      existingProfile.timestamp.numberOfIntervales = profileDTO.numberOfIntervales;
-    }
+      const existingProfile = existingProfileOrError.getValue();
 
-    if (profileDTO.profileLoad) {
-      existingProfile.profileLoad.amount = profileDTO.profileLoad;
-    }
+      // Update the prosumer if applicable
+      if (prosumer) {
+        existingProfile.prosumer = prosumer;
+      }
 
-    if (profileDTO.stateOfCharge) {
-      existingProfile.stateOfCharge.amount = profileDTO.stateOfCharge;
-    }
+      // Update profile fields based on the provided DTO
+      if (profileDTO.intervalOfTime) {
+        existingProfile.timestamp.intervaleOfTime = profileDTO.intervalOfTime;
+      }
 
-    if (profileDTO.photovoltaicEnergyLoad) {
-      existingProfile.photovoltaicEnergyLoad.amount = profileDTO.photovoltaicEnergyLoad;
-    }
+      if (profileDTO.numberOfIntervales) {
+        existingProfile.timestamp.numberOfIntervales = profileDTO.numberOfIntervales;
+      }
 
-    if (profileDTO.boughtEnergyPrice) {
-      existingProfile.boughtEnergy.price = profileDTO.boughtEnergyPrice;
-    }
+      if (profileDTO.profileLoad) {
+        existingProfile.profileLoad.amount = profileDTO.profileLoad;
+      }
 
-    if (profileDTO.boughtEnergyAmount) {
-      existingProfile.boughtEnergy.amount = profileDTO.boughtEnergyAmount;
-    }
+      if (profileDTO.stateOfCharge) {
+        existingProfile.stateOfCharge.amount = profileDTO.stateOfCharge;
+      }
 
-    if (profileDTO.soldEnergyPrice) {
-      existingProfile.soldEnergy.price = profileDTO.soldEnergyPrice;
-    }
+      if (profileDTO.photovoltaicEnergyLoad) {
+        existingProfile.photovoltaicEnergyLoad.amount = profileDTO.photovoltaicEnergyLoad;
+      }
 
-    if (profileDTO.soldEnergyAmount) {
-      existingProfile.soldEnergy.amount = profileDTO.soldEnergyAmount;
-    }
+      if (profileDTO.boughtEnergyPrice) {
+        existingProfile.boughtEnergy.price = profileDTO.boughtEnergyPrice;
+      }
 
-    const updatedProfile = await this.profileRepoInstance.save(existingProfile);
-    if (updatedProfile.isFailure) {
+      if (profileDTO.boughtEnergyAmount) {
+        existingProfile.boughtEnergy.amount = profileDTO.boughtEnergyAmount;
+      }
+
+      if (profileDTO.soldEnergyPrice) {
+        existingProfile.soldEnergy.price = profileDTO.soldEnergyPrice;
+      }
+
+      if (profileDTO.soldEnergyAmount) {
+        existingProfile.soldEnergy.amount = profileDTO.soldEnergyAmount;
+      }
+
+      // Save the updated profile
+      const updatedProfileOrError = await this.profileRepoInstance.save(existingProfile, existingProfile.prosumer);
+      if (updatedProfileOrError.isFailure) {
+        return Result.fail<IProfileDTO>('Error updating profile');
+      }
+
+      return Result.ok<IProfileDTO>(ProfileMap.toDTO(updatedProfileOrError.getValue()));
+    } catch (error) {
+      console.log('Error updating profile: ', error);
       return Result.fail<IProfileDTO>('Error updating profile');
     }
-    return Result.ok<IProfileDTO>(ProfileMap.toDTO(updatedProfile.getValue()));
   }
 
   public async getProfile(profileId: string): Promise<Result<IProfileDTO>> {
     try {
+      
+
       const existingProfileOrError = await this.profileRepoInstance.findById(profileId);
       if (existingProfileOrError.isFailure) {
         return Result.fail<IProfileDTO>('Profile not found');

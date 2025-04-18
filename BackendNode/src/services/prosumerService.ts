@@ -37,7 +37,7 @@ export default class ProsumerService implements IProsumerService {
                 return Result.fail<IProsumerDTO>("User doesn't exist");
             } */
 
-            prosumerOrError = ProsumerMap.toDomain(batteryOrError.getValue(), userOrError);
+            prosumerOrError = ProsumerMap.toDomainFromDto(prosumerDTO.id,batteryOrError.getValue(), userOrError);
 
             if (prosumerOrError.isFailure) {
                 return Result.fail<IProsumerDTO>("Error creating prosumer");

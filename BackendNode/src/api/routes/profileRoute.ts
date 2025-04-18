@@ -2,6 +2,7 @@ import { Router } from "express";
 import config from "../../../config";
 import IProfileController from "../../controllers/IControllers/IProfileController";
 import { Container } from "../../container";
+import { celebrate, Joi } from "celebrate";
 
 const route = Router();
 
@@ -17,16 +18,46 @@ export default (app: Router) => {
 
     route.post(
         '/',
+        celebrate({
+            body: Joi.object({
+                prosumerId: Joi.string().required(),
+                intervalOfTime: Joi.string().required(),
+                numberOfIntervales: Joi.number().required(),
+                stateOfCharge: Joi.string().required(),
+                photovoltaicEnergyLoad: Joi.string().required(),
+                boughtEnergyAmount: Joi.string().required(),
+                boughtEnergyPrice: Joi.string().required(),
+                soldEnergyAmount: Joi.string().required(),
+                soldEnergyPrice: Joi.string().required(),
+                profileLoad: Joi.string().required()
+            }),
+        }),
+
         (req, res, next) => ctrl.createProfile(req, res, next)
     );
 
-    route.put(
+    route.patch(
         '/',
+        celebrate({
+            body: Joi.object({
+                id: Joi.string().required(),
+                prosumerId: Joi.string().optional(),
+                intervalOfTime: Joi.string().optional(),
+                numberOfIntervales: Joi.number().optional(),
+                stateOfCharge: Joi.string().optional(),
+                photovoltaicEnergyLoad: Joi.string().optional(),
+                boughtEnergyAmount: Joi.string().optional(),
+                boughtEnergyPrice: Joi.string().optional(),
+                soldEnergyAmount: Joi.string().optional(),
+                soldEnergyPrice: Joi.string().optional(),
+                profileLoad: Joi.string().optional()
+            }),
+        }),
         (req, res, next) => ctrl.updateProfile(req, res, next)
     );
 
     route.get(
-        '/:id',
+        '/id/:id',
         (req, res, next) => ctrl.getProfile(req, res, next)
     );
 

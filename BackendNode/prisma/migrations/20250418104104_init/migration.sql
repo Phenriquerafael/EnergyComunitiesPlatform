@@ -28,8 +28,8 @@ CREATE TABLE "User" (
 CREATE TABLE "Profile" (
     "id" TEXT NOT NULL,
     "prosumerId" TEXT NOT NULL,
-    "timeStampUnit" TEXT NOT NULL,
-    "timeStampIntervalNumber" INTEGER NOT NULL,
+    "intervalOfTime" TEXT NOT NULL,
+    "numberOfIntervals" INTEGER NOT NULL,
     "stateOfCharge" TEXT NOT NULL,
     "photovoltaicEnergyLoad" TEXT NOT NULL,
     "boughtEnergyAmount" TEXT NOT NULL,

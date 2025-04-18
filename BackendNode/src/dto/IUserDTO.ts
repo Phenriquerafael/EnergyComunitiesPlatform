@@ -1,11 +1,11 @@
 
 export interface IUserDTO {
-  id?: string
+  id?: string;
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber: string;
   password: string;
-  role: string
+  role: string;
   isEmailVerified?: boolean;
 }
