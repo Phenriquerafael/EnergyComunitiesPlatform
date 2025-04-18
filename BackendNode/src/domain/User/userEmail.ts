@@ -11,7 +11,7 @@ export class UserEmail extends ValueObject<UserEmailProps> {
   get value (): string {
     return this.props.value;
   }
-  
+
   private constructor (props: UserEmailProps) {
     super(props);
   }
@@ -23,5 +23,11 @@ export class UserEmail extends ValueObject<UserEmailProps> {
     } else {
       return Result.ok<UserEmail>(new UserEmail({ value: email }))
     }
+  }
+
+  public isValid(): boolean {
+    // Regex to validate email format (basic validation)
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailRegex.test(this.value);
   }
 }

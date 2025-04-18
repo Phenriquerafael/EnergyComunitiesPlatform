@@ -19,9 +19,9 @@ export default class UserService implements IUserService {
   private revokedTokens = new Set<string>();
 
   constructor(
-    @Inject(config.repos.user.name) private userRepo: IUserRepo,
-    @Inject(config.repos.role.name) private roleRepo: IRoleRepo,
-    @Inject('logger') private logger
+      @Inject(config.repos.user.name) private userRepo: IUserRepo,
+      @Inject(config.repos.role.name) private roleRepo: IRoleRepo,
+      @Inject('logger') private logger
   ) {
     console.log('UserService instantiated'); // Debug
   }
@@ -47,16 +47,16 @@ export default class UserService implements IUserService {
   }
 
   public async findStaff(): Promise<Result<IUserDTO[]>> {
-/*     try {
-      const staff = await this.userRepo.findStaff();
-      if (!staff || staff.length === 0) {
-        return Result.fail<IUserDTO[]>('No staff found');
-      }
-      return Result.ok<IUserDTO[]>(staff.map(staff => UserMap.toDTO(staff) as IUserDTO));
-    } catch (error) {
-      return Result.fail<IUserDTO[]>('Error while finding staff: ' + error.message);
-    } */
-   throw new Error('Not implemented yet');
+    /*     try {
+          const staff = await this.userRepo.findStaff();
+          if (!staff || staff.length === 0) {
+            return Result.fail<IUserDTO[]>('No staff found');
+          }
+          return Result.ok<IUserDTO[]>(staff.map(staff => UserMap.toDTO(staff) as IUserDTO));
+        } catch (error) {
+          return Result.fail<IUserDTO[]>('Error while finding staff: ' + error.message);
+        } */
+    throw new Error('Not implemented yet');
   }
 
   public async getUser(id: string): Promise<Result<IUserDTO>> {
@@ -88,10 +88,10 @@ export default class UserService implements IUserService {
 
   public async SignUp(userDTO: IUserDTO): Promise<Result<{ userDTO: IUserDTO, token: string }>> {
     try {
-/*       const userDocument = await this.userRepo.findByEmail(userDTO.email);
-      if (userDocument) {
-        return Result.fail<{ userDTO: IUserDTO, token: string }>('User already exists: ' + userDTO.email);
-      } */
+      /*       const userDocument = await this.userRepo.findByEmail(userDTO.email);
+            if (userDocument) {
+              return Result.fail<{ userDTO: IUserDTO, token: string }>('User already exists: ' + userDTO.email);
+            } */
 
       if (!userDTO.email || !userDTO.password || !userDTO.firstName || !userDTO.lastName) {
         return Result.fail<{ userDTO: IUserDTO, token: string }>('Missing required fields');
@@ -233,15 +233,15 @@ export default class UserService implements IUserService {
     const role = user.role?.id.toString();
 
     return jwt.sign(
-      {
-        id,
-        email,
-        role,
-        firstName,
-        lastName,
-        exp: exp.getTime() / 1000,
-      },
-      config.jwtSecret
+        {
+          id,
+          email,
+          role,
+          firstName,
+          lastName,
+          exp: exp.getTime() / 1000,
+        },
+        config.jwtSecret
     );
   }
 
@@ -293,4 +293,68 @@ export default class UserService implements IUserService {
       return Result.fail<string>('Error resetting password: ' + error.message);
     }
   }
+
+  public async getAllUsers(): Promise<Result<IUserDTO[]>> {
+    try {
+      const users = await this.userRepo.findAll();
+      if (!users || users.length === 0) {
+        return Result.fail<IUserDTO[]>('No users found');
+      }
+      const userDTOs = users.map(user => UserMap.toDTO(user) as IUserDTO);
+      return Result.ok<IUserDTO[]>(userDTOs);
+    } catch (error) {
+      this.logger.error('Error fetching all users:', error);
+      return Result.fail<IUserDTO[]>('Error fetching all users: ' + error.message);
+    }
+  }
+
+
+  public async updateUser(id: string, userDTO: IUserDTO): Promise<Result<IUserDTO>> {
+    try {
+      // Check if the user exists
+      const user = await this.userRepo.findById(id);
+      if (!user) {
+        return Result.fail<IUserDTO>('User not found');
+      }
+
+      // Update the user properties based on the provided userDTO
+      if (userDTO.firstName) {
+        user.updateFirstName(userDTO.firstName)
+      }
+      if (userDTO.lastName) {
+        user.updateLastName(userDTO.lastName)
+      }
+      if (userDTO.email) {
+        const email = await UserEmail.create(userDTO.email).getValue();
+        user.updateEmail(email)
+      }
+      if (userDTO.phoneNumber) {
+        const phoneNumber = await PhoneNumber.create(userDTO.phoneNumber).getValue();
+        user.updatePhoneNumber(phoneNumber)
+      }
+      if (userDTO.role) {
+        const role = await this.roleRepo.findByName(userDTO.role);
+        if (!role) {
+          return Result.fail<IUserDTO>(`Role ${userDTO.role} not found`);
+        }
+        user.role = role;
+      }
+      if (userDTO.password) {
+        const hashedPassword = await argon2.hash(userDTO.password);
+        const password = await UserPassword.create({ value: hashedPassword, hashed: true }).getValue();
+        user.updatePassword(password)
+      }
+
+      // Save the updated user to the database
+      await this.userRepo.save(user);
+
+      // Return the updated userDTO
+      const userDTOResult = UserMap.toDTO(user) as IUserDTO;
+      return Result.ok<IUserDTO>(userDTOResult);
+    } catch (error) {
+      this.logger.error(error);
+      return Result.fail<IUserDTO>('Error updating user: ' + error.message);
+    }
+  }
+
 }

@@ -7,11 +7,11 @@
 
 The members of the group:
 
-| Student Nr.	                     | Name             |
-|----------------------------------|------------------|
+| Student Nr.	                     | Name           |
+|----------------------------------|----------------|
 | 1211664 | Pedro Henrique |
-| 1210808 | Gabriel Silva    |
-| 1191014 | Rodrigo Silva   |
+| 1210808 | Gabriel Silva  |
+| 1191014 | Rodrigo Costa  |
 
 
 
