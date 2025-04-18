@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  /**
+   * domainId  String   @unique
+   */
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]   @relation("RoleUsers") // relação com User
+}
+
+model User {
+  id              String  @id @default(uuid())
+  /**
+   * domainId        String  @unique
+   */
+  firstName       String
+  lastName        String
+  email           String  @unique
+  phoneNumber     String
+  password        String?
+  isEmailVerified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roleId   String?
+  role     Role?     @relation("RoleUsers", fields: [roleId], references: [id])
+  Prosumer Prosumer?
+}
+
+model Profile {
+  id                      String   @id @default(uuid())
+  prosumerId              String   @unique
+  prosumer                Prosumer @relation(fields: [prosumerId], references: [id])
+  timeStampUnit           String
+  timeStampIntervalNumber Int
+  stateOfCharge           String
+  photovoltaicEnergyLoad  String
+  boughtEnergyAmount      String
+  boughtEnergyPrice       String
+  soldEnergyAmount        String
+  soldEnergyPrice         String
+  profileLoad             String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Battery {
+  id            String @id @default(uuid())
+  name          String?
+  description   String?
+  efficiency    String
+  maxCapacity   String
+  maxChargeDischarge     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  Prosumer      Prosumer?
+}
+
+model Prosumer {
+  id String @id @default(uuid())
+  /**
+   * domainId  String  @unique
+   */
+
+  batteryId String  @unique
+  battery   Battery @relation(fields: [batteryId], references: [id])
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile   Profile?
+}
