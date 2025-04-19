@@ -28,7 +28,7 @@ export default class ProsumerService implements IProsumerService {
             }
 
             const batteryOrError = await this.batteryRepo.findById(prosumerDTO.batteryId);
-            if (batteryOrError.isSuccess) {
+            if (batteryOrError.isFailure) {
                 return Result.fail<IProsumerDTO>("Battery doens't exist");
             }
 
@@ -62,20 +62,20 @@ export default class ProsumerService implements IProsumerService {
             if (prosumerOrError.isFailure) {
                 return Result.fail<IProsumerDTO>("Prosumer doesn't exist");
             }
-            if (prosumerOrError.getValue().battery.id.toString() !== prosumerDTO.batteryId && prosumerDTO.batteryId !== "") {
+            if (prosumerOrError.getValue().battery.id.toString() !== prosumerDTO.batteryId && prosumerDTO.batteryId !== undefined) {
                 const batteryOrError = await this.batteryRepo.findById(prosumerDTO.batteryId);
                 if (batteryOrError.isFailure) {
                     return Result.fail<IProsumerDTO>("Battery doesn't exist");
                 }
                 prosumerOrError.getValue().battery = batteryOrError.getValue();
             }
-            if (prosumerOrError.getValue().user.id.toString() !== prosumerDTO.userId && prosumerDTO.userId !== "") {
+            if (prosumerOrError.getValue().user.id.toString() !== prosumerDTO.userId && prosumerDTO.userId !== undefined) {
                  const userOrError = await this.userRepo.findById(prosumerDTO.userId);
-               /* if (userOrError.isFailure) {
+/*                if (userOrError.isFailure) {
                     return Result.fail<IProsumerDTO>("User doesn't exist");
                 } */
                
-                prosumerOrError.getValue().user = userOrError/* .getValue() */;
+                prosumerOrError.getValue().user = userOrError/* .getValue() */ ;
             }
 
             const updatedProsumer = await this.prosumerRepo.save(prosumerOrError.getValue());
