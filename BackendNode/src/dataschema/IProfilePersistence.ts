@@ -1,9 +1,11 @@
 import { Prosumer as PrismaProsumer } from "@prisma/client";
+import { User as PrismaUser } from "@prisma/client";
+import { Battery as PrismaBattery } from "@prisma/client";
 
 export default interface IProfilePersistence {
   id: string;
   prosumerId: string;
-  prosumer?: PrismaProsumer; // Usar o tipo do Prisma para prosumer
+  prosumer?: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery }; // Include user and battery
   intervalOfTime: string;
   numberOfIntervals: number;
   stateOfCharge: string;

@@ -7,17 +7,15 @@ interface BoughtEnergyProps {
 }
 
 export class BoughtEnergy extends Entity<BoughtEnergyProps> {
-
-  get id(): UniqueEntityID {
-    return this._id;
-  }
+  private _price: string;
+  private _amount: string;
 
   get amount(): string {
-    return this.amount;
+    return this._amount;
   }
 
   get price(): string {
-    return this.price;
+    return this._price;
   }
 
   set amount(value: string) {
@@ -28,11 +26,19 @@ export class BoughtEnergy extends Entity<BoughtEnergyProps> {
         this.props.price = value;
   }
 
-    private constructor (props: BoughtEnergyProps, id?: UniqueEntityID) {
-      super(props, id);
+    private constructor (props: BoughtEnergyProps) {
+        super(props);
+        this._amount = props.amount;
+        this._price = props.price;
     }
 
-    public static create (props: BoughtEnergyProps, id?: UniqueEntityID): BoughtEnergy {
-      return new BoughtEnergy(props, id);
+    public static create (props: BoughtEnergyProps): BoughtEnergy {
+      return new BoughtEnergy(props);
     }
+
+/*     public toString (): string {
+      return `BoughtEnergy: { amount: ${this.props.amount}, price: ${this.props.price} }`;
+    }
+ */
+
 }   

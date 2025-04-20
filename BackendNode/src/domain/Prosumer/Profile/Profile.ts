@@ -102,4 +102,15 @@ export class Profile extends AggregateRoot<ProfileProps> {
         
         
     }
+
+    public toString(): string {
+        return `Profile: { id: ${this._id.toString()},\n
+        prosumer: ${this.props.prosumer.id.toString()},\n
+        timestamp: ${this.props.timestamp.toString()},\n
+        profileLoad: ${this.props.profileLoad.toString()},\n
+        stateOfCharge: ${this.props.stateOfCharge.toString()},\n
+        photovoltaicEnergyLoad: ${this.props.photovoltaicEnergyLoad.toString()},\n
+        boughtEnergy: ${this.props.boughtEnergy.toString()},\n
+        soldEnergy: ${this.props.soldEnergy.toString()} }\n`;
+    }
 }

@@ -6,9 +6,6 @@ amount: string;
 }
 
 export class PhotovoltaicEnergyLoad extends AggregateRoot<PhotovoltaicEnergyLoadProps>{
-    get id (): UniqueEntityID {
-        return this._id;
-    }
     
     get amount (): string {
         return this.props.amount;
@@ -18,11 +15,16 @@ export class PhotovoltaicEnergyLoad extends AggregateRoot<PhotovoltaicEnergyLoad
         this.props.amount = value;
     }
     
-    private constructor (props: PhotovoltaicEnergyLoadProps, id?: UniqueEntityID) {
-        super(props, id);
+    private constructor (props: PhotovoltaicEnergyLoadProps) {
+        super(props);
     }
     
-    public static create (props: PhotovoltaicEnergyLoadProps, id?: UniqueEntityID): PhotovoltaicEnergyLoad {
-        return new PhotovoltaicEnergyLoad(props, id);
+    public static create (props: PhotovoltaicEnergyLoadProps): PhotovoltaicEnergyLoad {
+        return new PhotovoltaicEnergyLoad(props);
     }
+/* 
+    public toString (): string {
+        return `PhotovoltaicEnergyLoad: { amount: ${this.props.amount} }`;
+        
+    } */
 }

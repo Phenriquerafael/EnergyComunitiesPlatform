@@ -6,19 +6,19 @@ interface TimeStampProps {
 }
 
 export class TimeStamp extends AggregateRoot<TimeStampProps> {
-    get intervaleOfTime (): string {
+    get intervalOfTime (): string {
         return this.props.intervalOfTime;
     }
 
-    get numberOfIntervales (): number {
+    get numberOfIntervals (): number {
         return this.props.numberOfIntervals;
     }
 
-    set intervaleOfTime (value: string) {
+    set intervalOfTime (value: string) {
         this.props.intervalOfTime = value;
     }
 
-    set numberOfIntervales (value: number) {
+    set numberOfIntervals (value: number) {
         this.props.numberOfIntervals = value;
     }
 
@@ -29,4 +29,8 @@ export class TimeStamp extends AggregateRoot<TimeStampProps> {
     public static create (props: TimeStampProps): TimeStamp {
         return new TimeStamp(props);
     }
+/* 
+    public toString (): string {
+        return `TimeStamp: { intervalOfTime: ${this.props.intervalOfTime}, numberOfIntervals: ${this.props.numberOfIntervals} }`;
+    } */
 }

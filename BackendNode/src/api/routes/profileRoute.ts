@@ -2,12 +2,12 @@ import { Router } from "express";
 import config from "../../../config";
 import IProfileController from "../../controllers/IControllers/IProfileController";
 import { Container } from "../../container";
-import { celebrate, Joi } from "celebrate";
+import { celebrate, Joi, errors } from "celebrate";
 
 const route = Router();
 
 export default (app: Router) => {
-  app.use('/profiles', route);
+
 
     const ctrl = Container.get(config.controllers.profile.name) as IProfileController;
     
@@ -19,31 +19,30 @@ export default (app: Router) => {
     route.post(
         '/',
         celebrate({
-            body: Joi.object({
-                prosumerId: Joi.string().required(),
-                intervalOfTime: Joi.string().required(),
-                numberOfIntervales: Joi.number().required(),
-                stateOfCharge: Joi.string().required(),
-                photovoltaicEnergyLoad: Joi.string().required(),
-                boughtEnergyAmount: Joi.string().required(),
-                boughtEnergyPrice: Joi.string().required(),
-                soldEnergyAmount: Joi.string().required(),
-                soldEnergyPrice: Joi.string().required(),
-                profileLoad: Joi.string().required()
-            }),
-        }),
-
+          body: Joi.object({
+            prosumerId: Joi.string().required(),
+            intervalOfTime: Joi.string().required(),
+            numberOfIntervals: Joi.number().required(),
+            stateOfCharge: Joi.string().required(),
+            photovoltaicEnergyLoad: Joi.string().required(),
+            boughtEnergyAmount: Joi.string().required(),
+            boughtEnergyPrice: Joi.string().required(),
+            soldEnergyAmount: Joi.string().required(),
+            soldEnergyPrice: Joi.string().required(),
+            profileLoad: Joi.string().required(),
+          }).unknown(true),
+        }, { abortEarly: false }),
         (req, res, next) => ctrl.createProfile(req, res, next)
-    );
+      );
 
     route.patch(
         '/',
         celebrate({
             body: Joi.object({
                 id: Joi.string().required(),
-                prosumerId: Joi.string().optional(),
+                userId: Joi.string().optional(),
                 intervalOfTime: Joi.string().optional(),
-                numberOfIntervales: Joi.number().optional(),
+                numberOfIntervals: Joi.number().optional(),
                 stateOfCharge: Joi.string().optional(),
                 photovoltaicEnergyLoad: Joi.string().optional(),
                 boughtEnergyAmount: Joi.string().optional(),
@@ -70,5 +69,9 @@ export default (app: Router) => {
         '/user/:id',
         (req, res, next) => ctrl.findByProsumerId(req, res, next)
     );
+
+    app.use('/profiles', route);
+    // Middleware de erro do celebrate
+    app.use(errors());
 
 }

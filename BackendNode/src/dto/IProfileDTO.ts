@@ -2,7 +2,7 @@ export default interface IProfileDTO {
     id?: string;
     prosumerId?: string;
     intervalOfTime?: string;
-    numberOfIntervales?: number;
+    numberOfIntervals?: number;
     stateOfCharge?: string;
     photovoltaicEnergyLoad?: string;
     boughtEnergyAmount?: string;

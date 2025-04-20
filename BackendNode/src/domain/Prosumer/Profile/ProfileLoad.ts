@@ -6,9 +6,6 @@ interface ProfileLoadProps {
 }
 
 export class ProfileLoad extends AggregateRoot<ProfileLoadProps> {
-    get id (): UniqueEntityID {
-        return this._id;
-    }
 
     get amount (): string {
         return this.props.amount;
@@ -18,11 +15,15 @@ export class ProfileLoad extends AggregateRoot<ProfileLoadProps> {
         this.props.amount = value;
     }
 
-    private constructor (props: ProfileLoadProps, id?: UniqueEntityID) {
-        super(props, id);
+    private constructor (props: ProfileLoadProps) {
+        super(props);
     }
 
-    public static create (props: ProfileLoadProps, id?: UniqueEntityID): ProfileLoad {
-        return new ProfileLoad(props, id);
+    public static create (props: ProfileLoadProps): ProfileLoad {
+        return new ProfileLoad(props);
     }
+
+/*     public toString (): string {
+        return `ProfileLoad: { amount: ${this.props.amount} }`;
+    } */
 }

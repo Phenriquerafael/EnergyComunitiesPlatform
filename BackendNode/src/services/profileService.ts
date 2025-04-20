@@ -25,21 +25,39 @@ export default class ProfileService implements IProfileService {
 
   public async createProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>> {
     try {
-      
-      try {
-        const prosumer = profileDTO.prosumerId ? await this.prosumerRepoInstance.findById(profileDTO.prosumerId) : null;
-        const profile = ProfileMap.toDomainFromDTO(profileDTO, prosumer.getValue());
-
-        return this.profileRepoInstance.save(profile.getValue(),prosumer.getValue()).then((profile) => {
-          return Result.ok<IProfileDTO>(ProfileMap.toDTO(profile.getValue()));
-        });
-      } catch (error) {
-        console.log('Error creating profile: ', error);
-        return Result.fail<IProfileDTO>('Error creating profile');
+      // Validate prosumerId
+      if (!profileDTO.prosumerId) {
+        return Result.fail<IProfileDTO>("Prosumer ID is required");
       }
+
+      // Find Prosumer
+      const prosumerResult = await this.prosumerRepoInstance.findById(profileDTO.prosumerId);
+      if (prosumerResult.isFailure) {
+        return Result.fail<IProfileDTO>(`Prosumer not found: ${prosumerResult.error}`);
+      }
+      const prosumer = prosumerResult.getValue();
+
+      // Map DTO to Domain
+      const profileResult = ProfileMap.toDomainFromDTO(profileDTO, prosumer);
+      if (profileResult.isFailure) {
+        return Result.fail<IProfileDTO>(`Failed to create Profile: ${profileResult.error}`);
+      }
+      const profile = profileResult.getValue();
+
+      // Save Profile
+      const savedProfileResult = await this.profileRepoInstance.save(profile, prosumer);
+      if (savedProfileResult.isFailure) {
+        return Result.fail<IProfileDTO>(`Failed to save Profile: ${savedProfileResult.error}`);
+      }
+      const savedProfile = savedProfileResult.getValue();
+
+      // Map to DTO
+      const profileDTOResult = ProfileMap.toDTO(savedProfile);
+      return Result.ok<IProfileDTO>(profileDTOResult);
+
     } catch (error) {
-      console.log('Error creating profile: ', error);
-      return Result.fail<IProfileDTO>('Error creating profile');
+      console.error("Error creating profile:", error);
+      return Result.fail<IProfileDTO>(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -70,11 +88,11 @@ export default class ProfileService implements IProfileService {
 
       // Update profile fields based on the provided DTO
       if (profileDTO.intervalOfTime) {
-        existingProfile.timestamp.intervaleOfTime = profileDTO.intervalOfTime;
+        existingProfile.timestamp.intervalOfTime = profileDTO.intervalOfTime;
       }
 
-      if (profileDTO.numberOfIntervales) {
-        existingProfile.timestamp.numberOfIntervales = profileDTO.numberOfIntervales;
+      if (profileDTO.numberOfIntervals) {
+        existingProfile.timestamp.numberOfIntervals = profileDTO.numberOfIntervals;
       }
 
       if (profileDTO.profileLoad) {

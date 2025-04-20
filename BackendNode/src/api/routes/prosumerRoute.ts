@@ -37,7 +37,7 @@ export default (app: Router) => {
     );
 
     route.get(
-        '/:id',
+        '/id/:id',
         (req, res, next) => ctrl.getProsumer(req, res, next)
     );
 

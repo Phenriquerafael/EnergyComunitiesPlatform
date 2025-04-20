@@ -9,6 +9,8 @@ import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
 import { SoldEnergy } from '../domain/Prosumer/Profile/SoldEnergy';
 import { Prosumer } from '../domain/Prosumer/Prosumer';
 import { Prosumer as PrismaProsumer } from "@prisma/client";
+import { User as PrismaUser } from "@prisma/client";
+import { Battery as PrismaBattery } from "@prisma/client";
 import { Result } from '../core/logic/Result';
 import { UniqueEntityID } from '../core/domain/UniqueEntityID';
 import { ProsumerMap } from './ProsumerMap';
@@ -18,8 +20,8 @@ export class ProfileMap {
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
-      intervalOfTime: profile.timestamp.intervaleOfTime,
-      numberOfIntervales: profile.timestamp.numberOfIntervales,
+      intervalOfTime: profile.timestamp.intervalOfTime,
+      numberOfIntervals: profile.timestamp.numberOfIntervals,
       profileLoad: profile.profileLoad.amount,
       stateOfCharge: profile.stateOfCharge.amount,
       photovoltaicEnergyLoad: profile.photovoltaicEnergyLoad.amount,
@@ -30,58 +32,89 @@ export class ProfileMap {
     } as IProfileDTO;
   }
 
-  public static async toDomain(rawProfile: IProfilePersistence & { prosumer: PrismaProsumer }): Promise<Result<Profile>> {
+  public static async toDomain(rawProfile: IProfilePersistence & { prosumer: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery } }): Promise<Result<Profile>> {
+    try {
+      // Create value objects
+      const timeStamp = TimeStamp.create({
+        intervalOfTime: rawProfile.intervalOfTime,
+        numberOfIntervals: rawProfile.numberOfIntervals,
+      });
 
-    const timeStamp = TimeStamp.create({
-      intervalOfTime: rawProfile.intervalOfTime,
-      numberOfIntervals: rawProfile.numberOfIntervals,
-    });
-    
+      const profileLoad = ProfileLoad.create({
+        amount: rawProfile.profileLoad,
+      });
 
-    const profileLoad = ProfileLoad.create({
-      amount: rawProfile.profileLoad,
-    });
+      const stateOfCharge = StateOfCharge.create({
+        amount: rawProfile.stateOfCharge,
+      });
 
-    const stateOfCharge = StateOfCharge.create({
-      amount: rawProfile.stateOfCharge,
-    });
-    const photovoltaicEnergyLoad = PhotovoltaicEnergyLoad.create({
-      amount: rawProfile.photovoltaicEnergyLoad,
-    });
-    const boughtEnergy = BoughtEnergy.create({
-      price: rawProfile.boughtEnergyPrice,
-      amount: rawProfile.boughtEnergyAmount,
-    });
+      const photovoltaicEnergyLoad = PhotovoltaicEnergyLoad.create({
+        amount: rawProfile.photovoltaicEnergyLoad,
+      });
 
-    const soldEnergy = SoldEnergy.create({
-      price: rawProfile.soldEnergyPrice,
-      amount: rawProfile.soldEnergyAmount,
-    });
-    
+      const boughtEnergy = BoughtEnergy.create({
+        price: rawProfile.boughtEnergyPrice,
+        amount: rawProfile.boughtEnergyAmount,
+      });
 
-    const prosumerOrError = await ProsumerMap.toDomain(/* rawProfile.prosumer */null);
+      const soldEnergy = SoldEnergy.create({
+        price: rawProfile.soldEnergyPrice,
+        amount: rawProfile.soldEnergyAmount,
+      });
 
-    if (prosumerOrError.isFailure) {
-      return Result.fail<Profile>(prosumerOrError.error);
+      // Validate value objects
+/*       if (
+        timeStamp.isFailure ||
+        profileLoad.isFailure ||
+        stateOfCharge.isFailure ||
+        photovoltaicEnergyLoad.isFailure ||
+        boughtEnergy.isFailure ||
+        soldEnergy.isFailure
+      ) {
+        return Result.fail<Profile>("Failed to create Profile value objects");
+      } */
+
+      // Map Prosumer
+      const prosumerProps = {
+        id: rawProfile.prosumer.id,
+        userId: rawProfile.prosumer.userId,
+        batteryId: rawProfile.prosumer.batteryId,
+        user: rawProfile.prosumer.user,
+        battery: rawProfile.prosumer.battery,
+      };
+
+      const prosumerOrError = await ProsumerMap.toDomain(prosumerProps);
+      if (prosumerOrError.isFailure) {
+        return Result.fail<Profile>(prosumerOrError.error);
+      }
+
+      // Create Profile
+      const profileProps = {
+        prosumer: prosumerOrError.getValue(),
+        timestamp: timeStamp/*.getValue()*/,
+        profileLoad: profileLoad/*.getValue()*/,
+        stateOfCharge: stateOfCharge/*.getValue()*/,
+        photovoltaicEnergyLoad: photovoltaicEnergyLoad/*.getValue()*/,
+        boughtEnergy: boughtEnergy/*.getValue()*/,
+        soldEnergy: soldEnergy/*.getValue()*/,
+      };
+
+      const profileOrError = Profile.create(profileProps, new UniqueEntityID(rawProfile.id));
+      if (profileOrError.isFailure) {
+        return Result.fail<Profile>(profileOrError.error);
+      }
+
+      return Result.ok<Profile>(profileOrError.getValue());
+    } catch (error) {
+      console.error("Error mapping Profile:", error);
+      return Result.fail<Profile>("Failed to map Profile from persistence");
     }
-
-    const profileProps = {
-      prosumer: prosumerOrError.getValue(),
-      timestamp: timeStamp,
-      profileLoad: profileLoad,
-      stateOfCharge: stateOfCharge,
-      photovoltaicEnergyLoad: photovoltaicEnergyLoad,
-      boughtEnergy: boughtEnergy,
-      soldEnergy: soldEnergy,
-    };
-    
-    return Profile.create(profileProps,new UniqueEntityID(rawProfile.id));
   }
 
   public static toDomainFromDTO(profileDTO: IProfileDTO, prosumer: Prosumer): Result<Profile> {
     const timeStamp = TimeStamp.create({
       intervalOfTime: profileDTO.intervalOfTime,
-      numberOfIntervals: profileDTO.numberOfIntervales,
+      numberOfIntervals: profileDTO.numberOfIntervals,
     });
 
     const profileLoad = ProfileLoad.create({
@@ -119,11 +152,13 @@ export class ProfileMap {
   
 
   public static toPersistence(profile: Profile): any {
+    console.log('error', profile.profileLoad); // Debug log
+
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
-      intervalOfTime: profile.timestamp.intervaleOfTime,
-      numberOfIntervales: profile.timestamp.numberOfIntervales,
+      intervalOfTime: profile.timestamp.intervalOfTime,
+      numberOfIntervals: profile.timestamp.numberOfIntervals,
       profileLoad: profile.profileLoad.amount,
       stateOfCharge: profile.stateOfCharge.amount,
       photovoltaicEnergyLoad: profile.photovoltaicEnergyLoad.amount,

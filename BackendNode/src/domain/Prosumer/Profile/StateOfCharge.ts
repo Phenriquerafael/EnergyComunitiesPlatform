@@ -6,10 +6,6 @@ interface StateOfChargeProps {
 }
 
 export class StateOfCharge extends AggregateRoot<StateOfChargeProps> {
-    get id (): UniqueEntityID {
-        return this._id;
-    }
-
     get amount (): string {
         return this.props.amount;
     }
@@ -18,11 +14,15 @@ export class StateOfCharge extends AggregateRoot<StateOfChargeProps> {
         this.props.amount = value;
     }
 
-    private constructor (props: StateOfChargeProps, id?: UniqueEntityID) {
-        super(props, id);
+    private constructor (props: StateOfChargeProps) {
+        super(props);
     }
 
-    public static create (props: StateOfChargeProps, id?: UniqueEntityID): StateOfCharge {
-        return new StateOfCharge(props, id);
+    public static create (props: StateOfChargeProps): StateOfCharge {
+        return new StateOfCharge(props);
     }
+
+/*     public toString (): string {
+        return `StateOfCharge: { amount: ${this.props.amount} }`;
+    } */
 }

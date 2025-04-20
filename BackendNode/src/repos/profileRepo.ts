@@ -8,21 +8,54 @@ import { Prosumer } from "../domain/Prosumer/Prosumer";
 
 @Service()
 export default class ProfileRepo implements IProfileRepo {
-  public async save(profile: Profile, prosumer: Prosumer): Promise<Result<Profile>> {
+  public async save(profile: Profile, prosumer:Prosumer): Promise<Result<Profile>> {
     try {
-      const prosumerId = prosumer.id.toString();
+      const prosumerId = profile.prosumer.id.toString();
 
       // Mapear o Profile para o formato de persistência
       const rawProfile = ProfileMap.toPersistence(profile);
 
-      // Criar ou atualizar o Profile
-      const savedProfile = await prisma.profile.upsert({
+      // Verificar se o Profile já existe
+      const existingProfile = await prisma.profile.findUnique({
         where: { id: profile.id.toString() },
-        create: { ...rawProfile, prosumerId },
-        update: { ...rawProfile, prosumerId },
-        include: { prosumer: true },
       });
-
+      let savedProfile;
+      if (!existingProfile) {
+        // Criar novo Profile
+        savedProfile = await prisma.profile.create({
+          data: {
+            ...rawProfile,
+            prosumerId: prosumerId,
+          },
+          include: {
+            prosumer: {
+              include: {
+                user: true, // Include the full User object
+                battery: true, // Include the full Battery object
+              },
+            },
+          },
+        });
+      }
+      else {
+        // Atualizar Profile existente
+        savedProfile = await prisma.profile.update({
+          where: { id: profile.id.toString() },
+          data: {
+            ...rawProfile,
+            prosumerId: prosumerId,
+          },
+          include: {
+            prosumer: {
+              include: {
+                user: true, // Include the full User object
+                battery: true, // Include the full Battery object
+              },
+            },
+          },
+        });
+      }
+      // Mapear o Profile salvo de volta para o domínio
       const profileOrError = await ProfileMap.toDomain(savedProfile);
       if (profileOrError.isFailure) {
         return Result.fail<Profile>(profileOrError.error);
@@ -33,13 +66,20 @@ export default class ProfileRepo implements IProfileRepo {
       return Result.fail<Profile>(error.message);
     }
   }
+
+  
     public async findById(id: string): Promise<Result<Profile>> {
         try {
           const profile = await prisma.profile.findUnique({
             where: { id: String(id) },
             
             include: {
-              prosumer: true, // Carrega o Prosumer associado
+              prosumer: {
+                include: {
+                  user: true, // Include the full User object
+                  battery: true, // Include the full Battery object
+                },
+              },
             },
           });
     
@@ -61,7 +101,27 @@ export default class ProfileRepo implements IProfileRepo {
       
     public async findByProsumerId(prosumerId: string): Promise<Result<Profile>> {
         try {
-            
+            const profile = await prisma.profile.findUnique({
+                where: { prosumerId: String(prosumerId) },
+                include: {
+                    prosumer: {
+                        include: {
+                            user: true, // Include the full User object
+                            battery: true, // Include the full Battery object
+                        },
+                    },
+                },
+            });
+    
+            if (!profile) {
+                return Result.fail<Profile>("Profile not found");
+            }
+    
+            const profileOrError = await ProfileMap.toDomain(profile);
+            if (profileOrError.isFailure) {
+                return Result.fail<Profile>(profileOrError.error);
+            }
+            return Result.ok<Profile>(profileOrError.getValue());
         } catch (error) {
             return Result.fail<Profile>(error.message);
             
@@ -71,7 +131,12 @@ export default class ProfileRepo implements IProfileRepo {
       try {
         const profiles = await prisma.profile.findMany({
           include: {
-            prosumer: true, // Carrega o Prosumer associado
+            prosumer: {
+              include: {
+                user: true, // Include the full User object
+                battery: true, // Include the full Battery object
+              },
+            },
           },
         });
     

@@ -7,9 +7,7 @@ interface SoldEnergyProps {
 }
 
 export class SoldEnergy extends AggregateRoot<SoldEnergyProps> {
-    get id (): UniqueEntityID {
-        return this._id;
-    }
+
 
     get amount (): string {
         return this.props.amount;
@@ -27,11 +25,15 @@ export class SoldEnergy extends AggregateRoot<SoldEnergyProps> {
         this.props.price = value;
     }
 
-    private constructor (props: SoldEnergyProps, id?: UniqueEntityID) {
-        super(props, id);
+    private constructor (props: SoldEnergyProps) {
+        super(props);
     }
 
-    public static create (props: SoldEnergyProps, id?: UniqueEntityID): SoldEnergy {
-        return new SoldEnergy(props, id);
+    public static create (props: SoldEnergyProps): SoldEnergy {
+        return new SoldEnergy(props);
     }
+
+/*     public toString (): string {
+        return `SoldEnergy: { amount: ${this.props.amount}, price: ${this.props.price} }`;
+    } */
 }
