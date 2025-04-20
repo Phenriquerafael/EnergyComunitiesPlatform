@@ -67,7 +67,7 @@ export default class ProfileRepo implements IProfileRepo {
     }
   }
 
-  
+
     public async findById(id: string): Promise<Result<Profile>> {
         try {
           const profile = await prisma.profile.findUnique({
@@ -87,7 +87,10 @@ export default class ProfileRepo implements IProfileRepo {
             return Result.fail<Profile>("Profile not found");
           }
     
-          const profileOrError = await ProfileMap.toDomain(profile);
+          const profileOrError = await ProfileMap.toDomain({
+              ...profile,
+              prosumer: profile.prosumer, // Ensure the prosumer property is included
+          });
           if (profileOrError.isFailure) {
             return Result.fail<Profile>(profileOrError.error);
           }
@@ -101,7 +104,7 @@ export default class ProfileRepo implements IProfileRepo {
       
     public async findByProsumerId(prosumerId: string): Promise<Result<Profile>> {
         try {
-            const profile = await prisma.profile.findUnique({
+            const profile = await prisma.profile.findFirst({
                 where: { prosumerId: String(prosumerId) },
                 include: {
                     prosumer: {
@@ -129,34 +132,48 @@ export default class ProfileRepo implements IProfileRepo {
     }
     public async findAll(): Promise<Result<Profile[]>> {
       try {
+        // Fetch all profiles with related prosumer, user, and battery
         const profiles = await prisma.profile.findMany({
           include: {
             prosumer: {
               include: {
-                user: true, // Include the full User object
-                battery: true, // Include the full Battery object
+                user: true,
+                battery: true,
               },
             },
           },
         });
-    
-        if (!profiles) {
-          return Result.fail<Profile[]>("No profiles found");
+  
+        // Debug log to verify raw profiles
+        /* console.log('Raw profiles:', profiles); */
+  
+        // Handle empty result
+        if (profiles.length === 0) {
+          return Result.ok<Profile[]>([]); // Return empty array for no profiles
+          // Alternatively: return Result.fail<Profile[]>("Profiles not found");
         }
-    
-        const profileOrErrors = await profiles.map((profile) => ProfileMap.toDomain(profile));
-        const failedProfiles = profileOrErrors.filter((profile) => profile);
+  
+        // Map profiles to domain objects
+        const profileResults = await Promise.all(
+          profiles.map(profile => ProfileMap.toDomain(profile))
+        );
+  
+        // Check for failed mappings
+        const failedProfiles = profileResults.filter(result => result.isFailure);
         if (failedProfiles.length > 0) {
-          return Result.fail<Profile[]>(
-            "Error converting some profiles to domain objects"
-          );
+          const errors = failedProfiles.map(result => result.error).join(", ");
+          return Result.fail<Profile[]>(`Error converting some profiles to domain objects: ${errors}`);
         }
-    
-        const validProfiles = await Promise.all(profileOrErrors.map(async (profile) => (await profile).getValue()));
+  
+        // Extract successful profiles
+        const validProfiles = profileResults.map(result => result.getValue());
+  
         return Result.ok<Profile[]>(validProfiles);
       } catch (error) {
-        return Result.fail<Profile[]>(error.message);
-        
+        console.error("Error fetching profiles:", error);
+        return Result.fail<Profile[]>(
+          error instanceof Error ? error.message : "Unexpected error fetching profiles"
+        );
       }
     }
 

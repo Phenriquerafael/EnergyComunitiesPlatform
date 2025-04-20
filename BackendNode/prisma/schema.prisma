@@ -35,8 +35,8 @@ model User {
 
 model Profile {
   id                     String   @id @default(uuid())
-  prosumerId             String   @unique
-  prosumer               Prosumer @relation(fields: [prosumerId], references: [id])
+  prosumerId             String   
+  prosumer              Prosumer @relation(fields: [prosumerId], references: [id], onDelete: Cascade)
   intervalOfTime        String   @map("intervalOfTime")
   numberOfIntervals      Int      @map("numberOfIntervals")
   stateOfCharge          String
@@ -72,5 +72,5 @@ model Prosumer {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  profile   Profile?
+  profiles  Profile[] // One-to-many relation with Profile
 }
