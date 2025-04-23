@@ -34,6 +34,35 @@ export default (app: Router) => {
         }, { abortEarly: false }),
         (req, res, next) => ctrl.createProfile(req, res, next)
       );
+    route.post(
+      '/optimize-results',
+      celebrate({
+        body: Joi.object({
+        total_objective_value: Joi.string().optional(),
+        detailed_results: Joi.array().items(
+          Joi.object({
+            Day: Joi.string().required(),
+            Time_Step: Joi.number().required(),
+            Prosumer: Joi.string().required(),
+            P_buy: Joi.string().required(),
+            P_sell: Joi.string().required(),
+            SOC: Joi.string().required(),
+            P_ESS_ch: Joi.string().required(),
+            P_ESS_dch: Joi.string().required(),
+            P_PV_load: Joi.string().required(),
+            P_PV_ESS: Joi.string().required(),
+            P_Peer_out: Joi.string().required(),
+            P_Peer_in: Joi.string().required(),
+            P_Load: Joi.string().required()
+          })
+        )
+        })
+      }),
+      (req, res, next) => {
+        /* console.log('Request body:', req.body); */
+        ctrl.createFromOptimizationResults(req, res, next);
+      }
+    );
 
     route.patch(
         '/',

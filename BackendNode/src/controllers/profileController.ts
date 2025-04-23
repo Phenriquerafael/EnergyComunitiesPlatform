@@ -27,6 +27,23 @@ export default class ProfileController implements IProfileController {
         return next(error); // Pass error to Express error handler
       }
   }
+
+  public async createFromOptimizationResults(req: Request, res: Response, next: NextFunction) {
+      try {
+        const profileOrError = await this.profileServiceInstance.createFromOptimizationResults(req.body);
+        
+        if (profileOrError.isFailure) {
+          return res.status(400).json({ message: profileOrError.error });
+        }
+
+        const profileDTO = profileOrError.getValue();
+        return res.status(201).json(profileDTO);
+      } catch (error) {
+        return next(error); // Pass error to Express error handler
+        
+      }
+  }
+  
   public async updateProfile(req: Request, res: Response, next: NextFunction) {
       try {
         const profileOrError = await this.profileServiceInstance.updateProfile(req.body);

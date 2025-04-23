@@ -13,6 +13,7 @@ import { SoldEnergy } from '../domain/Prosumer/Profile/SoldEnergy';
 import { Profile } from '../domain/Prosumer/Profile/Profile';
 import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
+import IOptimizationResults from '../dto/IOptimizationResults';
 
 @Service()
 export default class ProfileService implements IProfileService {
@@ -60,6 +61,56 @@ export default class ProfileService implements IProfileService {
       return Result.fail<IProfileDTO>(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+  public async createFromOptimizationResults(results: IOptimizationResults): Promise<Result<IProfileDTO>> {
+    const prosumersResultOrError = await this.prosumerRepoInstance.findAll();
+    if (prosumersResultOrError.isFailure||prosumersResultOrError.getValue().length === 0) {
+      return Result.fail<IProfileDTO>('Prosumers not found');
+    }
+    const prosumers = prosumersResultOrError.getValue();
+    try {
+      if (results.total_objective_value === undefined) {
+        return Result.fail<IProfileDTO>('Total objective value not found in optimization results');
+      }
+      if (results.detailed_results===undefined || results.detailed_results.length === 0) {
+        return Result.fail<IProfileDTO>('Detailed results not found in optimization results');
+      }
+      let finalResult;
+      for (const result of results.detailed_results) {
+        //POR CORRIGIR
+        const profileDTO: IProfileDTO = {
+          prosumerId: prosumers[Number(result.Prosumer) - 1].id.toString(), // Anexing profile to the prosumers bootstraped in the database
+          intervalOfTime: result.Day,
+          numberOfIntervals: Number(result.Time_Step),
+          stateOfCharge: result.SOC,
+          photovoltaicEnergyLoad: result.P_PV_load,
+          boughtEnergyAmount: result.P_buy,
+          boughtEnergyPrice: "0",
+          soldEnergyAmount: result.P_sell,
+          soldEnergyPrice: "0",
+          profileLoad: result.P_Load,
+
+        };
+
+        const createResult = await this.createProfile(profileDTO);
+        if (createResult.isFailure) {
+          return Result.fail<IProfileDTO>(`Failed to create profile from optimization results: ${createResult.error}`);
+        }
+
+        finalResult = createResult;
+        
+      }
+
+      // Return the last profile created as a representative result
+      return Result.ok<IProfileDTO>(finalResult);    
+ 
+      } catch (error) {
+      console.log('Error creating profile from optimization results: ', error);
+      return Result.fail<IProfileDTO>('Error creating profile from optimization results');
+      
+    }
+  }
+
 
   public async updateProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>> {
     try {

@@ -13,7 +13,7 @@ from pyomo.environ import value
 
 #libs do FastAPI
 from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse
 import pandas as pd
 from io import BytesIO
 
@@ -251,25 +251,15 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
                 
     #End of optimization algorithm 
 
-    detailed_results_df = pd.DataFrame(detailed_results)
-
-    # Criar Excel de output em memória
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        detailed_results_df.to_excel(writer, index=False, sheet_name="Results")
-
-    output.seek(0)
-    return output
+    return {
+        "total_objective_value": total_objective_value,
+        "detailed_results": detailed_results
+    }
 
 @app.post("/optimize")
 async def optimize_excel(file: UploadFile = File(...)):
     contents = await file.read()
-    input_buffer = BytesIO(contents)
+    input_io = BytesIO(contents)
 
-    output_buffer = run_optimization(input_buffer)
-
-    return StreamingResponse(
-        output_buffer,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename=optimized_result.xlsx"}
-    )
+    result = run_optimization(input_io)
+    return JSONResponse(content=result)

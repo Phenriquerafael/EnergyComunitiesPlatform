@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi';
 import config from '../../config';
-import IBatteryService from './IServices/IProsumerBatteryService';
+import IBatteryService from './IServices/IBatteryService';
 import IBatteryRepo from '../repos/IRepos/IBatteryRepo';
 import { Result } from '../core/logic/Result';
 import IBatteryDTO from '../dto/IBatteryDTO';

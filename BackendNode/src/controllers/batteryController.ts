@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Container } from "../container";
 import IBatteryController from "./IControllers/IProsumerBatteryController";
-import IBatteryService from "../services/IServices/IProsumerBatteryService";
+import IBatteryService from "../services/IServices/IBatteryService";
 import config from "../../config";
 import { Service } from "typedi";
 import { Result } from "../core/logic/Result";
