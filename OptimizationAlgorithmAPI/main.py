@@ -19,32 +19,40 @@ from io import BytesIO
 
 app = FastAPI()
 
-def run_optimization(input_file: BytesIO) -> BytesIO:
+def run_optimization(file_path: BytesIO) -> BytesIO:
 # Ler o Excel recebido (sem salvar no disco)
-    data = pd.read_excel(input_file, header=None, sheet_name=None)
+    #df = pd.read_excel(file_path, sheet_name=None)
 
-    #Optimization algorithm
-    PPV_capacity = data['PPV_capacity']   #  maximum PV production of each PV unit in each hour
-    
-    PLoad=data['PL']              # hourly load profile of prosumers
+    df = pd.read_excel(file_path,'PPV_capacity',usecols='B:F')
+    PPV_capacity=df.to_numpy()      #  maximum PV production of each PV unit in each hour
 
-    Cbuy=(data['buysell'])[1]         # The price of electricity bought from the grid
 
-    Csell=(data['buysell'])[2]         # The price of electricity sold to the grid
+    df = pd.read_excel(file_path,'PL',usecols='B:F')
+    PLoad=df.to_numpy()      #  hourly load profile of prosumers
 
-    ESSparam=(data['ESS-Param'])      # Energy Storage System parameters
+    df = pd.read_excel(file_path,'buysell',usecols='B:C')
+    Cbuysell=df.to_numpy()     
+    Cbuy=Cbuysell[:,0]         # The price of electricity bought from the grid
+    Csell=Cbuysell[:,1]         # The price of electricity sold to the grid
+
+
+    df = pd.read_excel(file_path,'ESS-Param',usecols='B:F')
+    ESSparam=df.to_numpy()      # Energy Storage System parameters
+        
+
+
 
     ΔT = 0.25  # Time interval (e.g., 15-minute periods)
 
     # Model Definition
 
-    nPlayers=len(PLoad.loc[1,:])-1
+    nPlayers=len(PLoad[1,:])
     Thorizon = 96  # Periods per day
     #Thorizon=len(PLoad.loc[:,1])-1
-    days = int(len(PLoad) / Thorizon)  # Number of days
+    days =int(len(PLoad) / Thorizon)  # Number of days
 
     # Initialize a dictionary to store results
-    SOC_end_of_day = {}
+    SOC_end_of_day = {}   #{(1, 1): 0.2, (2, 1): 0.2,(3, 1): 0.2,(4, 1): 0.2, (5, 1): 0.2}
 
     detailed_results = []
 
@@ -55,28 +63,30 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
 
     for day in range(1, days + 1):
         print(f"Solving for Day {day}...")
-        
+
         # Extract daily data
-        start_idx = (day - 1) * Thorizon + 1
-        end_idx = start_idx + Thorizon - 1
-        PLoad_day = PLoad.loc[start_idx:end_idx, :]
-        PPV_capacity_day = PPV_capacity.loc[start_idx:end_idx, :]
-        Cbuy_day = Cbuy.loc[start_idx:end_idx]
-        Csell_day = Csell.loc[start_idx:end_idx]   
+        start_idx = (day - 1) * Thorizon 
+        end_idx = start_idx + Thorizon 
+        PLoad_day = PLoad[start_idx:end_idx]
+        PPV_capacity_day = PPV_capacity[start_idx:end_idx]
+        Cbuy_day = Cbuy[start_idx:end_idx]
+        Csell_day = Csell[start_idx:end_idx]  
+        PLoad[0:96]=PLoad_day
+        PPV_capacity[0:96]= PPV_capacity_day
+        Cbuy[0:96]=Cbuy_day
+        Csell[0:96]=Csell_day
 
         model=AbstractModel()    
     # Define sets
         model.PL = RangeSet(nPlayers)                      # Prosumers
         model.T = RangeSet(Thorizon)                       # Time Horizon
-        model.ESS1 =  RangeSet(len(ESSparam.loc[:,1])-1)              # Energy Storage Systems
+        model.ESS1 =  RangeSet(len(ESSparam))              # Energy Storage Systems
 
-
-
-        model.PLs=Param(model.T,model.PL,initialize=lambda model,r,c:PLoad.at[r,c], within=Reals)
-        model.PPV_capacitys=Param(model.T,model.PL,initialize=lambda model,r,c:PPV_capacity.at[r,c], within=Reals)
-        model.Cbuys=Param(model.T,initialize=lambda model,r:Cbuy.at[r], within=Reals)
-        model.Csells=Param(model.T,initialize=lambda model,r:Csell.at[r], within=Reals)
-        model.ESSparams=Param(model.ESS1,model.PL,initialize=lambda model,r,c:ESSparam.at[r,c], within=Reals)
+        model.PLs=Param(model.T,model.PL,initialize=lambda model,r,c:PLoad[r-1,c-1], within=Reals)
+        model.PPV_capacitys=Param(model.T,model.PL,initialize=lambda model,r,c:PPV_capacity[r-1,c-1], within=Reals)
+        model.Cbuys=Param(model.T,initialize=lambda model,r:Cbuy[r-1], within=Reals)
+        model.Csells=Param(model.T,initialize=lambda model,r:Csell[r-1], within=Reals)
+        model.ESSparams=Param(model.ESS1,model.PL,initialize=lambda model,r,c:ESSparam[r-1,c-1], within=Reals)
 
 
 
@@ -91,27 +101,27 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
         model.P_peer = Var(model.PL, model.PL, model.T, within=NonNegativeReals)
         
 
-        model.P_PV_ESS = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for charging battery
-        model.P_PV_load = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for direct load consumption
-
-
-
-
-
+    #    model.P_PV = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for charging battery
+    #    model.P_PV_load = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for direct load consumption
 
     # Constraints
         def SocESS(model, PL, T):
             if T == 1:
                 # Initial SOC set to the previous day's final SOC
-                return model.P_ESS_s[PL, T] == (SOC_end_of_day.get((PL, day - 1), model.ESSparams[4, PL])
-                                                + ΔT * (model.ESSparams[1, PL] * model.P_ESS_ch[PL, T]
-                                                        - model.P_ESS_dch[PL, T] / model.ESSparams[1, PL]))
+                prev_SOC = SOC_end_of_day.get((PL, day-1), model.ESSparams[4, PL])
+                return model.P_ESS_s[PL, T] == prev_SOC + ΔT * (model.ESSparams[1, PL] * model.P_ESS_ch[PL, T] - model.P_ESS_dch[PL, T] / model.ESSparams[1, PL])
             else:
                 return model.P_ESS_s[PL, T] == (model.P_ESS_s[PL, T - 1]
                                                 + ΔT * (model.ESSparams[1, PL] * model.P_ESS_ch[PL, T]
                                                         - model.P_ESS_dch[PL, T] / model.ESSparams[1, PL]))
 
         model.c_SOC = Constraint(model.PL, model.T, rule=SocESS)
+        
+        def CapacitylimitESS1(model,PL,T):
+        
+                return  model.P_ESS_s[PL, T]<=model.ESSparams[3,PL]
+        
+        model.c92=Constraint(model.PL,model.T,rule=CapacitylimitESS1) #  ESS constraints
 
         def chargeESS1(model,PL,T):
         
@@ -135,14 +145,14 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
 
         def chargedischargelimit(model,PL):
         
-                return sum( model.I_ESS_ch[PL,T]+model.I_ESS_dch[PL,T] for T in model.T) <=5
+                return sum( model.I_ESS_ch[PL,T]+model.I_ESS_dch[PL,T] for T in model.T) <=8
         
-        model.c44=Constraint(model.PL,rule=chargedischargelimit) #  ESS constraints
+        model.c45=Constraint(model.PL,rule=chargedischargelimit) #  ESS constraints
 
 
 
         def load_balance(model, PL, T):
-            return model.PLs[T, PL] == model.P_PV_load[PL, T] + model.P_buy[PL, T] - model.P_sell[PL, T] + model.P_ESS_dch[PL, T]  + sum(model.P_peer[PL2, PL, T] - model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)
+            return model.PLs[T,PL]+model.P_ESS_ch[PL, T] == model.PPV_capacitys[T,PL] + model.P_buy[PL, T] - model.P_sell[PL, T] + model.P_ESS_dch[PL, T]  + sum(model.P_peer[PL2, PL, T] - model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)
 
         model.c_balance = Constraint(model.PL, model.T, rule=load_balance)
 
@@ -150,16 +160,14 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
                 return sum(model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)<= max(0, model.PPV_capacitys[T, PL] - model.PLs[T, PL])
         model.c_peer = Constraint(model.PL,  model.T, rule=peer_transfer_limit)
 
-        def PV_utilization(model, PL, T):
-            return model.P_PV_ESS[PL, T] + model.P_PV_load[PL, T] == model.PPV_capacitys[T, PL]
+    #    def PV_utilization(model, PL, T):
+    #        return model.P_PV_ESS[PL, T] + model.P_PV_load[PL, T] == model.PPV_capacitys[T, PL]
 
-        model.c_PV_utilization = Constraint(model.PL, model.T, rule=PV_utilization)
-        def chargeESS2(model, PL, T):
-            return model.P_ESS_ch[PL, T] == model.P_PV_ESS[PL, T]  # Battery charges only from PV
+    #    model.c_PV_utilization = Constraint(model.PL, model.T, rule=PV_utilization)
+    #    def chargeESS2(model, PL, T):
+    #        return model.P_ESS_ch[PL, T] == model.P_PV_ESS[PL, T]  # Battery charges only from PV
 
-        model.c_ESS_PV_only = Constraint(model.PL, model.T, rule=chargeESS2)
-
-
+    #    model.c_ESS_PV_only = Constraint(model.PL, model.T, rule=chargeESS2)
 
 
 
@@ -174,14 +182,14 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
 
         def Pbuy11(model,PL,T):
         
-            return model.P_buy[PL,T]<=12.5        #(sum(model.Pro_C[PL,NEC]*model.PV_connections[PL,PV]*model.PPV_capacitys[12,PV] for PV in model.PV  for PL in model.PL ))/1  
+            return model.P_buy[PL,T]<=200       #(sum(model.Pro_C[PL,NEC]*model.PV_connections[PL,PV]*model.PPV_capacitys[12,PV] for PV in model.PV  for PL in model.PL ))/1  
     
         model.c22=Constraint(model.PL,model.T,rule=Pbuy11) 
 
 
         def Psell11(model,PL,T):
         
-            return model.P_sell[PL,T]<=10.5      #(sum(model.Pro_C[PL,NEC]*model.PV_connections[PL,PV]*model.PPV_capacitys[12,PV] for PV in model.PV  for PL in model.PL ))/1  
+            return model.P_sell[PL,T]<=200      #(sum(model.Pro_C[PL,NEC]*model.PV_connections[PL,PV]*model.PPV_capacitys[12,PV] for PV in model.PV  for PL in model.PL ))/1  
     
         model.c23=Constraint(model.PL,model.T,rule=Psell11) 
 
@@ -192,16 +200,16 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
 
         def rule_OF(model):
             return sum(
-                (model.Cbuys[t] * model.P_buy[PL, t]  # ✅ Corrected indexing
+                (model.Cbuys[t] * model.P_buy[PL, t]  # 
                 - model.Csells[t] * model.P_sell[PL, t])
                 for t in model.T
-                for PL in model.PL  # ✅ Correct iteration
+                for PL in model.PL  # 
                 )
 
         model.Objective = Objective(rule=rule_OF, sense=minimize)
 
 
-    #model.c_SOC.deactivate()
+    #    model.c_ESS_PV_only.deactivate()
 
 
 
@@ -242,13 +250,14 @@ def run_optimization(input_file: BytesIO) -> BytesIO:
                     "SOC": value(instance.P_ESS_s[PL, t]),
                     "P_ESS_ch": value(instance.P_ESS_ch[PL, t]),
                     "P_ESS_dch": value(instance.P_ESS_dch[PL, t]),
-                    "P_PV_load": value(instance.P_PV_load[PL, t]),
-                    "P_PV_ESS": value(instance.P_PV_ESS[PL, t]),
+                    "P_PV": value(instance.PPV_capacitys[t,PL]),
+    #                "P_PV_ESS": value(instance.P_PV_ESS[PL, t]),
                     "P_Peer_out": sum(value(instance.P_peer[PL, PL2, t]) for PL2 in model.PL if PL2 != PL),
                     "P_Peer_in": sum(value(instance.P_peer[PL2, PL, t]) for PL2 in model.PL if PL2 != PL),
-                    "P_Load": value(instance.PLs[t, PL])
+                    "P_Load": value(instance.PLs[t,PL])
                     })
-                
+        
+                    
     #End of optimization algorithm 
 
     return {
