@@ -50,7 +50,7 @@ export default (app: Router) => {
             P_ESS_ch: Joi.string().required(),
             P_ESS_dch: Joi.string().required(),
             P_PV_load: Joi.string().required(),
-            P_PV_ESS: Joi.string().required(),
+  /*           P_PV_ESS: Joi.string().optional(), */
             P_Peer_out: Joi.string().required(),
             P_Peer_in: Joi.string().required(),
             P_Load: Joi.string().required()

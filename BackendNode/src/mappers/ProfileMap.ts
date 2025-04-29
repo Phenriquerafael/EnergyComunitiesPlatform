@@ -152,7 +152,6 @@ export class ProfileMap {
   
 
   public static toPersistence(profile: Profile): any {
-    console.log('error', profile.profileLoad); // Debug log
 
     return {
       id: profile.id.toString(),

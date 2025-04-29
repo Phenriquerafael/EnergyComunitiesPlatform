@@ -37,8 +37,8 @@ model Profile {
   id                     String   @id @default(uuid())
   prosumerId             String   
   prosumer              Prosumer @relation(fields: [prosumerId], references: [id], onDelete: Cascade)
-  intervalOfTime        String   @map("intervalOfTime")
-  numberOfIntervals      Int      @map("numberOfIntervals")
+  intervalOfTime        String   
+  numberOfIntervals      Int      
   stateOfCharge          String
   photovoltaicEnergyLoad String
   boughtEnergyAmount     String
