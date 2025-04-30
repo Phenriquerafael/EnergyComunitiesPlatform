@@ -61,6 +61,61 @@ export default class ProfileService implements IProfileService {
       return Result.fail<IProfileDTO>('Prosumers not found');
     }
     const prosumers = prosumersResultOrError.getValue();
+
+    /* [
+    battery: f8f8f86b-c3e0-4f2f-8752-77a1615a415a
+        {
+            "id": "94ac0d93-105c-4431-88ff-8cfea5805c2d",
+            "firstName": "Pedro",
+            "lastName": "Henrique",
+            "email": "mailpedro@gmail.com",
+            "phoneNumber": "916868690",
+            "password": "",
+            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
+            "isEmailVerified": true
+        },
+        {
+            "id": "0ab66cba-9be3-4846-8290-7f96c82da46d",
+            "firstName": "Lebron",
+            "lastName": "James",
+            "email": "king@gmail.com",
+            "phoneNumber": "916868690",
+            "password": "",
+            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
+            "isEmailVerified": true
+        },
+        {
+            "id": "c9fcf55c-a941-4f28-b553-dbadd29d5a83",
+            "firstName": "Mia",
+            "lastName": "Khalifa",
+            "email": "Mia@gmail.com",
+            "phoneNumber": "916868690",
+            "password": "",
+            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
+            "isEmailVerified": true
+        },
+        {
+            "id": "dddd6916-8fa8-4aa6-80d9-b7e4c4b0f9aa",
+            "firstName": "John",
+            "lastName": "cena",
+            "email": "jc@gmail.com",
+            "phoneNumber": "916868690",
+            "password": "",
+            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
+            "isEmailVerified": true
+        },
+        {
+            "id": "02e8a235-ab68-48e9-9aad-f6bc386edeaa",
+            "firstName": "The",
+            "lastName": "Rock",
+            "email": "rock@gmail.com",
+            "phoneNumber": "916868690",
+            "password": "",
+            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
+            "isEmailVerified": true
+        }
+    ] */
+
     try {
       if (results.total_objective_value === undefined) {
         return Result.fail<IProfileDTO>('Total objective value not found in optimization results');

@@ -132,7 +132,7 @@ export default class ProsumerRepo implements IProsumerRepo {
     public async findByBatteryId(batteryId: string): Promise<Result<Prosumer>> {
         try {
             const rawProsumer = await prisma.prosumer.findUnique({
-                where: { batteryId: batteryId },
+                where: { id: batteryId },
                 include: {
                     user: true, // Incluir o User para o mapeamento
                     battery: true, // Incluir a Battery para o mapeamento

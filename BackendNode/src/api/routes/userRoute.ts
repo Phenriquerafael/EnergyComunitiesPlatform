@@ -31,9 +31,13 @@ export default (app: Router) => {
 
     route.get("/test", (req, res) => { res.send("Backend Connected");});
 
-    route.get("/all", middlewares.isAuth, (req, res, next) => {
+    route.get("/all-logged", middlewares.isAuth, (req, res, next) => {
         ctrl.getAllUsers(req, res, next);
     });
+
+    route.get("/all", (req, res, next) => {
+        ctrl.getAllUsers(req, res, next);
+    })
 
     route.post(
         "/signup",
