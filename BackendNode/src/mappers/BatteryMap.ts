@@ -23,8 +23,9 @@ export class BatteryMap extends Mapper<Battery> {
         description: battery.batteryInformation.description,
         efficiency: battery.efficiency.value,
         maxCapacity: battery.maxCapacity.value,
-        maxChargeDischarge: battery.maxChargeDischarge.maxCharge,
-        maxDischarge: battery.maxChargeDischarge.maxDischarge,
+        initialCapacity: battery.maxCapacity.value,
+        maxChargeDischarge: battery.maxChargeDischarge.value,
+
 
     } as IBatteryDTO;
   }
@@ -43,15 +44,19 @@ const batteryInformation = BatteryInformation.create({
         value: batteryDTO.maxCapacity,
       });
 
+      const initialCapacity = MaxCapacity.create({
+        value: batteryDTO.initialCapacity,
+      });
+
       const maxChargeDischarge = MaxChargeDischarge.create({
-        maxCharge: batteryDTO.maxChargeDischarge,
-        maxDischarge: batteryDTO.maxChargeDischarge,
+        value: batteryDTO.maxChargeDischarge
       });
 
       const prosumerBatteryProps = {
         batteryInformation: batteryInformation,
         efficiency: efficiency,
         maxCapacity: maxCapacity,
+        initialCapacity: initialCapacity,
         maxChargeDischarge: maxChargeDischarge,
       };
       return Battery.create(prosumerBatteryProps,
@@ -73,15 +78,19 @@ const batteryInformation = BatteryInformation.create({
       value: rawBattery.maxCapacity,
     });
 
+    const initialCapacity = MaxCapacity.create({
+      value: rawBattery.initialCapacity,
+    });
+
     const maxChargeDischarge = MaxChargeDischarge.create({
-      maxCharge: rawBattery.maxChargeDischarge,
-      maxDischarge: rawBattery.maxChargeDischarge,
+      value: rawBattery.maxChargeDischarge,
     });
 
     const prosumerBatteryProps = {
       batteryInformation: batteryInformation,
       efficiency: efficiency,
       maxCapacity: maxCapacity,
+      initialCapacity: initialCapacity,
       maxChargeDischarge: maxChargeDischarge,
     };
 
@@ -99,7 +108,8 @@ const batteryInformation = BatteryInformation.create({
         description: battery.batteryInformation.description,
         efficiency: battery.efficiency.value,
         maxCapacity: battery.maxCapacity.value,
-        maxChargeDischarge: battery.maxChargeDischarge.maxCharge,
+        initialCapacity: battery.initialCapacity.value,
+        maxChargeDischarge: battery.maxChargeDischarge.value,
     }
   }
 }

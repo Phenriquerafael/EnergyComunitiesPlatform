@@ -23,6 +23,7 @@ export default (app: Router) => {
                 description: Joi.string().optional(),
                 efficiency: Joi.string().required(),
                 maxCapacity: Joi.string().required(),
+                initialCapacity: Joi.string().required(),
                 maxChargeDischarge: Joi.string().required(),
             }),
         }),
