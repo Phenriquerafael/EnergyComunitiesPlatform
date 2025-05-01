@@ -90,6 +90,8 @@ export default class ProfileRepo implements IProfileRepo {
           const profileOrError = await ProfileMap.toDomain({
               ...profile,
               prosumer: profile.prosumer, // Ensure the prosumer property is included
+              batteryCharge: profile.batteryCharge, // Add missing property
+              batteryDischarge: profile.batteryDischarge, // Add missing property
           });
           if (profileOrError.isFailure) {
             return Result.fail<Profile>(profileOrError.error);

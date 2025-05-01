@@ -53,9 +53,11 @@ export default class BatteryService implements IBatteryService {
       if (prosumerBatteryDTO.maxCapacity) {
         existingBattery.maxCapacity.value = prosumerBatteryDTO.maxCapacity;
       }
+      if (prosumerBatteryDTO.initialCapacity) {
+        existingBattery.initialCapacity.value = prosumerBatteryDTO.initialCapacity;
+      }
       if (prosumerBatteryDTO.maxChargeDischarge) {
-        existingBattery.maxChargeDischarge.maxCharge = prosumerBatteryDTO.maxChargeDischarge;
-        existingBattery.maxChargeDischarge.maxDischarge = prosumerBatteryDTO.maxChargeDischarge;
+        existingBattery.maxChargeDischarge.value = prosumerBatteryDTO.maxChargeDischarge;
       }
       const updatedBattery = await this.batteryRepoInstance.save(existingBattery);
 

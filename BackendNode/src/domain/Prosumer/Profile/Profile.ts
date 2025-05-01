@@ -6,19 +6,25 @@ import { Result } from "../../../core/logic/Result";
 import { Prosumer } from "../Prosumer";
 import { BoughtEnergy } from "./BoughtEnergy";
 import { PhotovoltaicEnergyLoad } from "./PhotovoltaicEnergyLoad";
-import { ProfileLoad } from "./ProfileLoad";
+import { Load as Load } from "./ProfileLoad";
 import { SoldEnergy } from "./SoldEnergy";
 import { StateOfCharge } from "./StateOfCharge";
 import { TimeStamp } from "./TimeStamp";
 
 interface ProfileProps {
     prosumer: Prosumer;
+    date: String;
     timestamp:TimeStamp;
-    profileLoad: ProfileLoad;
+    profileLoad: Load;
     stateOfCharge: StateOfCharge;
+    energyCharge:Load;
+    energyDischarge:Load;
     photovoltaicEnergyLoad: PhotovoltaicEnergyLoad;
     boughtEnergy: BoughtEnergy;
     soldEnergy: SoldEnergy;
+    // Prosumer ids of the peers that sold/bought the energy to add
+    peerOutputEnergyLoad: SoldEnergy; 
+    peerInputEnergyLoad: BoughtEnergy;
 }
 
 export class Profile extends AggregateRoot<ProfileProps> {
@@ -30,16 +36,28 @@ export class Profile extends AggregateRoot<ProfileProps> {
     get prosumer(): Prosumer {
         return this.props.prosumer;
     }
+    get date(): String {
+        return this.props.date;
+    }
+
     get timestamp(): TimeStamp {
         return this.props.timestamp;
     }
 
-    get profileLoad(): ProfileLoad {
+    get profileLoad(): Load {
         return this.props.profileLoad;
     }
 
     get stateOfCharge(): StateOfCharge {
         return this.props.stateOfCharge;
+    }
+
+    get batteryCharge(): Load {
+        return this.props.energyCharge;
+    }
+
+    get batteryDischarge(): Load {
+        return this.props.energyDischarge;
     }
 
     get photovoltaicEnergyLoad(): PhotovoltaicEnergyLoad {
@@ -52,10 +70,20 @@ export class Profile extends AggregateRoot<ProfileProps> {
         return this.props.soldEnergy;
     }
 
+    get peerOutputEnergyLoad(): SoldEnergy {
+        return this.props.peerOutputEnergyLoad;
+    }
+
+    get peerInputEnergyLoad(): BoughtEnergy {
+        return this.props.peerInputEnergyLoad;
+    }
+
+
+
     set timestamp(value: TimeStamp) {
         this.props.timestamp = value;
     }
-    set profileLoad(value: ProfileLoad) {
+    set profileLoad(value: Load) {
         this.props.profileLoad = value;
     }
     set stateOfCharge(value: StateOfCharge) {
@@ -83,6 +111,11 @@ export class Profile extends AggregateRoot<ProfileProps> {
     public static create(props: ProfileProps, id?: UniqueEntityID): Result<Profile> {
         const guardedProps = [
             { argument: props.prosumer, argumentName: 'prosumer' },
+            { argument: props.date, argumentName: 'date' },
+            { argument: props.energyCharge, argumentName: 'energyCharge' },
+            { argument: props.energyDischarge, argumentName: 'energyDischarge' },
+            { argument: props.peerOutputEnergyLoad, argumentName: 'peerOutputEnergyLoad' },
+            { argument: props.peerInputEnergyLoad, argumentName: 'peerInputEnergyLoad' },
             { argument: props.timestamp, argumentName: 'timestamp' },
             { argument: props.profileLoad, argumentName: 'profileLoad' },
             { argument: props.stateOfCharge, argumentName: 'stateOfCharge' },
@@ -106,9 +139,14 @@ export class Profile extends AggregateRoot<ProfileProps> {
     public toString(): string {
         return `Profile: { id: ${this._id.toString()},\n
         prosumer: ${this.props.prosumer.id.toString()},\n
+        date: ${this.props.date.toString()},\n
         timestamp: ${this.props.timestamp.toString()},\n
         profileLoad: ${this.props.profileLoad.toString()},\n
         stateOfCharge: ${this.props.stateOfCharge.toString()},\n
+        energyCharge: ${this.props.energyCharge.toString()},\n
+        energyDischarge: ${this.props.energyDischarge.toString()},\n
+        peerOutputEnergyLoad: ${this.props.peerOutputEnergyLoad.toString()},\n
+        peerInputEnergyLoad: ${this.props.peerInputEnergyLoad.toString()},\n
         photovoltaicEnergyLoad: ${this.props.photovoltaicEnergyLoad.toString()},\n
         boughtEnergy: ${this.props.boughtEnergy.toString()},\n
         soldEnergy: ${this.props.soldEnergy.toString()} }\n`;

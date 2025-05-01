@@ -3,12 +3,12 @@ import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 
 interface BoughtEnergyProps {
     amount: string;
-    price: string;
+    price?: string;
 }
 
 export class BoughtEnergy extends Entity<BoughtEnergyProps> {
   private _price: string;
-  private _amount: string;
+  private _amount?: string;
 
   get amount(): string {
     return this._amount;

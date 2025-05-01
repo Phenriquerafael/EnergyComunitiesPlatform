@@ -1,24 +1,15 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 
 interface MaxChargeDischargeProps {
-    maxCharge: string;
-    maxDischarge: string;
+    value: string;
 }
 export class MaxChargeDischarge extends AggregateRoot<MaxChargeDischargeProps> {
-    get maxCharge(): string {
-        return this.props.maxCharge;
+    get value(): string {
+        return this.props.value;
     }
 
-    get maxDischarge(): string {
-        return this.props.maxDischarge;
-    }
-
-    set maxCharge(value: string) {
-        this.props.maxCharge = value;
-    }
-
-    set maxDischarge(value: string) {
-        this.props.maxDischarge = value;
+    set value(value: string) {
+        this.props.value = value;
     }
 
     constructor(props: MaxChargeDischargeProps) {

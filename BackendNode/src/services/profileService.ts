@@ -4,9 +4,17 @@ import IProfileRepo from '../repos/IRepos/IProfileRepo';
 import IProfileService from './IServices/IProfileService';
 import { Result } from '../core/logic/Result';
 import IProfileDTO from '../dto/IProfileDTO';
+import { TimeStamp } from '../domain/Prosumer/Profile/TimeStamp';
+import { Load } from '../domain/Prosumer/Profile/ProfileLoad';
+import { StateOfCharge } from '../domain/Prosumer/Profile/StateOfCharge';
+import { PhotovoltaicEnergyLoad } from '../domain/Prosumer/Profile/PhotovoltaicEnergyLoad';
+import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
+import { SoldEnergy } from '../domain/Prosumer/Profile/SoldEnergy';
+import { Profile } from '../domain/Prosumer/Profile/Profile';
 import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
 import IOptimizationResults from '../dto/IOptimizationResults';
+import { profile } from 'console';
 
 @Service()
 export default class ProfileService implements IProfileService {
@@ -61,61 +69,6 @@ export default class ProfileService implements IProfileService {
       return Result.fail<IProfileDTO>('Prosumers not found');
     }
     const prosumers = prosumersResultOrError.getValue();
-
-    /* [
-    battery: f8f8f86b-c3e0-4f2f-8752-77a1615a415a
-        {
-            "id": "94ac0d93-105c-4431-88ff-8cfea5805c2d",
-            "firstName": "Pedro",
-            "lastName": "Henrique",
-            "email": "mailpedro@gmail.com",
-            "phoneNumber": "916868690",
-            "password": "",
-            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
-            "isEmailVerified": true
-        },
-        {
-            "id": "0ab66cba-9be3-4846-8290-7f96c82da46d",
-            "firstName": "Lebron",
-            "lastName": "James",
-            "email": "king@gmail.com",
-            "phoneNumber": "916868690",
-            "password": "",
-            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
-            "isEmailVerified": true
-        },
-        {
-            "id": "c9fcf55c-a941-4f28-b553-dbadd29d5a83",
-            "firstName": "Mia",
-            "lastName": "Khalifa",
-            "email": "Mia@gmail.com",
-            "phoneNumber": "916868690",
-            "password": "",
-            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
-            "isEmailVerified": true
-        },
-        {
-            "id": "dddd6916-8fa8-4aa6-80d9-b7e4c4b0f9aa",
-            "firstName": "John",
-            "lastName": "cena",
-            "email": "jc@gmail.com",
-            "phoneNumber": "916868690",
-            "password": "",
-            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
-            "isEmailVerified": true
-        },
-        {
-            "id": "02e8a235-ab68-48e9-9aad-f6bc386edeaa",
-            "firstName": "The",
-            "lastName": "Rock",
-            "email": "rock@gmail.com",
-            "phoneNumber": "916868690",
-            "password": "",
-            "role": "2a573337-6a1c-48fe-a46d-705d48f4c4e0",
-            "isEmailVerified": true
-        }
-    ] */
-
     try {
       if (results.total_objective_value === undefined) {
         return Result.fail<IProfileDTO>('Total objective value not found in optimization results');
@@ -128,14 +81,21 @@ export default class ProfileService implements IProfileService {
         //POR CORRIGIR
         const profileDTO: IProfileDTO = {
           prosumerId: prosumers[Number(result.Prosumer) - 1].id.toString(), // Anexing profile to the prosumers bootstraped in the database
-          intervalOfTime: result.Day,
+          date: result.Day,
+          intervalOfTime: "15", //To be corrected: the interval is assumed to be 15 minutes
           numberOfIntervals: Number(result.Time_Step),
           stateOfCharge: result.SOC,
+          energyCharge: result.P_ESS_ch,
+          energyDischarge: result.P_ESS_dch,
+          peerOutputEnergyLoad: result.P_Peer_out,
+          //peerOutPrice: "0",
+          peerInputEnergyLoad: result.P_Peer_in,
+          //peerInPrice: "0",
           photovoltaicEnergyLoad: result.P_PV_load,
           boughtEnergyAmount: result.P_buy,
-          boughtEnergyPrice: "0",
+          //boughtEnergyPrice: "0",
           soldEnergyAmount: result.P_sell,
-          soldEnergyPrice: "0",
+          //soldEnergyPrice: "0",
           profileLoad: result.P_Load,
 
         };

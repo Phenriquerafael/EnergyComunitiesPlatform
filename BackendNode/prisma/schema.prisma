@@ -37,14 +37,21 @@ model Profile {
   id                     String   @id @default(uuid())
   prosumerId             String   
   prosumer              Prosumer @relation(fields: [prosumerId], references: [id], onDelete: Cascade)
+  date String 
   intervalOfTime        String   
   numberOfIntervals      Int      
   stateOfCharge          String
+  batteryDischarge   String
+  batteryCharge      String
   photovoltaicEnergyLoad String
   boughtEnergyAmount     String
-  boughtEnergyPrice      String
+  boughtEnergyPrice      String?
   soldEnergyAmount       String
-  soldEnergyPrice        String
+  soldEnergyPrice        String?
+  peerOutputEnergyLoad   String
+  peerOutPrice          String?
+  peerInputEnergyLoad    String
+  peerInPrice           String?
   profileLoad            String
 
   createdAt DateTime @default(now())
@@ -57,16 +64,17 @@ model Battery {
   description        String?
   efficiency         String
   maxCapacity        String
+  initialCapacity    String
   maxChargeDischarge String
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
-  Prosumer           Prosumer[]
+  Prosumer           Prosumer?
 }
 
 model Prosumer {
   id        String  @id @default(uuid())
-  batteryId String  
-  battery   Battery @relation(fields: [batteryId], references: [id], onDelete: Cascade)
+  batteryId String  @unique
+  battery   Battery @relation(fields: [batteryId], references: [id])
   userId    String  @unique
   user      User    @relation(fields: [userId], references: [id])
 

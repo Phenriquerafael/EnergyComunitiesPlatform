@@ -2,7 +2,7 @@ import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 import { BatteryDescription as BatteryInformation } from "./BatteryInformation";
 import { Efficiency } from "./Efficiency";
-import { MaxCapacity } from "./MaxCapacity";
+import { MaxCapacity as Capacity } from "./MaxCapacity";
 import { MaxChargeDischarge } from "./MaxChargeDischarge";
 import { Guard } from "../../../core/logic/Guard";
 import { Result } from "../../../core/logic/Result";
@@ -10,7 +10,8 @@ import { Result } from "../../../core/logic/Result";
 interface BatteryProps {
     batteryInformation: BatteryInformation;
     efficiency: Efficiency;
-    maxCapacity: MaxCapacity;
+    maxCapacity: Capacity;
+    initialCapacity: Capacity;
     maxChargeDischarge: MaxChargeDischarge;
 }
 
@@ -28,8 +29,12 @@ export class Battery extends AggregateRoot<BatteryProps> {
         return this.props.efficiency;
     }
 
-    get maxCapacity(): MaxCapacity {
+    get maxCapacity(): Capacity {
         return this.props.maxCapacity;
+    }
+
+    get initialCapacity(): Capacity {
+        return this.props.initialCapacity;
     }
 
     get maxChargeDischarge(): MaxChargeDischarge {

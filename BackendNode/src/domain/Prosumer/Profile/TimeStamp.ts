@@ -1,6 +1,7 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 
 interface TimeStampProps {
+    
     intervalOfTime: string; // Minutes
     numberOfIntervals: number;
 }

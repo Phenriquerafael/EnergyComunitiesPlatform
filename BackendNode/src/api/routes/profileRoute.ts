@@ -21,14 +21,21 @@ export default (app: Router) => {
         celebrate({
           body: Joi.object({
             prosumerId: Joi.string().required(),
+            date: Joi.string().required(),
             intervalOfTime: Joi.string().required(),
             numberOfIntervals: Joi.number().required(),
             stateOfCharge: Joi.string().required(),
+            energyCharge: Joi.string().required(),
+            energyDischarge: Joi.string().required(),
             photovoltaicEnergyLoad: Joi.string().required(),
             boughtEnergyAmount: Joi.string().required(),
-            boughtEnergyPrice: Joi.string().required(),
+            boughtEnergyPrice: Joi.string().optional(),
             soldEnergyAmount: Joi.string().required(),
-            soldEnergyPrice: Joi.string().required(),
+            soldEnergyPrice: Joi.string().optional(),
+            peerOutputEnergyLoad: Joi.string().required(),
+            peerOutPrice: Joi.string().optional(),
+            peerInputEnergyLoad: Joi.string().required(),
+            peerInPrice: Joi.string().optional(),
             profileLoad: Joi.string().required(),
           }).unknown(true),
         }, { abortEarly: false }),
@@ -50,7 +57,7 @@ export default (app: Router) => {
             P_ESS_ch: Joi.string().required(),
             P_ESS_dch: Joi.string().required(),
             P_PV_load: Joi.string().required(),
-  /*           P_PV_ESS: Joi.string().optional(), */
+            /* P_PV_ESS: Joi.string().required(), */
             P_Peer_out: Joi.string().required(),
             P_Peer_in: Joi.string().required(),
             P_Load: Joi.string().required()
