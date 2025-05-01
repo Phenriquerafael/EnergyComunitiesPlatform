@@ -177,4 +177,30 @@ export default class ProfileRepo implements IProfileRepo {
       }
     }
 
+    public async delete(profile: Profile): Promise<Result<void>> {
+        try {
+            await prisma.profile.delete({
+                where: { id: profile.id.toString() }
+            });
+
+            return Result.ok<void>();
+        } catch (error) {
+            console.error("Error deleting profile:", error);
+
+            // Handle specific error like trying to delete a non-existent record
+            if (
+                error instanceof Error &&
+                'code' in error &&
+                (error as any).code === 'P2025'
+            ) {
+                return Result.fail<void>("Profile not found");
+            }
+
+            return Result.fail<void>(
+                error instanceof Error ? error.message : "Unexpected error deleting profile"
+            );
+        }
+    }
+
+
 }
