@@ -278,4 +278,28 @@ export default class ProfileService implements IProfileService {
       return Result.fail<IProfileDTO>('Error getting profile by prosumer ID');
     }
   }
+
+  public async deleteProfile(profileId: string): Promise<Result<void>> {
+    try {
+      const existingProfileOrError = await this.profileRepoInstance.findById(profileId);
+
+      if (existingProfileOrError.isFailure) {
+        return Result.fail<void>('Profile not found');
+      }
+
+      const profile = existingProfileOrError.getValue();
+      const deleteResult = await this.profileRepoInstance.delete(profile);
+
+      if (deleteResult.isFailure) {
+        return Result.fail<void>('Error deleting profile');
+      }
+
+      return Result.ok<void>();
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      return Result.fail<void>('Unexpected error deleting profile');
+    }
+  }
+
+
 }

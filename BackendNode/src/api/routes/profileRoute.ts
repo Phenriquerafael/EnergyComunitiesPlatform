@@ -103,4 +103,14 @@ export default (app: Router) => {
     // Middleware de erro do celebrate
     app.use(errors());
 
+    route.delete(
+        '/:id',
+        celebrate({
+            params: Joi.object({
+                id: Joi.string().required()
+            })
+        }),
+        (req, res, next) => ctrl.deleteProfile(req, res, next)
+    );
+
 }

@@ -7,4 +7,5 @@ export default interface IProfileController {
     findByProsumerId(req: Request, res: Response, next: NextFunction);
     findAll(req: Request, res: Response, next: NextFunction);
     createFromOptimizationResults(req: Request, res: Response, next: NextFunction);
+    deleteProfile(req: Request, res: Response, next: NextFunction);
 }
