@@ -17,6 +17,9 @@ from fastapi.responses import JSONResponse
 import pandas as pd
 from io import BytesIO
 
+import requests
+
+
 app = FastAPI()
 
 def run_optimization(file_path: BytesIO) -> BytesIO:
@@ -242,23 +245,39 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
         for PL in model.PL:
             for t in model.T:
                 detailed_results.append({
-                    "Day": day,
-                    "Time_Step": t,
-                    "Prosumer": PL,
-                    "P_buy": value(instance.P_buy[PL, t]),
-                    "P_sell": value(instance.P_sell[PL, t]),
-                    "SOC": value(instance.P_ESS_s[PL, t]),
-                    "P_ESS_ch": value(instance.P_ESS_ch[PL, t]),
-                    "P_ESS_dch": value(instance.P_ESS_dch[PL, t]),
-                    "P_PV": value(instance.PPV_capacitys[t,PL]),
-    #                "P_PV_ESS": value(instance.P_PV_ESS[PL, t]),
-                    "P_Peer_out": sum(value(instance.P_peer[PL, PL2, t]) for PL2 in model.PL if PL2 != PL),
-                    "P_Peer_in": sum(value(instance.P_peer[PL2, PL, t]) for PL2 in model.PL if PL2 != PL),
-                    "P_Load": value(instance.PLs[t,PL])
-                    })
+                    "Day": str(day),
+                    "Time_Step": int(t),
+                    "Prosumer": str(PL),
+                    "P_buy": str(value(instance.P_buy[PL, t])),
+                    "P_sell": str(value(instance.P_sell[PL, t])),
+                    "SOC": str(value(instance.P_ESS_s[PL, t])),
+                    "P_ESS_ch": str(value(instance.P_ESS_ch[PL, t])),
+                    "P_ESS_dch": str(value(instance.P_ESS_dch[PL, t])),
+                    "P_PV_load": str(value(instance.PPV_capacitys[t, PL])),   # Corrigido nome
+                    #"P_PV_ESS": str(value(instance.P_PV_ESS[PL, t])),          # Descomenta e corrige
+                    "P_Peer_out": str(sum(value(instance.P_peer[PL, PL2, t]) for PL2 in model.PL if PL2 != PL)),
+                    "P_Peer_in": str(sum(value(instance.P_peer[PL2, PL, t]) for PL2 in model.PL if PL2 != PL)),
+                    "P_Load": str(value(instance.PLs[t, PL]))
+                })
+
         
                     
     #End of optimization algorithm 
+
+    #send data do backen using lib requests
+    # Dados a enviar
+    data = {
+        "total_objective_value":  str(total_objective_value),
+        "detailed_results": detailed_results
+    }
+
+    url = "http://localhost:4000/api/profiles/optimize-results"  # corrige o URL conforme já falámos
+
+    try:
+        response = requests.post(url, json=data)
+        print(response.status_code, response.text)
+    except requests.exceptions.RequestException as e:
+        print('Erro ao enviar o pedido:', e)
 
     return {
         "total_objective_value": total_objective_value,
@@ -272,3 +291,5 @@ async def optimize_excel(file: UploadFile = File(...)):
 
     result = run_optimization(input_io)
     return JSONResponse(content=result)
+
+

@@ -19,6 +19,10 @@ async function startServer() {
 
   app.use(cors(corsOptions)); // Use o middleware CORS com as opções definidas
 
+  // Aumentar o limite para, por exemplo, 50mb
+  app.use(express.json({ limit: '100mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
   await require('./loaders').default({ expressApp: app });
 
   app.listen(config.port, () => {

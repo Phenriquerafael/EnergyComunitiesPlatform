@@ -77,6 +77,8 @@ detailed_results_path = r"sampledata.xlsx"
 
 sampleData.xlsx: prosumers section
 
+##
+
 
 
 
@@ -314,4 +316,33 @@ Stores all calculated variables (`EnergyPurchased`, `EnergySold`, `ChargeLevel`,
 
 ## Physical View
 ![PhysicalView](out/Documentation/PhysicalView/PhysicalView/PhysicalView.svg)
+
+# How to user branches 
+
+## To Create a Branch
+
+```
+git fetch origin
+git checkout -b branchName
+```
+
+## To push the branch to another branch
+
+```
+git checkout branchName
+git merge otherBranch
+```
+
+## To push to the dev branch
+
+```
+git checkout branchName
+git merge dev
+```
+**Make the code merges between branches and push**
+````
+git checkout dev
+git merge branchName
+````
+
 
