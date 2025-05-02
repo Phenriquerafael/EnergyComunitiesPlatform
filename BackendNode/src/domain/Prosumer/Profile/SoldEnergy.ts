@@ -3,7 +3,7 @@ import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 
 interface SoldEnergyProps {
     amount: string;
-    price: string;
+    price?: string;
 }
 
 export class SoldEnergy extends AggregateRoot<SoldEnergyProps> {

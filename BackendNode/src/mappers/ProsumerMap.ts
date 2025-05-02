@@ -8,7 +8,6 @@ import { BatteryMap } from "./BatteryMap";
 import { UserMap } from "./UserMap";
 import { Result } from "../core/logic/Result";
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import prisma from "../../prisma/prismaClient";
 import { User as PrismaUser } from "@prisma/client";
 import { Battery as PrismaBattery } from "@prisma/client";
 import IProsumerPersistence from "../dataschema/IProsumerPersistence";
@@ -35,7 +34,7 @@ export class ProsumerMap {
       try {
         const batteryInstance = (await BatteryMap.toDomain(raw.battery)).getValue();
         const userInstance = (await UserMap.toDomain(raw.user)).getValue();
-
+     
 
         // Criar a entidade Prosumer
         const prosumerProps = {

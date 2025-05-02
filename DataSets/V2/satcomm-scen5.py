@@ -11,7 +11,7 @@ import os
 from pyomo.environ import value
 
 # Load data
-file_path = r"D:\My Projects\Satcomm project\sampledata.xlsx"
+file_path = r"sampledata.xlsx"
 #data = pd.read_excel(file_path, header=None, sheet_name=None)
 
 
@@ -253,7 +253,7 @@ for day in range(1, days + 1):
 # Convert results to a DataFrame and save to Excel
 detailed_results_df = pd.DataFrame(detailed_results)
 
-detailed_results_path = r"D:\My Projects\Satcomm project\detailed_results.xlsx"
+detailed_results_path = r"detailed_results.xlsx"
 detailed_results_df.to_excel(detailed_results_path, index=False)
 
 print(f"Detailed results saved to: {detailed_results_path}")

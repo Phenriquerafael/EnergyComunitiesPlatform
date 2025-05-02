@@ -2,7 +2,7 @@ import IProfilePersistence from '../dataschema/IProfilePersistence';
 import { Profile } from '../domain/Prosumer/Profile/Profile';
 import { TimeStamp } from '../domain/Prosumer/Profile/TimeStamp';
 import IProfileDTO from '../dto/IProfileDTO';
-import { ProfileLoad } from '../domain/Prosumer/Profile/ProfileLoad';
+import { Load } from '../domain/Prosumer/Profile/ProfileLoad';
 import { StateOfCharge } from '../domain/Prosumer/Profile/StateOfCharge';
 import { PhotovoltaicEnergyLoad } from '../domain/Prosumer/Profile/PhotovoltaicEnergyLoad';
 import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
@@ -20,15 +20,22 @@ export class ProfileMap {
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
+      date: profile.date,
       intervalOfTime: profile.timestamp.intervalOfTime,
       numberOfIntervals: profile.timestamp.numberOfIntervals,
       profileLoad: profile.profileLoad.amount,
       stateOfCharge: profile.stateOfCharge.amount,
+      energyCharge: profile.batteryCharge.amount,
+      energyDischarge: profile.batteryDischarge.amount,
       photovoltaicEnergyLoad: profile.photovoltaicEnergyLoad.amount,
       boughtEnergyPrice: profile.boughtEnergy.price,
       boughtEnergyAmount: profile.boughtEnergy.amount,
       soldEnergyPrice: profile.soldEnergy.price,
       soldEnergyAmount: profile.soldEnergy.amount,
+      peerOutputEnergyLoad: profile.peerOutputEnergyLoad.amount,
+      peerOutPrice: profile.peerOutputEnergyLoad.price,
+      peerInputEnergyLoad: profile.peerInputEnergyLoad.amount,
+      peerInPrice: profile.peerInputEnergyLoad.price,
     } as IProfileDTO;
   }
 
@@ -40,13 +47,31 @@ export class ProfileMap {
         numberOfIntervals: rawProfile.numberOfIntervals,
       });
 
-      const profileLoad = ProfileLoad.create({
+      const profileLoad = Load.create({
         amount: rawProfile.profileLoad,
       });
 
       const stateOfCharge = StateOfCharge.create({
         amount: rawProfile.stateOfCharge,
       });
+
+      const energyCharge = Load.create({
+        amount: rawProfile.batteryCharge,
+      });
+      const energyDischarge = Load.create({
+        amount: rawProfile.batteryDischarge,
+      });
+      // Create value objects for energy loads
+      const peerOutputEnergyLoad = SoldEnergy.create({
+        price: rawProfile.peerOutPrice,
+        amount: rawProfile.peerOutputEnergyLoad,
+      });
+
+      const peerInputEnergyLoad = BoughtEnergy.create({
+        price: rawProfile.peerInPrice,
+        amount: rawProfile.peerInputEnergyLoad,
+      });
+
 
       const photovoltaicEnergyLoad = PhotovoltaicEnergyLoad.create({
         amount: rawProfile.photovoltaicEnergyLoad,
@@ -91,9 +116,14 @@ export class ProfileMap {
       // Create Profile
       const profileProps = {
         prosumer: prosumerOrError.getValue(),
+        date: rawProfile.date,
         timestamp: timeStamp/*.getValue()*/,
         profileLoad: profileLoad/*.getValue()*/,
         stateOfCharge: stateOfCharge/*.getValue()*/,
+        energyCharge: energyCharge/*.getValue()*/,
+        energyDischarge: energyDischarge/*.getValue()*/,
+        peerOutputEnergyLoad: peerOutputEnergyLoad/*.getValue()*/,
+        peerInputEnergyLoad: peerInputEnergyLoad/*.getValue()*/,
         photovoltaicEnergyLoad: photovoltaicEnergyLoad/*.getValue()*/,
         boughtEnergy: boughtEnergy/*.getValue()*/,
         soldEnergy: soldEnergy/*.getValue()*/,
@@ -117,13 +147,32 @@ export class ProfileMap {
       numberOfIntervals: profileDTO.numberOfIntervals,
     });
 
-    const profileLoad = ProfileLoad.create({
+    const profileLoad = Load.create({
       amount: profileDTO.profileLoad,
     });
 
     const stateOfCharge = StateOfCharge.create({
       amount: profileDTO.stateOfCharge,
     });
+
+    const energyCharge = Load.create({
+      amount: profileDTO.energyCharge,
+    });
+
+    const energyDischarge = Load.create({
+      amount: profileDTO.energyDischarge,
+    });
+
+    const peerOutputEnergyLoad = SoldEnergy.create({
+      price: profileDTO.peerOutPrice,
+      amount: profileDTO.peerOutputEnergyLoad,
+    });
+
+    const peerInputEnergyLoad = BoughtEnergy.create({
+      price: profileDTO.peerInPrice,
+      amount: profileDTO.peerInputEnergyLoad,
+    });
+
     const photovoltaicEnergyLoad = PhotovoltaicEnergyLoad.create({
       amount: profileDTO.photovoltaicEnergyLoad,
     });
@@ -139,9 +188,14 @@ export class ProfileMap {
 
     const profileProps = {
       prosumer: prosumer,
+      date: profileDTO.date,
       timestamp: timeStamp,
       profileLoad: profileLoad,
       stateOfCharge: stateOfCharge,
+      energyCharge: energyCharge,
+      energyDischarge: energyDischarge,
+      peerOutputEnergyLoad: peerOutputEnergyLoad,
+      peerInputEnergyLoad: peerInputEnergyLoad,
       photovoltaicEnergyLoad: photovoltaicEnergyLoad,
       boughtEnergy: boughtEnergy,
       soldEnergy: soldEnergy,
@@ -152,20 +206,26 @@ export class ProfileMap {
   
 
   public static toPersistence(profile: Profile): any {
-    console.log('error', profile.profileLoad); // Debug log
 
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
+      date: profile.date,
       intervalOfTime: profile.timestamp.intervalOfTime,
       numberOfIntervals: profile.timestamp.numberOfIntervals,
       profileLoad: profile.profileLoad.amount,
       stateOfCharge: profile.stateOfCharge.amount,
+      batteryCharge: profile.batteryCharge.amount,
+      batteryDischarge: profile.batteryDischarge.amount,
       photovoltaicEnergyLoad: profile.photovoltaicEnergyLoad.amount,
       boughtEnergyPrice: profile.boughtEnergy.price,
       boughtEnergyAmount: profile.boughtEnergy.amount,
       soldEnergyPrice: profile.soldEnergy.price,
       soldEnergyAmount: profile.soldEnergy.amount,
+      peerOutputEnergyLoad: profile.peerOutputEnergyLoad.amount,
+      peerOutPrice: profile.peerOutputEnergyLoad.price,
+      peerInputEnergyLoad: profile.peerInputEnergyLoad.amount,
+      peerInPrice: profile.peerInputEnergyLoad.price,
     };
   }
 }

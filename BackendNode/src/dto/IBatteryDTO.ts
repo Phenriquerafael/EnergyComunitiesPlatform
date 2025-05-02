@@ -4,6 +4,7 @@ export default interface IBatteryDTO {
     description?: string;
     efficiency?: string;
     maxCapacity?: string;
+    initialCapacity?: string;
     maxChargeDischarge?: string;
 
 }

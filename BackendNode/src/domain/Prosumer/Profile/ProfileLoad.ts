@@ -1,11 +1,11 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
+
 
 interface ProfileLoadProps {
     amount: string;
 }
 
-export class ProfileLoad extends AggregateRoot<ProfileLoadProps> {
+export class Load extends AggregateRoot<ProfileLoadProps> {
 
     get amount (): string {
         return this.props.amount;
@@ -19,8 +19,8 @@ export class ProfileLoad extends AggregateRoot<ProfileLoadProps> {
         super(props);
     }
 
-    public static create (props: ProfileLoadProps): ProfileLoad {
-        return new ProfileLoad(props);
+    public static create (props: ProfileLoadProps): Load {
+        return new Load(props);
     }
 
 /*     public toString (): string {

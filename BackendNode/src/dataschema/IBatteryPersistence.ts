@@ -4,5 +4,6 @@ export default interface IBatteryPersistence {
     description: string;
     efficiency: string;
     maxCapacity: string;
+    initialCapacity: string;
     maxChargeDischarge: string;
 }

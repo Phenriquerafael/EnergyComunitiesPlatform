@@ -5,7 +5,7 @@ import IProfileService from './IServices/IProfileService';
 import { Result } from '../core/logic/Result';
 import IProfileDTO from '../dto/IProfileDTO';
 import { TimeStamp } from '../domain/Prosumer/Profile/TimeStamp';
-import { ProfileLoad } from '../domain/Prosumer/Profile/ProfileLoad';
+import { Load } from '../domain/Prosumer/Profile/ProfileLoad';
 import { StateOfCharge } from '../domain/Prosumer/Profile/StateOfCharge';
 import { PhotovoltaicEnergyLoad } from '../domain/Prosumer/Profile/PhotovoltaicEnergyLoad';
 import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
@@ -14,6 +14,7 @@ import { Profile } from '../domain/Prosumer/Profile/Profile';
 import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
 import IOptimizationResults from '../dto/IOptimizationResults';
+import { profile } from 'console';
 
 @Service()
 export default class ProfileService implements IProfileService {
@@ -80,14 +81,21 @@ export default class ProfileService implements IProfileService {
         //POR CORRIGIR
         const profileDTO: IProfileDTO = {
           prosumerId: prosumers[Number(result.Prosumer) - 1].id.toString(), // Anexing profile to the prosumers bootstraped in the database
-          intervalOfTime: result.Day,
+          date: result.Day,
+          intervalOfTime: "15", //To be corrected: the interval is assumed to be 15 minutes
           numberOfIntervals: Number(result.Time_Step),
           stateOfCharge: result.SOC,
+          energyCharge: result.P_ESS_ch,
+          energyDischarge: result.P_ESS_dch,
+          peerOutputEnergyLoad: result.P_Peer_out,
+          //peerOutPrice: "0",
+          peerInputEnergyLoad: result.P_Peer_in,
+          //peerInPrice: "0",
           photovoltaicEnergyLoad: result.P_PV_load,
           boughtEnergyAmount: result.P_buy,
-          boughtEnergyPrice: "0",
+          //boughtEnergyPrice: "0",
           soldEnergyAmount: result.P_sell,
-          soldEnergyPrice: "0",
+          //soldEnergyPrice: "0",
           profileLoad: result.P_Load,
 
         };
@@ -230,4 +238,28 @@ export default class ProfileService implements IProfileService {
       return Result.fail<IProfileDTO>('Error getting profile by prosumer ID');
     }
   }
+
+  public async deleteProfile(profileId: string): Promise<Result<void>> {
+    try {
+      const existingProfileOrError = await this.profileRepoInstance.findById(profileId);
+
+      if (existingProfileOrError.isFailure) {
+        return Result.fail<void>('Profile not found');
+      }
+
+      const profile = existingProfileOrError.getValue();
+      const deleteResult = await this.profileRepoInstance.delete(profile);
+
+      if (deleteResult.isFailure) {
+        return Result.fail<void>('Error deleting profile');
+      }
+
+      return Result.ok<void>();
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      return Result.fail<void>('Unexpected error deleting profile');
+    }
+  }
+
+
 }
