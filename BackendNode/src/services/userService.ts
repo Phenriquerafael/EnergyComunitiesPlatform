@@ -25,6 +25,21 @@ export default class UserService implements IUserService {
   ) {
     console.log('UserService instantiated'); // Debug
   }
+  public async toogleActiveStatus(id: string): Promise<Result<void>> {
+    try {
+      const user = await this.userRepo.findById(id);
+      if (!user) {
+        return Result.fail<void>('User not found');
+      }
+      user.isActive = !user.isActive;
+      await this.userRepo.save(user);
+      return Result.ok<void>();
+
+    } catch (error) {
+      this.logger.error(error);
+      return Result.fail<void>('Error while toggling active status: ' + error.message);
+    }
+  }
 
   public async isAdmin(id: string): Promise<Result<boolean>> {
     try {
@@ -78,7 +93,7 @@ export default class UserService implements IUserService {
       if (!user) {
         return Result.fail<void>('User not found');
       }
-      user.isEmailVerified = true;
+      user.isActive = true;
       await this.userRepo.save(user);
       return Result.ok<void>();
     } catch (error) {
@@ -127,7 +142,7 @@ export default class UserService implements IUserService {
         password: password,
         //isEmailVerified: false, 
         // Uncomment this line if you want to set isEmailVerified to false by default
-        isEmailVerified: true,
+        isActive: true,
       });
 
       if (userOrError.isFailure) {
@@ -165,7 +180,7 @@ export default class UserService implements IUserService {
         this.logger.silly('User already deleted');
         return;
       }
-      if (currentUser.isEmailVerified) {
+      if (currentUser.isActive) {
         this.logger.silly('User is verified');
         return;
       }
@@ -183,8 +198,8 @@ export default class UserService implements IUserService {
         return Result.fail<{ userDTO: IUserDTO, token: string }>('User not registered');
       }
 
-      if (!user.isEmailVerified) {
-        return Result.fail<{ userDTO: IUserDTO, token: string }>('Email not confirmed');
+      if (!user.isActive) {
+        return Result.fail<{ userDTO: IUserDTO, token: string }>('User not activated');
       }
 
       this.logger.silly('Checking password');

@@ -19,7 +19,7 @@ interface UserProps {
   phoneNumber: PhoneNumber;
   password: UserPassword;
   role: Role;
-  isEmailVerified: boolean;
+  isActive: boolean;
 
 }
 
@@ -65,12 +65,12 @@ export class User extends AggregateRoot<UserProps> {
     this.props.role = value;
   }
 
-  get isEmailVerified (): boolean {
-    return this.props.isEmailVerified;
+  get isActive (): boolean {
+    return this.props.isActive;
   }
 
-  set isEmailVerified (value: boolean) {
-    this.props.isEmailVerified = value;
+  set isActive (value: boolean) {
+    this.props.isActive = value;
   }
 
 
@@ -128,7 +128,7 @@ export class User extends AggregateRoot<UserProps> {
       { argument: props.email, argumentName: 'email' },
       { argument: props.phoneNumber, argumentName: 'phoneNumber' },
       { argument: props.role, argumentName: 'role' },
-      { argument: props.isEmailVerified, argumentName: 'isEmailVerified' }
+      { argument: props.isActive, argumentName: 'isActive' }
     ];
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);

@@ -11,8 +11,23 @@ import IUserRepo from '../repos/IRepos/IUserRepo';
 
 @Service()
 export default class UserController implements IUserController {
+
   private get userServiceInstance(): IUserService {
     return Container.get(config.services.user.name) as IUserService;
+  }
+
+  public async toogleActiveStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const result = await this.userServiceInstance.toogleActiveStatus(id);
+      if (result.isFailure) {
+        return res.status(400).json({ message: result.error });
+      }
+      return res.status(200).json({ data: "User activity toggled" });
+    } catch (error) {
+      return next(error);
+      
+    }
   }
 
   public async isAdmin(req: Request, res: Response, next: NextFunction) {

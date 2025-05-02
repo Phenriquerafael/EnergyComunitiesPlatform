@@ -13,6 +13,8 @@ export default interface IUserService  {
   isAdmin(id: string): Promise<Result<boolean>>;
   getAllUsers(): Promise<Result<IUserDTO[]>>;
   updateUser(id: string, userDTO: IUserDTO);
+  toogleActiveStatus(id: string): Promise<Result<void>>;
+  
 
 
 }
