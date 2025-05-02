@@ -161,5 +161,7 @@ export default (app: Router) => {
         (req, res, next) => ctrl.updateUser(req, res, next)
     );
 
+    route.get("/toogle-active-status/:id", middlewares.isAuth, (req, res, next) => ctrl.toogleActiveStatus(req, res, next));
+
 
 };

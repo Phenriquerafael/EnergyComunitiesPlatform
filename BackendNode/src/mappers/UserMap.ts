@@ -28,7 +28,7 @@ export class UserMap extends Mapper<User> {
       phoneNumber: user.phoneNumber.value,
       password: "",
       role: user.role.id.toString(),
-      isEmailVerified: user.isEmailVerified
+      isActive: user.isActive
     } as IUserDTO;
   }
 
@@ -46,7 +46,7 @@ export class UserMap extends Mapper<User> {
       phoneNumber: phoneNumberOrError.getValue(),
       password: userPasswordOrError.getValue(),
       role: role,
-      isEmailVerified: raw.isEmailVerified
+      isActive: raw.isActive
     }, new UniqueEntityID(raw.id))
 
     if (userOrError.isFailure) {
@@ -66,7 +66,7 @@ export class UserMap extends Mapper<User> {
       firstName: user.firstName,
       lastName: user.lastName,
       roleId: user.role ? user.role.id.toValue() : null, // Use roleId instead of role
-      isEmailVerified: user.isEmailVerified
+      isActive: user.isActive
     };
   }
 }

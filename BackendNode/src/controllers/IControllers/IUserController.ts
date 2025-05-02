@@ -12,4 +12,6 @@ export default interface IUserController  {
     isAdmin(req: Request, res: Response, next: NextFunction);
     getAllUsers(req: Request, res: Response, next: NextFunction);
     updateUser(req: Request, res: Response, next: NextFunction);
+    toogleActiveStatus(req: Request, res: Response, next: NextFunction);
+    
 }

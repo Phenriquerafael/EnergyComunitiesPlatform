@@ -11,5 +11,6 @@ export default interface IUserRepo extends Repo<User> {
 	delete(id: string): Promise<void>;
 	findAll(): Promise<User[]>;
 	/* 	findStaff(): Promise<User[]>; */
+	
 
 }
