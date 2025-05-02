@@ -22,7 +22,19 @@ import requests
 
 app = FastAPI()
 
+# Defina uma variável para armazenar o progresso da otimização
+optimization_status = {
+    "status": "waiting",  # Estado inicial
+    "progress": 0         # Progresso inicial
+}
+
+
 def run_optimization(file_path: BytesIO) -> BytesIO:
+    global optimization_status  # Acesse a variável global para atualização
+
+    # Comece o processo de otimização
+    optimization_status["status"] = "processing"
+    optimization_status["progress"] = 0
 # Ler o Excel recebido (sem salvar no disco)
     #df = pd.read_excel(file_path, sheet_name=None)
 
@@ -240,7 +252,10 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
         day_objective_value = value(instance.Objective)
         total_objective_value += day_objective_value
         
-        
+        # Atualizar o progresso a cada dia
+        progress = int((day / days) * 100)  # Calcula o progresso em porcentagem
+        optimization_status["progress"] = progress
+
 
         for PL in model.PL:
             for t in model.T:
@@ -262,7 +277,9 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
 
         
                     
-    #End of optimization algorithm 
+    #End of optimization algorithm
+    optimization_status["status"] = "completed"
+    optimization_status["progress"] = 100
 
     #send data do backen using lib requests
     # Dados a enviar
@@ -293,3 +310,18 @@ async def optimize_excel(file: UploadFile = File(...)):
     return JSONResponse(content=result)
 
 
+@app.post("/run-optimization")
+async def start_optimization(file: UploadFile = File(...)):
+    # Aqui você pode chamar a função de otimização
+    file_content = await file.read()
+    file_path = BytesIO(file_content)
+
+    # Execute a otimização de forma assíncrona, por exemplo, em outro thread ou processo
+    run_optimization(file_path)
+
+    return {"message": "Optimization started"}
+
+@app.get("/optimization-status")
+async def get_optimization_status():
+    # Retorna o status e o progresso atual da otimização
+    return {"status": optimization_status["status"], "progress": optimization_status["progress"]}

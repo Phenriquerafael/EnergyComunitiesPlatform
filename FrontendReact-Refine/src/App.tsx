@@ -27,6 +27,8 @@ import {
 } from "@/routes";
 
 import "@refinedev/antd/dist/reset.css";
+import { ProfileAnalyticsPage } from "./routes/ProfileAnalyticsPage";
+import ProfileUpload from "./routes/ProfileUpload";
 
 const App = () => {
   return (
@@ -96,6 +98,29 @@ const App = () => {
                 >
                   <Route path="/login" element={<LoginPage />} />
                 </Route>
+
+                <Route
+                  element={
+                    <Authenticated key="authenticated-layout" fallback={<CatchAllNavigate to="/login" />}>
+                      <Layout>
+                        <Outlet />
+                      </Layout>
+                    </Authenticated>
+                  }
+                >
+                  <Route index element={<DashboardPage />} />
+                  
+                  {/* Outras rotas */}
+                  <Route path="/profiles" element={<ProfileAnalyticsPage />} />
+
+                  {/* Rota para Profile Upload */}
+                  <Route path="/profile-upload" element={<ProfileUpload />} />
+
+                  <Route path="*" element={<ErrorComponent />} />
+                </Route>
+
+
+
               </Routes>
               <UnsavedChangesNotifier />
               <DocumentTitleHandler />

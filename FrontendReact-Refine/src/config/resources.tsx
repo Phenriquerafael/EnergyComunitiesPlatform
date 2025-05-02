@@ -1,10 +1,5 @@
-import type { IResourceItem } from "@refinedev/core";
-
-import {
-  DashboardOutlined,
-  ProjectOutlined,
-  ShopOutlined,
-} from "@ant-design/icons";
+import { DashboardOutlined, ProjectOutlined, ShopOutlined, ProfileOutlined } from "@ant-design/icons"; // Importe o ícone adequado para "Perfil"
+import { IResourceItem } from "@refinedev/core";
 
 export const resources: IResourceItem[] = [
   {
@@ -36,4 +31,23 @@ export const resources: IResourceItem[] = [
       icon: <ProjectOutlined />,
     },
   },
+  {
+    name: "profiles",  // Novo recurso para Profile Analytics
+    list: "/profiles",  // Definindo a rota para acessar a página de análise de perfis
+    meta: {
+      label: "Profile Analytics",  // O nome do item no sidebar
+      icon: <ProfileOutlined />,  // Ícone do sidebar (você pode usar um ícone apropriado)
+    },
+  },
+
+  {
+    name: "profileUpload",
+    list: "/profile-upload",
+    create: "/profile-upload/new",
+    meta: {
+      label: "Profile Upload",
+      icon: <ProfileOutlined />,
+    },
+  }
+
 ];

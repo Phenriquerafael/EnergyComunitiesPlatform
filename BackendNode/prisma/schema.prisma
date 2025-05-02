@@ -77,8 +77,18 @@ model Prosumer {
   battery   Battery @relation(fields: [batteryId], references: [id])
   userId    String  @unique
   user      User    @relation(fields: [userId], references: [id])
+  communityId String?  @unique
+  community Community? @relation(fields: [communityId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   profiles  Profile[] // One-to-many relation with Profile
+}
+
+model Community {
+  id        String  @id @default(uuid())
+  name      String  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  prosumers Prosumer[] // One-to-many relation with Prosumer
 }
