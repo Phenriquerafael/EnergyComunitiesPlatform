@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "celebrate": "^15.0.3",
+    "express": "^5.1.0",
+    "typedi": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1"
+  }
+}

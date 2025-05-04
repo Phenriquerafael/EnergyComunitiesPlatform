@@ -1,3 +1,4 @@
+import { Result } from "@prisma/client/runtime/library";
 import { Repo } from "../../core/infra/Repo";
 import { User } from "../../domain/User/user";
 import { UserEmail } from "../../domain/User/userEmail";
