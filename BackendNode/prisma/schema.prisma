@@ -88,7 +88,18 @@ model Prosumer {
 model Community {
   id        String  @id @default(uuid())
   name      String  @unique
+  description String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   prosumers Prosumer[] // One-to-many relation with Prosumer
+}
+
+model CommunityManager{
+  id        String  @id @default(uuid())
+  communityId String @unique
+  community Community @relation(fields: [communityId], references: [id])
+  userId String @unique
+  user      User    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
