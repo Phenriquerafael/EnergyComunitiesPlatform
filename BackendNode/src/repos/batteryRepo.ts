@@ -7,6 +7,23 @@ import { BatteryMap } from "../mappers/BatteryMap";
 
 @Service()
 export default class BatteryRepo implements IBatteryRepo {
+    public async delete(id: string): Promise<Result<void>> {
+        try {
+            const battery = await prisma.battery.findUnique({
+                where: { id: String(id) },
+            });
+            if (!battery) {
+                return Result.fail<void>("Battery not found");
+            }
+            await prisma.battery.delete({
+                where: { id: String(id) },
+            });
+            return Result.ok<void>(undefined);
+        } catch (error) {
+            console.error("Error deleting battery: ", error);
+            return Result.fail<void>("Error deleting battery");
+        }
+    }
     public async save(battery: Battery): Promise<Result<Battery>> {
         try {
             const rawBattery = BatteryMap.toPersistence(battery);
