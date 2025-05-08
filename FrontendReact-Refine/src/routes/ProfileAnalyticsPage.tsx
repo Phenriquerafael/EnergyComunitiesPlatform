@@ -1,108 +1,105 @@
 import { useEffect, useState } from "react";
 import { Card, Row, Col, Descriptions } from "antd";
-import { Line } from "@ant-design/plots"; // Alterado para usar gráficos de linha
-import { getAllProfiles } from "@/services/profileService"; // Ajuste conforme necessário
+import { Line } from "@ant-design/plots";
+import { getAllProfiles } from "@/services/profileService";
 import { ProfileDTO } from "@/types/Profile";
 
 export const ProfileAnalyticsPage = () => {
   const [profiles, setProfiles] = useState<ProfileDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const prosumerId = "364a66da-ba65-4d83-ab46-34d9c2786ede"; // <- Defina aqui o ID do prosumer que deseja analisar
+
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
         const data = (await getAllProfiles()) as ProfileDTO[];
-        setProfiles(data);
+        setProfiles(data.filter((p) => p.prosumerId === prosumerId));
       } catch (error) {
-        console.error("Erro ao buscar os perfis:", error);
+        console.error("Error fetching profiles:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProfiles();
-  }, []);
+  }, [prosumerId]);
 
-  // Função para organizar os dados para o gráfico com base no número de intervalos
+  const intervalToTime = (interval: number): string => {
+    const totalMinutes = (interval - 1) * 15;
+    const hours = Math.floor(totalMinutes / 60)
+      .toString()
+      .padStart(2, "0");
+    const minutes = (totalMinutes % 60).toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
   const generateChartData = () => {
-    return profiles.flatMap((profile, index) => {
-      const { intervalOfTime, stateOfCharge, energyCharge, energyDischarge, photovoltaicEnergyLoad, boughtEnergyAmount, soldEnergyAmount, peerOutputEnergyLoad, peerInputEnergyLoad } = profile;
+    return profiles.map((profile) => {
+      const interval = Number(profile.numberOfIntervals);
+      const time = intervalToTime(interval);
 
-      // Usar 'index' como o número de intervalo para o eixo X
-      const intervalIndex = index + 1; // Incrementar 1 para que o intervalo comece do 1
-
-      // Aqui, você pode adicionar mais dados temporais conforme necessário
       return [
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "State of Charge",
-          value: parseFloat(stateOfCharge || "0"),
+          value: parseFloat(profile.stateOfCharge || "0"),
         },
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "Energy Charge",
-          value: parseFloat(energyCharge || "0"),
+          value: parseFloat(profile.energyCharge || "0"),
         },
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "Energy Discharge",
-          value: parseFloat(energyDischarge || "0"),
+          value: parseFloat(profile.energyDischarge || "0"),
         },
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "Photovoltaic Energy Load",
-          value: parseFloat(photovoltaicEnergyLoad || "0"),
+          value: parseFloat(profile.photovoltaicEnergyLoad || "0"),
         },
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "Bought Energy",
-          value: parseFloat(boughtEnergyAmount || "0"),
+          value: parseFloat(profile.boughtEnergyAmount || "0"),
         },
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "Sold Energy",
-          value: parseFloat(soldEnergyAmount || "0"),
+          value: parseFloat(profile.soldEnergyAmount || "0"),
         },
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "Peer Output Energy Load",
-          value: parseFloat(peerOutputEnergyLoad || "0"),
+          value: parseFloat(profile.peerOutputEnergyLoad || "0"),
         },
         {
-          interval: intervalIndex,
-          prosumer: profile.prosumerId,
+          time,
           type: "Peer Input Energy Load",
-          value: parseFloat(peerInputEnergyLoad || "0"),
+          value: parseFloat(profile.peerInputEnergyLoad || "0"),
         },
       ];
-    });
+    }).flat();
   };
 
   const chartData = generateChartData();
 
-  // Configuração do gráfico
   const config = {
     data: chartData,
-    xField: "interval", // Eixo X com base no número de intervalos
+    xField: "time",
     yField: "value",
-    seriesField: "type",  // Cada tipo de dado (e.g., State of Charge, Energy Charge) será uma linha
+    seriesField: "type",
     xAxis: {
-      label: {
-        formatter: (val: string) => `Intervalo ${val}`, // Formatar o número do intervalo
-      },
+      title: { text: "Time (HH:mm)" },
+      label: { rotate: 45 },
     },
     yAxis: {
-      title: { text: "Valor (kWh)" },
+      title: { text: "Value (kWh)" },
     },
     tooltip: {
-      fields: ["interval", "type", "value"],
+      fields: ["time", "type", "value"],
       formatter: (datum: any) => ({
         name: datum.type,
         value: `${datum.value} kWh`,
@@ -110,61 +107,92 @@ export const ProfileAnalyticsPage = () => {
     },
   };
 
-  // Secção Prosumer Profile
-  const prosumerProfile = profiles.length > 0 ? profiles[0] : null; // Exemplo de pegar o primeiro perfil
+  const prosumerProfile = profiles.length > 0 ? profiles[0] : null;
+
+    // Função para calcular a média de um campo numérico em string
+    const calculateAverage = (key: keyof ProfileDTO): string => {
+      const numericValues = profiles
+        .map((p) => parseFloat(String(p[key] || "0")))
+        .filter((v) => !isNaN(v));
+  
+      const average =
+        numericValues.reduce((acc, val) => acc + val, 0) / numericValues.length;
+  
+      return average.toFixed(2);
+    };
+  
+    // Campos a serem exibidos com suas médias
+    const averageFields = [
+      { label: "Average State of Charge", key: "stateOfCharge" },
+      { label: "Average Energy Charged", key: "energyCharge" },
+      { label: "Average Energy Discharged", key: "energyDischarge" },
+      { label: "Average PV Energy Load", key: "photovoltaicEnergyLoad" },
+      { label: "Average Energy Bought", key: "boughtEnergyAmount" },
+      { label: "Average Energy Sold", key: "soldEnergyAmount" },
+      { label: "Average Peer Output Load", key: "peerOutputEnergyLoad" },
+      { label: "Average Peer Input Load", key: "peerInputEnergyLoad" },
+      { label: "Average Profile Load", key: "profileLoad" },
+    ];
 
   return (
-    <Card title="Análise de Perfis">
+    <Card title="Profile Analytics">
       {isLoading ? (
-        <p>A carregar...</p>
+        <p>Loading...</p>
       ) : (
         <>
           <Row gutter={16}>
-            {/* Gráfico de Evolução Temporal dos Perfis */}
             <Col span={24}>
-              <Card title="Evolução Temporal dos Perfis">
+              <Card title={`Temporal Evolution for Prosumer ${prosumerId}`}>
                 <Line {...config} height={400} />
               </Card>
             </Col>
           </Row>
 
-          {/* Secção de Prosumer Profile */}
           {prosumerProfile && (
             <Row gutter={16} style={{ marginTop: 20 }}>
               <Col span={24}>
-                <Card title="Perfil do Prosumer">
-                  <Descriptions column={2}>
-                    <Descriptions.Item label="ID Prosumer">
-                      {prosumerProfile.prosumerId}
+                <Card title={`Prosumer ${prosumerId} – Profile Details`}>
+                <Descriptions column={2}>
+                  <Descriptions.Item label="Prosumer ID">
+                    {prosumerProfile.prosumerId}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Date">
+                    {prosumerProfile.date}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Time Interval">
+                    {prosumerProfile.intervalOfTime}
+                  </Descriptions.Item>
+
+                  <Descriptions.Item label="State of Charge">
+                    {prosumerProfile.stateOfCharge} kWh
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Energy Charged">
+                    {prosumerProfile.energyCharge} kWh
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Energy Discharged">
+                    {prosumerProfile.energyDischarge} kWh
+                  </Descriptions.Item>
+                  <Descriptions.Item label="PV Energy Load">
+                    {prosumerProfile.photovoltaicEnergyLoad} kWh
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Energy Bought">
+                    {prosumerProfile.boughtEnergyAmount} kWh
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Energy Sold">
+                    {prosumerProfile.soldEnergyAmount} kWh
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Profile Load">
+                    {prosumerProfile.profileLoad} kWh
+                  </Descriptions.Item>
+
+                  {/* MÉDIAS */}
+                  {averageFields.map((field) => (
+                    <Descriptions.Item key={field.key} label={field.label}>
+                      {calculateAverage(field.key as keyof ProfileDTO)} kWh
                     </Descriptions.Item>
-                    <Descriptions.Item label="Data">
-                      {prosumerProfile.date}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Intervalo de Tempo">
-                      {prosumerProfile.intervalOfTime}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Estado de Carga">
-                      {prosumerProfile.stateOfCharge}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Energia Carregada">
-                      {prosumerProfile.energyCharge} kWh
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Energia Descarregada">
-                      {prosumerProfile.energyDischarge} kWh
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Energia Fotovoltaica Carregada">
-                      {prosumerProfile.photovoltaicEnergyLoad} kWh
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Energia Comprada">
-                      {prosumerProfile.boughtEnergyAmount} kWh
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Energia Vendida">
-                      {prosumerProfile.soldEnergyAmount} kWh
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Carga de Perfil">
-                      {prosumerProfile.profileLoad} kWh
-                    </Descriptions.Item>
-                  </Descriptions>
+                  ))}
+                </Descriptions>
+
                 </Card>
               </Col>
             </Row>
