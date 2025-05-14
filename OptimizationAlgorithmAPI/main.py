@@ -35,6 +35,7 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
     # Comece o processo de otimização
     optimization_status["status"] = "processing"
     optimization_status["progress"] = 0
+    print(optimization_status)
 # Ler o Excel recebido (sem salvar no disco)
     #df = pd.read_excel(file_path, sheet_name=None)
 
@@ -253,7 +254,7 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
         total_objective_value += day_objective_value
         
         # Atualizar o progresso a cada dia
-        progress = int((day / days) * 100)  # Calcula o progresso em porcentagem
+        progress = int((day / days) * 100)  # Calcula o progresso em percentagem
         optimization_status["progress"] = progress
 
 
@@ -280,6 +281,7 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
     #End of optimization algorithm
     optimization_status["status"] = "completed"
     optimization_status["progress"] = 100
+    print(optimization_status)
 
     #send data do backen using lib requests
     # Dados a enviar

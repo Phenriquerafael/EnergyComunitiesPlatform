@@ -8,7 +8,7 @@ export const ProfileAnalyticsPage = () => {
   const [profiles, setProfiles] = useState<ProfileDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const prosumerId = "364a66da-ba65-4d83-ab46-34d9c2786ede"; // <- Defina aqui o ID do prosumer que deseja analisar
+  const prosumerId = "95c39ad2-b750-45dc-9dfb-3e83283637c7"; // <- Defina aqui o ID do prosumer que deseja analisar
 
   useEffect(() => {
     const fetchProfiles = async () => {
