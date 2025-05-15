@@ -9,7 +9,10 @@ export const ProfileAnalyticsPage = () => {
   const [profiles, setProfiles] = useState<ProfileDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const prosumerId = "95c39ad2-b750-45dc-9dfb-3e83283637c7"; // <- Defina aqui o ID do prosumer que deseja analisar
+/*   const prosumerId = "95c39ad2-b750-45dc-9dfb-3e83283637c7";  */
+  const prosumerId = "39bd4b18-76a3-496d-b428-ab22bdb23bc3"; // Replace with the actual prosumer ID
+
+
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -80,6 +83,11 @@ export const ProfileAnalyticsPage = () => {
           time,
           type: "Peer Input Energy Load",
           value: parseFloat(profile.peerInputEnergyLoad || "0"),
+        },
+        {
+          time,
+          type: "Profile Load",
+          value: parseFloat(profile.profileLoad || "0"),
         },
       ];
     }).flat();

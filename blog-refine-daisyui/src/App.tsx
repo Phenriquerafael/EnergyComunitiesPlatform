@@ -21,10 +21,12 @@ import {
   CategoryList,
   CategoryShow,
 } from "./pages/categories";
-import { HomeIcon, ShoppingCartIcon, TagIcon } from "@heroicons/react/20/solid";
+import { ArrowDownOnSquareIcon, HomeIcon, ShoppingCartIcon, TagIcon,ChartBarIcon } from "@heroicons/react/20/solid";
 import { Dashboard } from "./pages/dashboard";
 import { ProfileAnalyticsPage } from "./pages/ProfileAnalyticsPage";
 import ProfileUpload from "./pages/ProfileUpload";
+
+
 
 function App() {
   return (
@@ -67,14 +69,14 @@ function App() {
               name: "analytics",
               list: "/profiles",
               meta: {
-                icon: <HomeIcon className="h-4 w-4" />,
+                icon: <ChartBarIcon className="h-4 w-4" />,
               },
             },
             {
               name: "uploadData",
               list: "/uploadData",
               meta: {
-                icon: <HomeIcon className="h-4 w-4" />,
+                icon: <ArrowDownOnSquareIcon className="h-5 w-5 font-bold" />,
               },
             },
           ]}
