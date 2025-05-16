@@ -10,7 +10,13 @@ export const Layout = ({ children }: React.PropsWithChildren) => {
       <ThemedLayoutV2
         Header={Header}
         Title={(titleProps) => {
-          return <ThemedTitleV2 {...titleProps} text="Refine" />;
+          return <div >
+                  <img
+                    src="/SATCOMM-550x129.jpg"
+                    alt="Satcomm Logo"
+                    style={{ maxWidth: "200px", height: "auto", marginLeft: "-15px" }}
+                  />
+                </div>;{/* <ThemedTitleV2 {...titleProps} text="Refine" /> */};
         }}
       >
         {children}

@@ -325,3 +325,40 @@ async def start_optimization(file: UploadFile = File(...)):
 async def get_optimization_status():
     # Retorna o status e o progresso atual da otimização
     return {"status": optimization_status["status"], "progress": optimization_status["progress"]}
+
+@app.post("/batteryList")
+async def createBatteries(file: UploadFile = File(...)):
+    contents = await file.read()
+    input_io = BytesIO(contents)
+
+    # Lê e transpõe o DataFrame
+    df = pd.read_excel(input_io, header=0, index_col=0).T
+
+
+    battery_list = []
+    for ess_name, row in df.iterrows():
+        battery = {
+            "name": ess_name,
+            "efficiency": str(row["Eta"]).replace(',', '.'),
+            "maxCapacity": str(row["Cap"]).replace(',', '.'),
+            "initialCapacity": str(row["Capinitial"]).replace(',', '.'),
+            "maxChargeDischarge": str(row["Dprate"]).replace(',', '.')
+        }
+
+        # Não incluir "description" se estiver vazia
+        battery_list.append(battery)
+
+
+    payload = {
+        "batteryList": battery_list
+    }
+
+    # Envia para a API externa
+    url = "http://localhost:4000/api/batteries/batteryList"
+    headers = {"Content-Type": "application/json"}
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        return JSONResponse(status_code=response.status_code, content=response.json())
+    except requests.exceptions.RequestException as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import config from "../../../config";
 import { Container } from "../../container";
-import IBatteryController from "../../controllers/IControllers/IProsumerBatteryController";
+import IBatteryController from "../../controllers/IControllers/IBatteryController";
 import { celebrate, Joi, Segments } from "celebrate";
 
 const route = Router();
@@ -16,7 +16,7 @@ export default (app: Router) => {
 
 
     route.post(
-        '/',
+        '/create',
         celebrate({
             body: Joi.object({
                 name: Joi.string().optional(),
@@ -31,7 +31,7 @@ export default (app: Router) => {
     );
 
     route.patch(
-        '/',
+        '/:id',
         celebrate({
             body: Joi.object({
                 id: Joi.string().required(),
@@ -43,6 +43,34 @@ export default (app: Router) => {
             }),
         }),
         (req, res, next) => ctrl.updateBattery(req, res, next)
+    );
+
+    route.post('/batteryList',
+        celebrate({
+            body: Joi.object({
+                batteryList: Joi.array().items(
+                    Joi.object({
+                    name: Joi.string().optional(),
+                    description: Joi.string().optional(),
+                    efficiency: Joi.string().required(),
+                    maxCapacity: Joi.string().required(),
+                    initialCapacity: Joi.string().required(),
+                    maxChargeDischarge: Joi.string().required(),})
+                ),
+            }),
+        }),
+        (req, res, next) => ctrl.createBatteries(req, res, next)
+
+    );
+
+    route.delete(
+        '/:id',
+        celebrate({
+            params: Joi.object({
+                id: Joi.string().required(),
+            }),
+        }),
+        (req, res, next) => ctrl.deleteBattery(req, res, next)
     );
 
     route.get(

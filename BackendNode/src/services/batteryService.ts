@@ -11,6 +11,49 @@ export default class BatteryService implements IBatteryService {
   constructor(@Inject(config.repos.battery.name) private batteryRepoInstance: IBatteryRepo) {
     /* console.log('ProsumerBatteryService instantiated'); // Debug */
   }
+  public async createBatteries(batteryDTOs: IBatteryDTO[]): Promise<Result<IBatteryDTO[]>> {
+    try {
+      if (!batteryDTOs || batteryDTOs.length === 0) {
+        return Result.fail<IBatteryDTO[]>('Prosumer battery list is required');
+      }
+      const prosumerBatteries = batteryDTOs.map((batteryDTO) => this.createBattery(batteryDTO));
+      const results = await Promise.all(prosumerBatteries);
+      const successfulResults = results.filter((result) => result.isSuccess).map((result) => result.getValue());
+      const failedResults = results.filter((result) => result.isFailure).map((result) => result.error);
+      if (failedResults.length > 0) {
+        return Result.fail<IBatteryDTO[]>(`Error creating prosumer batteries: ${failedResults.join(', ')}`);
+      }
+      return Result.ok<IBatteryDTO[]>(successfulResults);
+    } catch (error) {
+      console.log('Error creating prosumer batteries: ', error);
+      return Result.fail<IBatteryDTO[]>('Error creating prosumer batteries');
+      
+    }
+  }
+  public async deleteBattery(batteryId: string): Promise<Result<void>> {
+    try {
+      if (!batteryId) {
+        return Result.fail<void>('Prosumer battery ID is required');
+      }
+      const existingBatteryOrError = await this.batteryRepoInstance.findById(batteryId);
+      if (existingBatteryOrError.isFailure) {
+        return Result.fail<void>('Prosumer battery not found');
+      }
+
+      const existingBattery = existingBatteryOrError.getValue();
+
+      const deletedBatteryOrError = await this.batteryRepoInstance.delete(existingBattery.id.toString());
+      if (deletedBatteryOrError.isFailure) {
+        return Result.fail<void>('Error deleting prosumer battery');
+      }
+
+      return Result.ok<void>(undefined);
+    } catch (error) {
+      console.log('Error deleting prosumer battery: ', error);
+      return Result.fail<void>('Error deleting prosumer battery');
+      
+    }
+  }
 
   public async createBattery(batteryDTO: IBatteryDTO): Promise<Result<IBatteryDTO>> {
     try {
