@@ -21,10 +21,18 @@ import {
   CategoryList,
   CategoryShow,
 } from "./pages/categories";
-import { ArrowDownOnSquareIcon, HomeIcon, ShoppingCartIcon, TagIcon,ChartBarIcon } from "@heroicons/react/20/solid";
+import {
+  BatteryCreate,
+  BatteryEdit,
+  BatteryList,
+  BatteryShow,
+} from "./pages/batteries";
+
+import { ArrowDownOnSquareIcon, HomeIcon, ShoppingCartIcon, TagIcon,ChartBarIcon, Battery100Icon } from "@heroicons/react/20/solid";
 import { Dashboard } from "./pages/dashboard";
 import { ProfileAnalyticsPage } from "./pages/ProfileAnalyticsPage";
 import ProfileUpload from "./pages/ProfileUpload";
+import { Battery0Icon } from "@heroicons/react/24/outline";
 
 
 
@@ -79,6 +87,18 @@ function App() {
                 icon: <ArrowDownOnSquareIcon className="h-5 w-5 font-bold" />,
               },
             },
+
+            {
+              name: "batteries",
+              list: "/batteries",
+              create: "/batteries/create",
+              edit: "/batteries/edit/:id",
+              show: "/batteries/show/:id",
+              meta: {
+                icon: <Battery100Icon className="h-4 w-4" />,
+                canDelete: true,
+              },
+            },
           ]}
           options={{
             syncWithLocation: true,
@@ -96,6 +116,12 @@ function App() {
               <Route index element={<Navigate to="/dashboard" />} />
               <Route path="/profiles" element={<ProfileAnalyticsPage />} />
               <Route path= "/uploadData" element={<ProfileUpload />} />
+              <Route path="/batteries">
+                <Route index element={<BatteryList />} />
+                <Route path="create" element={<BatteryCreate />} />
+                <Route path="edit/:id" element={<BatteryEdit />} />
+                <Route path="show/:id" element={<BatteryShow />} />
+              </Route>
               <Route path="/dashboard">
                 <Route index element={<Dashboard />} />
               </Route>

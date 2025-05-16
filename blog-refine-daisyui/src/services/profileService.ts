@@ -1,5 +1,6 @@
-import { ProfileDTO, OptimizeRequest } from "@/types/Profile";
+
 import axios from "axios";
+import { OptimizeRequest, ProfileDTO } from "../interfaces";
 
 const BASE_URL = "http://localhost:4000/api/profiles";
 const Optimization_BASE_URL = "http://localhost:8000/optimize";
