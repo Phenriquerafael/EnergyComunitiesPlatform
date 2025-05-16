@@ -17,41 +17,42 @@ model Role {
 }
 
 model User {
-  id              String  @id @default(uuid())
-  firstName       String
-  lastName        String
-  email           String  @unique
-  phoneNumber     String
-  password        String?
-  isActive Boolean @default(false)
+  id          String  @id @default(uuid())
+  firstName   String
+  lastName    String
+  email       String  @unique
+  phoneNumber String
+  password    String?
+  isActive    Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  roleId   String?
-  role     Role?     @relation("RoleUsers", fields: [roleId], references: [id])
-  Prosumer Prosumer?
+  roleId           String?
+  role             Role?             @relation("RoleUsers", fields: [roleId], references: [id])
+  Prosumer         Prosumer?
+  CommunityManager CommunityManager?
 }
 
 model Profile {
   id                     String   @id @default(uuid())
-  prosumerId             String   
-  prosumer              Prosumer @relation(fields: [prosumerId], references: [id], onDelete: Cascade)
-  date String 
-  intervalOfTime        String   
-  numberOfIntervals      Int      
+  prosumerId             String
+  prosumer               Prosumer @relation(fields: [prosumerId], references: [id], onDelete: Cascade)
+  date                   String
+  intervalOfTime         String
+  numberOfIntervals      Int
   stateOfCharge          String
-  batteryDischarge   String
-  batteryCharge      String
+  batteryDischarge       String
+  batteryCharge          String
   photovoltaicEnergyLoad String
   boughtEnergyAmount     String
   boughtEnergyPrice      String?
   soldEnergyAmount       String
   soldEnergyPrice        String?
   peerOutputEnergyLoad   String
-  peerOutPrice          String?
+  peerOutPrice           String?
   peerInputEnergyLoad    String
-  peerInPrice           String?
+  peerInPrice            String?
   profileLoad            String
 
   createdAt DateTime @default(now())
@@ -72,34 +73,35 @@ model Battery {
 }
 
 model Prosumer {
-  id        String  @id @default(uuid())
-  batteryId String  @unique
-  battery   Battery @relation(fields: [batteryId], references: [id])
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [id])
-  communityId String?  @unique
-  community Community? @relation(fields: [communityId], references: [id])
+  id          String     @id @default(uuid())
+  batteryId   String     @unique
+  battery     Battery    @relation(fields: [batteryId], references: [id])
+  userId      String     @unique
+  user        User       @relation(fields: [userId], references: [id])
+  communityId String?    @unique
+  community   Community? @relation(fields: [communityId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   profiles  Profile[] // One-to-many relation with Profile
 }
 
 model Community {
-  id        String  @id @default(uuid())
-  name      String  @unique
-  description String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  prosumers Prosumer[] // One-to-many relation with Prosumer
+  id               String            @id @default(uuid())
+  name             String            @unique
+  description      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  prosumers        Prosumer[] // One-to-many relation with Prosumer
+  CommunityManager CommunityManager?
 }
 
-model CommunityManager{
-  id        String  @id @default(uuid())
-  communityId String @unique
-  community Community @relation(fields: [communityId], references: [id])
-  userId String @unique
-  user      User    @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model CommunityManager {
+  id          String    @id @default(uuid())
+  communityId String    @unique
+  community   Community @relation(fields: [communityId], references: [id])
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

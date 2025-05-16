@@ -1,7 +1,7 @@
 /*** USED ONLY FOR EXAMPLIFICATION FOR SCHEMA.PRISMA
  *  */ 
 
-import { isEmail } from 'validator';
+//import { isEmail } from 'validator';
 import { IUserPersistence } from '../../dataschema/IUserPersistence';
 import mongoose from 'mongoose';
 
@@ -30,7 +30,7 @@ const User = new mongoose.Schema(
       lowercase: true,  
       unique: true,
       required: [true, 'Please enter email'],
-      validate: [isEmail, 'Please enter a valid email'],
+      //validate: [isEmail, 'Please enter a valid email'],
       index: true,
 
     },

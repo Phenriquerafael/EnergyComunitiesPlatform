@@ -8,7 +8,7 @@ import { CommunityMap } from "./CommunityMap";
 import { UserMap } from "./UserMap";
 import { Result } from "../core/logic/Result";
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import { User as PrismaUser } from "@prisma/client";
+import {User as PrismaUser} from "@prisma/client";
 import { Community as PrismaCommunity } from "@prisma/client";
 import ICommunityManagerPersistence from "../dataschema/ICommunityManagerPersistence";
 

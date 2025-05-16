@@ -3,7 +3,7 @@ import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 import { Guard } from "../../core/logic/Guard";
 import { Result } from "../../core/logic/Result";
 import { User } from "../User/user";
-import { Community } from "../Community/community";
+import { Community } from "../Community/Community";
 
 interface CommunityManagerProps {
     community: Community;
