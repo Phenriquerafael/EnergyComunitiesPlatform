@@ -1,7 +1,7 @@
 import { User as PrismaUser } from "@prisma/client";
 import { Community as PrismaCommunity } from "@prisma/client";
 
-export default interface IProsumerPersistence {
+export default interface ICommunityManagerPersistence {
     id: string;
     userId: string;
     user?: PrismaUser;

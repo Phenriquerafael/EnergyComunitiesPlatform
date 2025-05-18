@@ -65,6 +65,16 @@ export default {
       name: "ProfileController",
       path: "../controllers/profileController.ts"
     },
+    communityManager:{
+      name: "CommunityManagerController",
+      path: "../controllers/communityManagerController.ts"
+    },
+    community:{
+      name: "CommunityController",
+      path: "../controllers/communityController.ts"
+    },
+
+    
     // Add other controllers here
   },
 
@@ -90,6 +100,16 @@ export default {
       path: "../repos/prosumerRepo.ts"
     },
 
+    communityManager: {
+      name: "CommunityManagerRepo",
+      path: "../repos/communityManagerRepo.ts"
+    },
+    community: {
+      name: "CommunityRepo",
+      path: "../repos/communityRepo.ts"
+    },
+
+
     // Add other repos here
   },
 
@@ -114,6 +134,15 @@ export default {
     profile: {
       name: "ProfileService",
       path: "../services/profileService.ts"
+    },
+    communityManager: {
+      name: "CommunityManagerService",
+      path: "../services/communityManagerService.ts"
+    },
+
+    community: {
+      name: "CommunityService",
+      path: "../services/communityService.ts"
     },
     // Add other services here
   },

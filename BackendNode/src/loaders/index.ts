@@ -4,6 +4,7 @@ import Logger from './logger';
 import config from '../../config';
 import { PrismaClient } from '@prisma/client';
 import { Container } from '../container'; // Use centralized Container
+import path from 'path';
 
 export default async ({ expressApp }) => {
   const prisma = new PrismaClient();
@@ -69,6 +70,30 @@ export default async ({ expressApp }) => {
     name: config.services.prosumer.name,
     path: config.services.prosumer.path
   };
+  const communityManagerController = {
+    name: config.controllers.communityManager.name,
+    path: config.controllers.communityManager.path
+  };
+  const communityManagerRepo = {
+    name: config.repos.communityManager.name,
+    path: config.repos.communityManager.path
+  };
+  const communityManagerService = {
+    name: config.services.communityManager.name,
+    path: config.services.communityManager.path
+  };
+  const communityController = {
+    name: config.controllers.community.name,
+    path: config.controllers.community.path
+  };
+  const communityRepo = {
+    name: config.repos.community.name,
+    path: config.repos.community.path
+  };
+  const communityService = {
+    name: config.services.community.name,
+    path: config.services.community.path
+  };
 
   await dependencyInjectorLoader({
     prismaClient: prisma,
@@ -77,7 +102,9 @@ export default async ({ expressApp }) => {
       userController,
       batteryController,
       profileController,
-      prosumerController
+      prosumerController,
+      communityManagerController,
+      communityController
     ],
     repos: [
       roleRepo,
@@ -85,13 +112,17 @@ export default async ({ expressApp }) => {
       batteryRepo,
       prosumerRepo,
       profileRepo,
+      communityManagerRepo,
+      communityRepo
     ],
     services: [
       roleService,
       userService,
       batteryService,
       profileService,
-      prosumerService
+      prosumerService,
+      communityManagerService,
+      communityService
     ]
   });
 
