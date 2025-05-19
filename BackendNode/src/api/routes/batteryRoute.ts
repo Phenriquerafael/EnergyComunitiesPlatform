@@ -74,7 +74,7 @@ export default (app: Router) => {
     );
 
     route.get(
-        'id/:id',
+        '/id/:id',
         (req, res, next) => ctrl.getBattery(req, res, next)
     );
 
