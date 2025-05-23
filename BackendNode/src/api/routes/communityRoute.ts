@@ -7,8 +7,9 @@ import { celebrate, Joi, Segments } from "celebrate";
 const route = Router();
 
 export default (app: Router) => {
-  app.use('/community', route);
-  const ctrl = Container.get(config.controllers.battery.name) as ICommunityController;
+  app.use('/communities', route);
+
+  const ctrl = Container.get(config.controllers.community.name) as ICommunityController;
 
     if (!ctrl || typeof ctrl.createCommunity !== 'function') {
         throw new Error(`CommunityController not properly loaded: ${JSON.stringify(ctrl)}`);
