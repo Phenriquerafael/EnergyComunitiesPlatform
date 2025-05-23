@@ -18,6 +18,7 @@
     "allowJs": true,
     "noEmit": false,
     "esModuleInterop": true,
+    
   },
   "include": [
     "./src/**/*", "index.js"

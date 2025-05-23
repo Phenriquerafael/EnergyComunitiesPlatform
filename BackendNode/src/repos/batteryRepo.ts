@@ -1,12 +1,15 @@
-import { Service } from "typedi";
+import { Inject, Service } from "typedi";
 import IBatteryRepo from "./IRepos/IBatteryRepo";
 import { Result } from "../core/logic/Result";
 import { Battery } from "../domain/Prosumer/Battery.ts/Battery";
 import prisma from "../../prisma/prismaClient";
 import { BatteryMap } from "../mappers/BatteryMap";
+import { PrismaClient } from "@prisma/client";
 
 @Service()
 export default class BatteryRepo implements IBatteryRepo {
+    constructor(@Inject('prisma') private prisma: PrismaClient) {}
+
     public async delete(id: string): Promise<Result<void>> {
         try {
             const battery = await prisma.battery.findUnique({
