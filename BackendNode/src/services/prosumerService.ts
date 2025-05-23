@@ -8,6 +8,7 @@ import { ProsumerMap } from "../mappers/ProsumerMap";
 import { Battery } from "../domain/Prosumer/Battery.ts/Battery";
 import IBatteryRepo from "../repos/IRepos/IBatteryRepo";
 import IUserRepo from "../repos/IRepos/IUserRepo";
+import ICommunityRepo from "../repos/IRepos/ICommunityRepo";
 
 @Service()
 export default class ProsumerService implements IProsumerService {
@@ -15,6 +16,7 @@ export default class ProsumerService implements IProsumerService {
     @Inject(config.repos.prosumer.name) private prosumerRepo: IProsumerRepo,
     @Inject(config.repos.battery.name) private batteryRepo: IBatteryRepo,
     @Inject(config.repos.user.name) private userRepo: IUserRepo,
+    @Inject(config.repos.community.name) private communityRepo: ICommunityRepo,
 
   ) {
     /* console.log('ProsumerService instantiated'); // Debug */
@@ -37,7 +39,7 @@ export default class ProsumerService implements IProsumerService {
                 return Result.fail<IProsumerDTO>("User doesn't exist");
             } */
 
-            prosumerOrError = ProsumerMap.toDomainFromDto(prosumerDTO.id,batteryOrError.getValue(), userOrError);
+            prosumerOrError = ProsumerMap.toDomainFromDto(prosumerDTO.id,batteryOrError.getValue(), userOrError, undefined);
 
             if (prosumerOrError.isFailure) {
                 return Result.fail<IProsumerDTO>("Error creating prosumer");
@@ -76,6 +78,14 @@ export default class ProsumerService implements IProsumerService {
                 } */
                
                 prosumerOrError.getValue().user = userOrError/* .getValue() */ ;
+            }
+
+            if (prosumerDTO.communityId !== undefined) {
+                const communityOrError = await this.communityRepo.findById(prosumerDTO.communityId);
+                if (communityOrError.isFailure) {
+                    return Result.fail<IProsumerDTO>("Community doesn't exist");
+                }
+                prosumerOrError.getValue().community = communityOrError.getValue();
             }
 
             const updatedProsumer = await this.prosumerRepo.save(prosumerOrError.getValue());

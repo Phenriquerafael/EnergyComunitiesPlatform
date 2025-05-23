@@ -9,6 +9,7 @@ import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
 import { SoldEnergy } from '../domain/Prosumer/Profile/SoldEnergy';
 import { Prosumer } from '../domain/Prosumer/Prosumer';
 import { Prosumer as PrismaProsumer } from "@prisma/client";
+import { Community as PrismaCommunity } from "@prisma/client";
 import { User as PrismaUser } from "@prisma/client";
 import { Battery as PrismaBattery } from "@prisma/client";
 import { Result } from '../core/logic/Result';
@@ -39,7 +40,7 @@ export class ProfileMap {
     } as IProfileDTO;
   }
 
-  public static async toDomain(rawProfile: IProfilePersistence & { prosumer: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery } }): Promise<Result<Profile>> {
+  public static async toDomain(rawProfile: IProfilePersistence & { prosumer: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery;community?: PrismaCommunity } }): Promise<Result<Profile>> {
     try {
       // Create value objects
       const timeStamp = TimeStamp.create({
@@ -106,6 +107,8 @@ export class ProfileMap {
         batteryId: rawProfile.prosumer.batteryId,
         user: rawProfile.prosumer.user,
         battery: rawProfile.prosumer.battery,
+        communityId: rawProfile.prosumer.communityId,
+        community: rawProfile.prosumer.community,
       };
 
       const prosumerOrError = await ProsumerMap.toDomain(prosumerProps);
