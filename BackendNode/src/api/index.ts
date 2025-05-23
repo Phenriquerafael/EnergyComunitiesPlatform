@@ -6,6 +6,7 @@ import battery from './routes/batteryRoute';
 import prosumer from './routes/prosumerRoute';
 import profile from './routes/profileRoute';
 import communityManager from './routes/communityManagerRoute';
+import community from './routes/communityRoute';
 
 export default () => {
 	const app = Router();
@@ -17,5 +18,6 @@ export default () => {
 	prosumer(app);
 	profile(app);
 	communityManager(app);
+	/* community(app); */
 	return app
 }
