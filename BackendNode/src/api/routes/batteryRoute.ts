@@ -31,13 +31,14 @@ export default (app: Router) => {
     );
 
     route.patch(
-        '/:id',
+        '/',
         celebrate({
             body: Joi.object({
                 id: Joi.string().required(),
                 name: Joi.string().optional(),
                 description: Joi.string().optional(),
                 efficiency: Joi.string().optional(),
+                initialCapacity: Joi.string().optional(),
                 maxCapacity: Joi.string().optional(),
                 maxChargeDischarge: Joi.string().optional(),
             }),

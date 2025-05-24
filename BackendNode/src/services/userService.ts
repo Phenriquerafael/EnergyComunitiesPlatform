@@ -23,7 +23,7 @@ export default class UserService implements IUserService {
       @Inject(config.repos.role.name) private roleRepo: IRoleRepo,
       @Inject('logger') private logger
   ) {
-    console.log('UserService instantiated'); // Debug
+    /* console.log('UserService instantiated'); // Debug */
   }
   public async toogleActiveStatus(id: string): Promise<Result<void>> {
     try {

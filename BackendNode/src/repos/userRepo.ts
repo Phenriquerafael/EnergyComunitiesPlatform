@@ -12,7 +12,7 @@ export default class UserRepo implements IUserRepo {
   constructor(
       @Inject('prisma') private prisma: PrismaClient
   ) {
-    console.log('RoleRepo instantiated'); // Debug
+    /* console.log('RoleRepo instantiated'); // Debug */
   }
 
   public async exists(userId: UserId | string): Promise<boolean> {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   PlusIcon,
   FunnelIcon,
@@ -6,39 +6,42 @@ import {
   EyeIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { useNavigation } from "@refinedev/core";
-import { getAllBatteries, deleteBattery } from "../../services/batteryService";
+import {
+  useList,
+  useNavigation,
+  useDelete,
+  BaseKey,
+} from "@refinedev/core";
 import IBatteryDTO from "../../interfaces";
 
 export const BatteryList = () => {
+  const { data, refetch } = useList<IBatteryDTO>({
+    resource: "batteries/all",
+  });
+
   const { edit, show, create } = useNavigation();
+  const { mutate: deleteOne } = useDelete();
+
   const filterForm: any = useRef(null);
 
-  const [batteries, setBatteries] = useState<IBatteryDTO[]>([]);
+  const batteries = data?.data ?? [];
   const [search, setSearch] = useState("");
-  const [filtered, setFiltered] = useState<IBatteryDTO[]>([]);
+  const [filtered, setFiltered] = useState<IBatteryDTO[]>(batteries);
 
-  const fetchBatteries = async () => {
-    try {
-      const data = await getAllBatteries();
-      setBatteries(data);
-      setFiltered(data);
-    } catch (err) {
-      console.error("Erro ao buscar baterias:", err);
-    }
-  };
+  React.useEffect(() => {
+    setFiltered(batteries);
+  }, [batteries]);
 
-  useEffect(() => {
-    fetchBatteries();
-  }, []);
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteBattery(id);
-      fetchBatteries(); // Atualiza lista
-    } catch (err) {
-      console.error("Erro ao apagar bateria:", err);
-    }
+  const handleDelete = async (id: BaseKey) => {
+    deleteOne(
+      {
+        resource: "batteries",
+        id,
+      },
+      {
+        onSuccess: () => refetch(),
+      }
+    );
   };
 
   const handleSearch = (value: string) => {
@@ -48,7 +51,7 @@ export const BatteryList = () => {
     } else {
       setFiltered(
         batteries.filter((b) =>
-          b.name && b.name.toLowerCase().includes(value.toLowerCase())
+          b.name?.toLowerCase().includes(value.toLowerCase())
         )
       );
     }
@@ -106,7 +109,6 @@ export const BatteryList = () => {
         </thead>
         <tbody>
           {filtered.map((battery) => (
-            console.log(battery),
             <tr key={battery.id}>
               <td className="text-center">{battery.name}</td>
               <td className="text-center">{battery.description}</td>
@@ -116,13 +118,22 @@ export const BatteryList = () => {
               <td className="text-center">{battery.maxChargeDischarge}</td>
               <td className="text-center">
                 <div className="flex justify-center items-center gap-2">
-                  <button className="btn btn-xs btn-circle btn-ghost" onClick={() => edit("batteries", battery.id!)}>
+                  <button
+                    className="btn btn-xs btn-circle btn-ghost"
+                    onClick={() => edit("batteries", battery.id!)}
+                  >
                     <PencilSquareIcon className="h-4 w-4" />
                   </button>
-                  <button className="btn btn-xs btn-circle btn-ghost" onClick={() => show("batteries", battery.id!,)}>
+                  <button
+                    className="btn btn-xs btn-circle btn-ghost"
+                    onClick={() => show("batteries", battery.id!)}
+                  >
                     <EyeIcon className="h-4 w-4" />
                   </button>
-                  <button className="btn btn-xs btn-circle btn-ghost" onClick={() => handleDelete(battery.id!)}>
+                  <button
+                    className="btn btn-xs btn-circle btn-ghost"
+                    onClick={() => handleDelete(battery.id!)}
+                  >
                     <TrashIcon className="h-4 w-4 text-error" />
                   </button>
                 </div>

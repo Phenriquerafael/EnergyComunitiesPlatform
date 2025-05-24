@@ -6,7 +6,7 @@ import routerBindings, {
   UnsavedChangesNotifier,
 } from "@refinedev/react-router";
 import dataProvider from "@refinedev/simple-rest";
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
+import { BrowserRouter, data, Navigate, Outlet, Route, Routes } from "react-router";
 import "./App.css";
 import { Layout } from "./components/layout";
 import {
@@ -33,7 +33,7 @@ import { Dashboard } from "./pages/dashboard";
 import { ProfileAnalyticsPage } from "./pages/ProfileAnalyticsPage";
 import ProfileUpload from "./pages/ProfileUpload";
 import { Battery0Icon } from "@heroicons/react/24/outline";
-
+import {dataProviderInstance} from "./dataProvider";
 
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
     <BrowserRouter>
       <RefineKbarProvider>
         <Refine
-          dataProvider={dataProvider("https://api.finefoods.refine.dev")}
+          dataProvider={dataProviderInstance/* dataProvider("https://api.finefoods.refine.dev") */}
           routerProvider={routerBindings}
           resources={[
             {

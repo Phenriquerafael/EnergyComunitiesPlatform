@@ -128,13 +128,6 @@ export default async ({ expressApp }) => {
 
   Logger.info('✌️ Controllers, Repositories, Services, etc. loaded with Prisma');
 
-  // Verify RoleController is in the container before loading routes
-  const roleCtrl = Container.get('RoleController');
-  if (!roleCtrl) {
-    throw new Error('RoleController not found in container after dependency injection');
-  }
-  Logger.info('RoleController verified in container:', roleCtrl);
-
   await expressLoader({ app: expressApp });
   Logger.info('✌️ Express loaded');
 };

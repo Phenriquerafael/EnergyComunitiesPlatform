@@ -6,6 +6,8 @@ import express from 'express';
 
 import Logger from './loaders/logger';
 
+import chalk from 'chalk';
+
 async function startServer() {
   const app = express();
 
@@ -25,21 +27,22 @@ async function startServer() {
 
   await require('./loaders').default({ expressApp: app });
 
-  app.listen(config.port, () => {
+app.listen(config.port, () => {
+  const isepColor = chalk.hex('#a02c0c').bold;
 
-    console.log("Server listening on port: " + config.port);
+  console.log(`
+${isepColor(`🛡️  Server listening on port: ${config.port} 🛡️`)}
 
-    Logger.info(`
-      ################################################
-      🛡️  Server listening on port: ${config.port} 🛡️ 
-      ################################################
-    `);
-    })
-    .on('error', (err) => {      
-      Logger.error(err);
-      process.exit(1);
-      return;
-  });
+${isepColor('██╗')}${'  '} ${isepColor('███████╗')}   ${isepColor('███████╗')}   ${isepColor('██████╗')}
+${isepColor('██║')}${'  '} ${isepColor('██╔════╝')}   ${isepColor('██╔════╝')}   ${isepColor('██╔══██╗')}
+${isepColor('██║')}${'  '} ${isepColor('███████╗')}   ${isepColor('█████╗')}     ${isepColor('██████╔╝')}
+${isepColor('██║')}${'  '} ${isepColor('╚════██║')}   ${isepColor('██╔══╝')}     ${isepColor('██╔═══╝')}
+${isepColor('██║')}   ${isepColor('███████║')}   ${isepColor('███████╗')}   ${isepColor('██║')}
+${isepColor('╚═╝')}   ${isepColor('╚══════╝')}   ${isepColor('╚══════╝')}   ${isepColor('╚═╝')}
+
+${isepColor('Instituto Superior de Engenharia do Porto')}
+`);
+});
 }
 
 startServer();

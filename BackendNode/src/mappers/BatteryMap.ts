@@ -23,7 +23,7 @@ export class BatteryMap extends Mapper<Battery> {
         description: battery.batteryInformation.description,
         efficiency: battery.efficiency.value,
         maxCapacity: battery.maxCapacity.value,
-        initialCapacity: battery.maxCapacity.value,
+        initialCapacity: battery.initialCapacity.value,
         maxChargeDischarge: battery.maxChargeDischarge.value,
 
 
