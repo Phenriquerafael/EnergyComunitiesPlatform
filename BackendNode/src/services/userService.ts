@@ -239,7 +239,7 @@ export default class UserService implements IUserService {
   private generateToken(user: User): string {
     const today = new Date();
     const exp = new Date(today);
-    exp.setDate(today.getDate() + 7);
+    exp.setDate(today.getDate() + 1); // Token valid for 1 day
 
     const id = user.id.toString();
     const email = user.email.value;

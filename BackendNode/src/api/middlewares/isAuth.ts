@@ -16,6 +16,8 @@ const getTokenFromHeader = req => {
    * @TODO Edge and Internet Explorer do some weird things with the headers
    * So I believe that this should handle more 'edge' cases ;)
    */
+  console.log("Headers: ", req.headers);
+  
   if (
     (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Token') ||
     (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')
@@ -24,12 +26,13 @@ const getTokenFromHeader = req => {
   }
   return null;
 };
-
+ 
 const isAuth = jwt({
   secret: config.jwtSecret, // The _secret_ to sign the JWTs
   userProperty: 'token', // Use req.token to store the JWT
   getToken: getTokenFromHeader, // How to extract the JWT from the request
   algorithms: ["HS256"],  // Added by JRT
 });
+
 
 export default isAuth;

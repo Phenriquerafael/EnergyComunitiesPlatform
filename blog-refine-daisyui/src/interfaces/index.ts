@@ -111,4 +111,29 @@ export interface ProfileDTO {
     maxChargeDischarge?: string;
 
 }
+
+
+export interface IRoleDTO {
+  id?: string;
+  name?: string;
+}
+
+
+export interface IUserDTO {
+  id?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  role: string;
+  isActive?: boolean;
+}
+
+export interface IProsumerDTO {
+    id?: string;
+    batteryId: string;
+    userId: string;
+    communityId?: string;
+}
     

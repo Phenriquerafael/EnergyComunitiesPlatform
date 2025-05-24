@@ -5,7 +5,7 @@ import routerBindings, {
   DocumentTitleHandler,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router";
-import dataProvider from "@refinedev/simple-rest";
+
 import { BrowserRouter, data, Navigate, Outlet, Route, Routes } from "react-router";
 import "./App.css";
 import { Layout } from "./components/layout";
@@ -34,6 +34,10 @@ import { ProfileAnalyticsPage } from "./pages/ProfileAnalyticsPage";
 import ProfileUpload from "./pages/ProfileUpload";
 import { Battery0Icon } from "@heroicons/react/24/outline";
 import {dataProviderInstance} from "./dataProvider";
+import { authProvider } from "./authProvider";
+import { Login } from "./pages/auth/Login";
+import { Register } from "./pages/auth/Register";
+import { ChangePassword } from "./pages/auth/ChangePassword";
 
 
 function App() {
@@ -43,6 +47,7 @@ function App() {
         <Refine
           dataProvider={dataProviderInstance/* dataProvider("https://api.finefoods.refine.dev") */}
           routerProvider={routerBindings}
+          authProvider={authProvider}
           resources={[
             {
               name: "dashboard",
@@ -114,6 +119,9 @@ function App() {
               }
             >
               <Route index element={<Navigate to="/dashboard" />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/profiles" element={<ProfileAnalyticsPage />} />
               <Route path= "/uploadData" element={<ProfileUpload />} />
               <Route path="/batteries">
