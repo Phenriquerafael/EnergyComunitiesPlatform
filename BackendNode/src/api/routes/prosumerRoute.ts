@@ -32,6 +32,7 @@ export default (app: Router) => {
                 id: Joi.string().required(),
                 userId: Joi.string().optional(),
                 batteryId: Joi.string().optional(),
+                communityId: Joi.string().optional(),
             }),}),
         (req, res, next) => ctrl.updateProsumer(req, res, next)
     );

@@ -1,5 +1,6 @@
 import { User as PrismaUser } from "@prisma/client";
 import { Battery as PrismaBattery } from "@prisma/client";
+import { Community as PrismaCommunity } from "@prisma/client";
 
 export default interface IProsumerPersistence {
     id: string;
@@ -7,4 +8,6 @@ export default interface IProsumerPersistence {
     user?: PrismaUser;
     batteryId: string;
     battery?: PrismaBattery;
+    communityId?: string;
+    community?: PrismaCommunity;
 }

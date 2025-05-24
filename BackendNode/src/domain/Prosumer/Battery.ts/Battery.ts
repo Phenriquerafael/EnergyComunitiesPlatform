@@ -7,7 +7,7 @@ import { MaxChargeDischarge } from "./MaxChargeDischarge";
 import { Guard } from "../../../core/logic/Guard";
 import { Result } from "../../../core/logic/Result";
 
-interface BatteryProps {
+export interface BatteryProps {
     batteryInformation: BatteryInformation;
     efficiency: Efficiency;
     maxCapacity: Capacity;

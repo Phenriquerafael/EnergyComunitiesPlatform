@@ -5,10 +5,12 @@ import { Result } from "../../core/logic/Result";
 import { User } from "../User/user";
 import { Profile } from "./Profile/Profile";
 import { Battery } from "./Battery.ts/Battery";
+import { Community } from "../Community/Community";
 
 interface ProsumerProps {
     battery: Battery;
     user: User;
+    community?: Community;
 }
 
 export class Prosumer extends AggregateRoot<ProsumerProps> {
@@ -25,6 +27,12 @@ export class Prosumer extends AggregateRoot<ProsumerProps> {
         return this.props.user;
     }
 
+    get community(): Community | undefined {
+        return this.props.community;
+    }
+    set community(value: Community) {
+        this.props.community = value;
+    }
 
     set battery(value: Battery) {
         this.props.battery = value;

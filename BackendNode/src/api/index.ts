@@ -8,6 +8,7 @@ import profile from './routes/profileRoute';
 import communityManager from './routes/communityManagerRoute';
 import community from './routes/communityRoute';
 
+
 export default () => {
 	const app = Router();
 
@@ -18,6 +19,6 @@ export default () => {
 	prosumer(app);
 	profile(app);
 	communityManager(app);
-	/* community(app); */
+	community(app);
 	return app
 }

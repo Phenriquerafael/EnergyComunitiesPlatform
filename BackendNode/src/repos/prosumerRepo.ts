@@ -25,6 +25,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                     include: {
                         user: true, // Incluir o User para o mapeamento
                         battery: true, // Incluir a Battery para o mapeamento
+                        community: true, // Incluir a Community para o mapeamento
                     },
                 });
             } else {
@@ -35,6 +36,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                     include: {
                         user: true, // Incluir o User para o mapeamento
                         battery: true, // Incluir a Battery para o mapeamento
+                        community: true, // Incluir a Community para o mapeamento
                     },
                 });
             }
@@ -54,6 +56,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                 include: {
                     user: true, // Incluir o User para o mapeamento
                     battery: true, // Incluir a Battery para o mapeamento
+                    community: true, // Incluir a Community para o mapeamento
                 },
             });
             
@@ -80,6 +83,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                 include: {
                     user: true, // Incluir o User para o mapeamento
                     battery: true, // Incluir a Battery para o mapeamento
+                    community: true, // Incluir a Community para o mapeamento
                 },
             });
             
@@ -109,6 +113,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                 include: {
                     user: true, // Incluir o User para o mapeamento
                     battery: true, // Incluir a Battery para o mapeamento
+                    community: true, // Incluir a Community para o mapeamento
                 },
             });
             
@@ -136,6 +141,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                 include: {
                     user: true, // Incluir o User para o mapeamento
                     battery: true, // Incluir a Battery para o mapeamento
+                    community: true, // Incluir a Community para o mapeamento
                 },
             });
             

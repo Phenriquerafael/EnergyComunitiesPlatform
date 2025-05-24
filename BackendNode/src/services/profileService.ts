@@ -4,17 +4,10 @@ import IProfileRepo from '../repos/IRepos/IProfileRepo';
 import IProfileService from './IServices/IProfileService';
 import { Result } from '../core/logic/Result';
 import IProfileDTO from '../dto/IProfileDTO';
-import { TimeStamp } from '../domain/Prosumer/Profile/TimeStamp';
-import { Load } from '../domain/Prosumer/Profile/ProfileLoad';
-import { StateOfCharge } from '../domain/Prosumer/Profile/StateOfCharge';
-import { PhotovoltaicEnergyLoad } from '../domain/Prosumer/Profile/PhotovoltaicEnergyLoad';
-import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
-import { SoldEnergy } from '../domain/Prosumer/Profile/SoldEnergy';
-import { Profile } from '../domain/Prosumer/Profile/Profile';
 import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
 import IOptimizationResults from '../dto/IOptimizationResults';
-import { profile } from 'console';
+
 
 @Service()
 export default class ProfileService implements IProfileService {
