@@ -1,5 +1,8 @@
 import React from "react";
 import { useGetIdentity, useLogout } from "@refinedev/core";
+import { roleService } from "../../services/roleService";
+
+
 
 export const UserDrawer: React.FC = () => {
   const { data: user, isLoading } = useGetIdentity<{
@@ -9,6 +12,18 @@ export const UserDrawer: React.FC = () => {
     role?: string;
     avatar?: string;
   }>();
+
+  const [roleData, setRoleData] = React.useState<{ name?: string }>({});
+
+  React.useEffect(() => {
+    const fetchRole = async () => {
+      if (user?.role) {
+        const fetchedRoleData = await roleService.getById(user.role);
+        setRoleData({ name: fetchedRoleData.name }); // Atualiza o nome da role
+      }
+    };
+    fetchRole();
+  }, [user]);
 
   const { mutate: logout } = useLogout();
 
@@ -33,24 +48,24 @@ export const UserDrawer: React.FC = () => {
       <input id="user-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <label htmlFor="user-drawer" className="btn btn-ghost btn-circle avatar">
-          <div className="w-10 rounded-full">
-            <img src={user?.avatar ?? "/default-avatar.png"} alt="avatar" />
+          <div className="rounded-full">
+            <img src={user?.avatar ?? "/user.png"} alt="avatar" />
           </div>
         </label>
       </div>
 
       <div className="drawer-side">
         <label htmlFor="user-drawer" className="drawer-overlay"></label>
-        <div className="menu bg-base-200 text-base-content min-h-full w-80 p-6 space-y-4">
+        <div className="menu bg-base-200 text-base-content min-h-full w-80 p-6 space-y-4 ">
           {isLoading ? (
             <span className="loading loading-spinner loading-md mx-auto" />
           ) : (
             <>
               {/* Avatar + Nome + Email */}
-              <div className="text-center">
+              <div className="text-center mt-5">
                 <label htmlFor="avatar-upload" className="cursor-pointer">
                   <img
-                    src={user?.avatar ?? "/default-avatar.png"}
+                    src={user?.avatar ?? "/user.png"}
                     alt="User avatar"
                     className="w-24 h-24 rounded-full mx-auto object-cover mb-4 hover:opacity-80 transition"
                   />
@@ -64,7 +79,7 @@ export const UserDrawer: React.FC = () => {
                 />
                 <h2 className="text-lg font-semibold">{user?.firstName} {user?.lastName}</h2>
                 <p className="text-sm text-zinc-600">{user?.email}</p>
-                {user?.role && <p className="text-xs text-zinc-500">{user.role}</p>}
+                {user?.role && <p className="text-xs text-zinc-500">{roleData.name}</p>}
               </div>
 
               <div className="divider">Menu</div>
