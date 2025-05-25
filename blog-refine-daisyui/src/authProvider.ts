@@ -3,23 +3,22 @@ import { AuthBindings } from "@refinedev/core";
 import axios from "axios";
 
 export const authProvider: AuthBindings = {
-  login: async ({ email, password }) => {
-    try {
-      const response = await axios.post("http://localhost:4000/api/users/signin", {
-        email,
-        password,
-      });
+login: async ({ email, password }) => {
+  try {
+    const response = await axios.post("http://localhost:4000/api/users/signin", {
+      email,
+      password,
+    });
 
-      console.log("Login response:", response.data);
+    const token = response.data.data.token; // ✅ caminho correto
+    console.log("Token received:", token);
 
-      const { token } = response.data;
-
-      localStorage.setItem("token", token);
-      return { success: true, redirectTo: "/" };
-    } catch (error) {
-      return { success: false, error: { name: "LoginError", message: "Login failed" } };
-    }
-  },
+    localStorage.setItem("token", token);
+    return { success: true, redirectTo: "/batteries" };
+  } catch (error) {
+    return { success: false, error: { name: "LoginError", message: "Login failed" } };
+  }
+},
   
 
   logout: async () => {
@@ -35,6 +34,7 @@ export const authProvider: AuthBindings = {
 
   getIdentity: async () => {
     const token = localStorage.getItem("token");
+    console.log("Token for getIdentity:", token);
     if (!token) return null;
     try {
       const response = await axios.get("http://localhost:4000/api/users/me", {

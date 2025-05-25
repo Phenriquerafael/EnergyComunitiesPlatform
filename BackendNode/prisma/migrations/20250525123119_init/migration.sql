@@ -81,10 +81,22 @@ CREATE TABLE "Prosumer" (
 CREATE TABLE "Community" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Community_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CommunityManager" (
+    "id" TEXT NOT NULL,
+    "communityId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CommunityManager_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -105,6 +117,12 @@ CREATE UNIQUE INDEX "Prosumer_communityId_key" ON "Prosumer"("communityId");
 -- CreateIndex
 CREATE UNIQUE INDEX "Community_name_key" ON "Community"("name");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "CommunityManager_communityId_key" ON "CommunityManager"("communityId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CommunityManager_userId_key" ON "CommunityManager"("userId");
+
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -119,3 +137,9 @@ ALTER TABLE "Prosumer" ADD CONSTRAINT "Prosumer_userId_fkey" FOREIGN KEY ("userI
 
 -- AddForeignKey
 ALTER TABLE "Prosumer" ADD CONSTRAINT "Prosumer_communityId_fkey" FOREIGN KEY ("communityId") REFERENCES "Community"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommunityManager" ADD CONSTRAINT "CommunityManager_communityId_fkey" FOREIGN KEY ("communityId") REFERENCES "Community"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommunityManager" ADD CONSTRAINT "CommunityManager_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

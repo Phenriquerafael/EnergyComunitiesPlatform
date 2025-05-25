@@ -3,7 +3,8 @@ import { useGetIdentity, useLogout } from "@refinedev/core";
 
 export const UserDrawer: React.FC = () => {
   const { data: user, isLoading } = useGetIdentity<{
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     role?: string;
     avatar?: string;
@@ -61,7 +62,7 @@ export const UserDrawer: React.FC = () => {
                   accept="image/*"
                   onChange={handleAvatarChange}
                 />
-                <h2 className="text-lg font-bold">{user?.name}</h2>
+                <h2 className="text-lg font-semibold">{user?.firstName} {user?.lastName}</h2>
                 <p className="text-sm text-zinc-600">{user?.email}</p>
                 {user?.role && <p className="text-xs text-zinc-500">{user.role}</p>}
               </div>

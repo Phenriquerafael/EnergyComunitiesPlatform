@@ -92,27 +92,26 @@ export default class UserController implements IUserController {
       }
     } */
 
-public async getMe(req, res: Response) {
-  try {
-    console.log("req.token:", req.token); // Log para depurar
-    const userRepo = Container.get(config.repos.user.name) as IUserRepo;
+        public async getMe(req, res: Response) {
+            try {
+            const userRepo = Container.get(config.repos.user.name) as IUserRepo;
+           
 
-    if (!req.token || !req.token.id) {
-      return res.status(401).json({ message: "Invalid Token" });
-    }
+            if (!req.token || req.token === undefined) {
+                return res.status(401).json({ message: "Token inexistente ou inválido" });
+            }
 
-    const user = await userRepo.findById(req.token.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not registered" });
-    }
+            const user = await userRepo.findById(req.token.id);
+            if (!user) {
+                return res.status(401).json({ message: "Utilizador não registado" });
+            }
 
-    const userDTO = UserMap.toDTO(user) as IUserDTO;
-    return res.status(200).json(userDTO);
-  } catch (error) {
-    console.error("Error obtaining user:", error);
-    return res.status(500).json({ message: "Error obtaining user" });
-  }
-}
+            const userDTO = UserMap.toDTO(user) as IUserDTO;
+            return res.status(200).json(userDTO);
+            } catch (error) {
+            error.message = "Erro ao obter utilizador";
+            }
+        }
 
 
   public async signUp(req: Request, res: Response, next: NextFunction) {

@@ -3,8 +3,8 @@ import { Container} from 'typedi';
 import winston from 'winston';
 
 import config from '../../../config';
-
 import IUserRepo from '../../repos/IRepos/IUserRepo';
+
 
 /**
  * Attach user to req.user
@@ -18,8 +18,10 @@ const attachCurrentUser = async (req, res, next) => {
     
     const userRepo = Container.get(config.repos.user.name) as IUserRepo
 
-    if( !req.token || req.token == undefined )
-      next( new Error("Token inexistente ou inválido ") );
+/*     if( !req.auth || req.auth == undefined )
+      next( new Error("Token inexistente ou inválido ") ); */
+
+    console.log('🔍 Enviando token:', req.token);
 
     const id = req.token.id;
 
