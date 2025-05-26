@@ -101,7 +101,13 @@ export interface ProfileDTO {
     detailed_results: OptimizationResult[];
   }
 
-  export default interface IBatteryDTO {
+export interface IRoleDTO {
+  id?: string;
+  name?: string;
+}
+
+
+  export interface IBatteryDTO {
   id?: string;
     name?: string;
     description?: string;
@@ -111,13 +117,6 @@ export interface ProfileDTO {
     maxChargeDischarge?: string;
 
 }
-
-
-export interface IRoleDTO {
-  id?: string;
-  name?: string;
-}
-
 
 export interface IUserDTO {
   id?: string;
@@ -130,10 +129,28 @@ export interface IUserDTO {
   isActive?: boolean;
 }
 
+export interface ICommunityDTO {
+    id?: string;
+      name?: string;
+      description?: string;
+  }
+
 export interface IProsumerDTO {
     id?: string;
-    batteryId: string;
-    userId: string;
-    communityId?: string;
+    battery: IBatteryDTO;
+    user: IUserDTO;
+    community?: ICommunityDTO;
 }
+
+export interface IProsumerDataDTO {
+  id?: string;
+  batteryId?: string;
+  batteryName?: string;
+  userId?: string;
+  userName?: string;
+  email?: string;
+  communityId?: string;
+  communityName?: string;
+}
+
     

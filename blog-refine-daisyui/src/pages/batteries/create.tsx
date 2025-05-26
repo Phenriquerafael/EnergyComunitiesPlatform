@@ -3,7 +3,7 @@ import { useNavigation } from "@refinedev/core";
 import { useForm } from "@refinedev/react-hook-form";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { createBattery, createBatteries, createBatteriesFromExcel } from "../../services/batteryService";
-import IBatteryDTO from "../../interfaces";
+import {IBatteryDTO} from "../../interfaces";
 
 export const BatteryCreate = () => {
   const { list } = useNavigation();
@@ -117,12 +117,12 @@ export const BatteryCreate = () => {
           { label: "Initial Capacity (kWh)", key: "initialCapacity" },
           { label: "Max Charge/Discharge (kW)", key: "maxChargeDischarge" },
         ] as { label: string; key: keyof IBatteryDTO }[]).map(({ label, key }) => (
-          <div className="form-control my-4" key={key}>
+          <div className="form-control my-4" key={String(key)}>
             <label className="label">{label}</label>
             <input
               className="input input-sm input-bordered"
               type="text"
-              {...register(key, {
+              {...register(key as "name" | "description" | "efficiency" | "maxCapacity" | "initialCapacity" | "maxChargeDischarge", {
                 required: `The field "${label}" is required`,
               })}
             />

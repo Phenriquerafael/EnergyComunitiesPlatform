@@ -1,6 +1,7 @@
 import React from "react";
 import { useGetIdentity, useLogout } from "@refinedev/core";
 import { roleService } from "../../services/roleService";
+import { UserCircleIcon } from "@heroicons/react/20/solid";
 
 
 
@@ -47,10 +48,18 @@ export const UserDrawer: React.FC = () => {
     <div className="drawer drawer-end z-50">
       <input id="user-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
-        <label htmlFor="user-drawer" className="btn btn-ghost btn-circle avatar">
-          <div className="rounded-full">
-            <img src={user?.avatar ?? "/user.png"} alt="avatar" />
-          </div>
+        <label htmlFor="user-drawer" className="btn btn-ghost btn-circle btn-lg avatar">
+        <div className="rounded-full w-20 h-20 flex items-center justify-center">
+        {user?.avatar ? (
+          <img
+          src={user.avatar}
+          alt="avatar"
+          className="w-20 h-20 rounded-full object-cover"
+          />
+        ) : (
+          <UserCircleIcon className="w-16 h-16 text-base-content" />
+        )}
+        </div>
         </label>
       </div>
 
@@ -64,11 +73,17 @@ export const UserDrawer: React.FC = () => {
               {/* Avatar + Nome + Email */}
               <div className="text-center mt-5">
                 <label htmlFor="avatar-upload" className="cursor-pointer">
+                  {user?.avatar ? (
                   <img
-                    src={user?.avatar ?? "/user.png"}
+                    src={user.avatar}
                     alt="User avatar"
                     className="w-24 h-24 rounded-full mx-auto object-cover mb-4 hover:opacity-80 transition"
                   />
+                  ) : (
+                  <div className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <UserCircleIcon className="w-20 h-20" />
+                  </div>
+                  )}
                 </label>
                 <input
                   id="avatar-upload"

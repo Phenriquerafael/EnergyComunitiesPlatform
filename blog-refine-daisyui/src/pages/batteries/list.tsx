@@ -12,7 +12,7 @@ import {
   useDelete,
   BaseKey,
 } from "@refinedev/core";
-import IBatteryDTO from "../../interfaces";
+import {IBatteryDTO} from "../../interfaces";
 
 export const BatteryList = () => {
   const { data, refetch } = useList<IBatteryDTO>({

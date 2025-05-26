@@ -2,13 +2,13 @@ import React from "react";
 import { useNavigation, useResource, useOne, useUpdate } from "@refinedev/core";
 import { useForm } from "@refinedev/react-hook-form";
 import { ArrowLeftIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
-import {IBatteryDTO} from "../../interfaces";
+import { IProsumerDTO,IProsumerDataDTO } from "../../interfaces";
 
-export const BatteryEdit = () => {
+export const ProsumerEdit = () => {
   const { list } = useNavigation();
   const { id } = useResource(); // obtém o id da rota/refine
-  const { data, refetch, isLoading } = useOne<IBatteryDTO>({
-    resource: "batteries/id",
+  const { data, refetch, isLoading } = useOne<IProsumerDataDTO>({
+    resource: "prosumers/id",
     id,
   });
 
@@ -19,7 +19,7 @@ export const BatteryEdit = () => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<IBatteryDTO>({
+  } = useForm<IProsumerDataDTO>({
     defaultValues: data?.data,
   });
 
@@ -29,7 +29,7 @@ export const BatteryEdit = () => {
     }
   }, [data, reset]);
 
-const handleBatteryUpdate = async (formData: IBatteryDTO) => {
+const handleProsumerUpdate = async (formData: IProsumerDataDTO) => {
   if (!id) {
     console.error("ID is undefined!");
     return;
@@ -37,12 +37,12 @@ const handleBatteryUpdate = async (formData: IBatteryDTO) => {
 
   update(
     {
-      resource: "batteries",
+      resource: "prosumers",
       id, // <-- NECESSÁRIO PARA O useUpdate funcionar
       values: formData, // O body enviado será só este
     },
     {
-      onSuccess: () => list("batteries"),
+      onSuccess: () => list("prosumers"),
       onError: (error) => console.error("Erro no update:", error),
     }
   );
@@ -57,11 +57,11 @@ const handleBatteryUpdate = async (formData: IBatteryDTO) => {
         <div className="flex justify-start items-center">
           <button
             className="mr-2 btn btn-primary btn-sm btn-ghost"
-            onClick={() => list("batteries")}
+            onClick={() => list("prosumers")}
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </button>
-          <h1 className="page-title">Edit Battery</h1>
+          <h1 className="page-title">Edit Prosumer</h1>
         </div>
         <button
           className="flex items-center btn btn-sm btn-primary btn-outline gap-2"
@@ -72,17 +72,14 @@ const handleBatteryUpdate = async (formData: IBatteryDTO) => {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit(handleBatteryUpdate)} className="mt-6">
+      <form onSubmit={handleSubmit(handleProsumerUpdate)} className="mt-6">
         <input type="hidden" {...register("id")} />
 
         {([
-          { label: "Name", key: "name" },
-          { label: "Description", key: "description" },
-          { label: "Efficiency (%)", key: "efficiency" },
-          { label: "Max Capacity (kWh)", key: "maxCapacity" },
-          { label: "Initial Capacity (kWh)", key: "initialCapacity" },
-          { label: "Max Charge/Discharge (kW)", key: "maxChargeDischarge" },
-        ] as { label: string; key: keyof IBatteryDTO }[]).map(({ label, key }) => (
+          { label: "Battery Name", key: "batteryName" },
+          { label: "User Name", key: "userName" },
+          /* { label: "Community Name", key: "communityName" }, */
+        ] as { label: string; key: keyof IProsumerDataDTO }[]).map(({ label, key }) => (
           <div className="form-control my-4" key={String(key)}>
             <label className="label">{label}</label>
             <input

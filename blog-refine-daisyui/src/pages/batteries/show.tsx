@@ -3,7 +3,7 @@ import { useNavigation, useOne, useResource } from "@refinedev/core";
 import { useForm } from "@refinedev/react-hook-form";
 import { useParams } from "react-router-dom";
 import { ArrowLeftIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
-import IBatteryDTO from "../../interfaces";
+import {IBatteryDTO} from "../../interfaces";
 
 export const BatteryShow = () => {
   const { edit, list } = useNavigation();

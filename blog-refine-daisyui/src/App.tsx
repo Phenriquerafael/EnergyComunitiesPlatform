@@ -28,16 +28,16 @@ import {
   BatteryShow,
 } from "./pages/batteries";
 
-import { ArrowDownOnSquareIcon, HomeIcon, ShoppingCartIcon, TagIcon,ChartBarIcon, Battery100Icon } from "@heroicons/react/20/solid";
+import { ArrowDownOnSquareIcon, HomeIcon, ShoppingCartIcon, TagIcon,ChartBarIcon, Battery100Icon, UserIcon, UserGroupIcon } from "@heroicons/react/20/solid";
 import { Dashboard } from "./pages/dashboard";
 import { ProfileAnalyticsPage } from "./pages/ProfileAnalyticsPage";
 import ProfileUpload from "./pages/ProfileUpload";
-import { Battery0Icon } from "@heroicons/react/24/outline";
 import {dataProviderInstance} from "./dataProvider";
 import { authProvider } from "./authProvider";
 import { Login } from "./pages/auth/Login";
 import { Register } from "./pages/auth/Register";
 import { ChangePassword } from "./pages/auth/ChangePassword";
+import { ProsumerCreate, ProsumerEdit, ProsumerList, ProsumerShow } from "./pages/prosumers";
 
 
 function App() {
@@ -57,6 +57,17 @@ function App() {
               },
             },
             {
+              name: "communities",
+              list: "/communities",
+              create: "/communities/create",
+              edit: "/communities/edit/:id",
+              show: "/communities/show/:id",
+              meta: {
+                icon: <UserGroupIcon className="h-4 w-4" />,
+                canDelete: true,
+              },
+            },
+/*             {
               name: "products",
               list: "/products",
               create: "/products/create",
@@ -75,6 +86,17 @@ function App() {
               show: "/categories/show/:id",
               meta: {
                 icon: <TagIcon className="h-4 w-4" />,
+                canDelete: true,
+              },
+            }, */ 
+            {
+              name: "prosumers",
+              list: "/prosumers",
+              create: "/prosumers/create",
+              edit: "/prosumers/edit/:id",
+              show: "/prosumers/show/:id",
+              meta: {
+                icon: <UserIcon className="h-4 w-4" />,
                 canDelete: true,
               },
             },
@@ -104,6 +126,7 @@ function App() {
                 canDelete: true,
               },
             },
+
           ]}
           options={{
             syncWithLocation: true,
@@ -129,6 +152,12 @@ function App() {
                 <Route path="create" element={<BatteryCreate />} />
                 <Route path="edit/:id" element={<BatteryEdit />} />
                 <Route path="show/:id" element={<BatteryShow />} />
+              </Route>
+              <Route path="/prosumers">
+                <Route index element={<ProsumerList />} />
+                <Route path="create" element={<ProsumerCreate />} />
+                <Route path="edit/:id" element={<ProsumerEdit />} />
+                <Route path="show/:id" element={<ProsumerShow />} />
               </Route>
               <Route path="/dashboard">
                 <Route index element={<Dashboard />} />
