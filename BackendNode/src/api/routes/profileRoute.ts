@@ -102,7 +102,7 @@ export default (app: Router) => {
     );
 
     route.get(
-        '/user/:id',
+        '/prosumer/:id',
         (req, res, next) => ctrl.findByProsumerId(req, res, next)
     );
 

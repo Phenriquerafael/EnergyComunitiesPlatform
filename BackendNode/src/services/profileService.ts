@@ -218,17 +218,18 @@ export default class ProfileService implements IProfileService {
     }
   }
 
-  public async findByProsumerId(userId: string): Promise<Result<IProfileDTO>> {
+  public async findByProsumerId(userId: string): Promise<Result<IProfileDTO[]>> {
     try {
       const existingProfileOrError = await this.profileRepoInstance.findByProsumerId(userId);
       if (existingProfileOrError.isFailure) {
-        return Result.fail<IProfileDTO>('Profile not found');
+        return Result.fail<IProfileDTO[]>('Profile not found');
       }
       const existingProfile = existingProfileOrError.getValue();
-      return Result.ok<IProfileDTO>(ProfileMap.toDTO(existingProfile));
+      return Result.ok<IProfileDTO[]>(Array.isArray(existingProfile) ? existingProfile.map(ProfileMap.toDTO) : [ProfileMap.toDTO(existingProfile)]);
+      
     } catch (error) {
       console.log('Error getting profile by prosumer ID: ', error);
-      return Result.fail<IProfileDTO>('Error getting profile by prosumer ID');
+      return Result.fail<IProfileDTO[]>('Error getting profile by prosumer ID');
     }
   }
 

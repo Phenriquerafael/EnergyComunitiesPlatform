@@ -104,10 +104,10 @@ export default class ProfileRepo implements IProfileRepo {
       }
 
       
-    public async findByProsumerId(prosumerId: string): Promise<Result<Profile>> {
+    public async findByProsumerId(prosumerId: string): Promise<Result<Profile[]>> {
         try {
-            const profile = await prisma.profile.findFirst({
-                where: { prosumerId: String(prosumerId) },
+            const profiles = await prisma.profile.findMany({
+                where: { prosumerId: prosumerId },
                 include: {
                     prosumer: {
                         include: {
@@ -117,21 +117,29 @@ export default class ProfileRepo implements IProfileRepo {
                     },
                 },
             });
-    
-            if (!profile) {
-                return Result.fail<Profile>("Profile not found");
+
+            if (!profiles || profiles.length === 0) {
+                return Result.fail<Profile[]>("Profile not found");
             }
-    
-            const profileOrError = await ProfileMap.toDomain(profile);
-            if (profileOrError.isFailure) {
-                return Result.fail<Profile>(profileOrError.error);
+
+            const profileResults = await Promise.all(
+                profiles.map(profile => ProfileMap.toDomain(profile))
+            );
+
+            const failedProfiles = profileResults.filter(result => result.isFailure);
+            if (failedProfiles.length > 0) {
+                const errors = failedProfiles.map(result => result.error).join(", ");
+                return Result.fail<Profile[]>(`Error converting some profiles to domain objects: ${errors}`);
             }
-            return Result.ok<Profile>(profileOrError.getValue());
+
+            const validProfiles = profileResults.map(result => result.getValue());
+
+            return Result.ok<Profile[]>(validProfiles);
         } catch (error) {
-            return Result.fail<Profile>(error.message);
-            
+            return Result.fail<Profile[]>(error instanceof Error ? error.message : "Unexpected error fetching profiles by prosumerId");
         }
     }
+    
     public async findAll(): Promise<Result<Profile[]>> {
       try {
         // Fetch all profiles with related prosumer, user, and battery

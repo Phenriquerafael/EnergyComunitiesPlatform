@@ -7,7 +7,7 @@ export default interface IProfileService {
     createFromOptimizationResults(results: IOptimizationResults): Promise<Result<IProfileDTO>>;
     updateProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>>;
     getProfile(profileId: string): Promise<Result<IProfileDTO>>;
-    findByProsumerId(userId: string): Promise<Result<IProfileDTO>>;
+    findByProsumerId(userId: string): Promise<Result<IProfileDTO[]>>;
     findAll(): Promise<Result<IProfileDTO[]>>;
     deleteProfile(profileId: string): Promise<Result<void>>;
 }
