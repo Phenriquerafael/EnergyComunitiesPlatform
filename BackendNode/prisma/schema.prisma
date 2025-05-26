@@ -69,16 +69,16 @@ model Battery {
   maxChargeDischarge String
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
-  Prosumer           Prosumer?
+  Prosumer           Prosumer[]
 }
 
 model Prosumer {
   id          String     @id @default(uuid())
-  batteryId   String     @unique
+  batteryId   String     
   battery     Battery    @relation(fields: [batteryId], references: [id])
   userId      String     @unique
   user        User       @relation(fields: [userId], references: [id])
-  communityId String?    @unique
+  communityId String?    
   community   Community? @relation(fields: [communityId], references: [id])
 
   createdAt DateTime  @default(now())

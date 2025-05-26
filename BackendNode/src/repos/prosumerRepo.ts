@@ -25,7 +25,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                     include: {
                         user: true, // Incluir o User para o mapeamento
                         battery: true, // Incluir a Battery para o mapeamento
-                        community: true, // Incluir a Community para o mapeamento
+                        community: rawProsumer.community ?? undefined
                     },
                 });
             } else {
@@ -36,7 +36,7 @@ export default class ProsumerRepo implements IProsumerRepo {
                     include: {
                         user: true, // Incluir o User para o mapeamento
                         battery: true, // Incluir a Battery para o mapeamento
-                        community: true, // Incluir a Community para o mapeamento
+                        community: rawProsumer.community ?? undefined
                     },
                 });
             }
@@ -106,6 +106,10 @@ export default class ProsumerRepo implements IProsumerRepo {
             
         }
     }
+
+
+
+
     public async findByUserId(userId: string): Promise<Result<Prosumer>> {
         try {
             const rawProsumer = await prisma.prosumer.findUnique({
@@ -160,6 +164,49 @@ export default class ProsumerRepo implements IProsumerRepo {
             console.log("Error finding prosumer by battery ID: ", error);
             return Result.fail<Prosumer>("Error finding prosumer by battery ID");
             
+        }
+    }
+
+    public async findByCommunityId(communityId: string): Promise<Result<Prosumer[]>> {
+        try {
+            const rawProsumers = await prisma.prosumer.findMany({
+                where: { communityId: communityId },
+                include: {
+                    user: true, // Incluir o User para o mapeamento
+                    battery: true, // Incluir a Battery para o mapeamento
+                    community: true, // Incluir a Community para o mapeamento
+                },
+            });
+            
+            const prosumerPromises = rawProsumers.map(async (raw) => {
+                const prosumerOrError = await ProsumerMap.toDomain(raw);
+                
+                if (prosumerOrError.isFailure) {
+                    return Result.fail<Prosumer>(prosumerOrError.error);
+                }
+                
+                return Result.ok<Prosumer>(prosumerOrError.getValue());
+            });
+            
+            const prosumersResults = await Promise.all(prosumerPromises);
+            
+            return Result.ok<Prosumer[]>(prosumersResults.map((result) => result.getValue()));
+        } catch (error) {
+            console.log("Error finding prosumers by community ID: ", error);
+            return Result.fail<Prosumer[]>("Error finding prosumers by community ID");
+            
+        }
+    }
+
+    public async deleteProsumer(prosumerId: string): Promise<Result<void>> {
+        try {
+            await prisma.prosumer.delete({
+                where: { id: prosumerId },
+            });
+            return Result.ok<void>();
+        } catch (error) {
+            console.log("Error deleting prosumer: ", error);
+            return Result.fail<void>("Error deleting prosumer");
         }
     }
     

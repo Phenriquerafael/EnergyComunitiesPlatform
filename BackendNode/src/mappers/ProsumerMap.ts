@@ -1,5 +1,5 @@
 import { Prosumer } from "../domain/Prosumer/Prosumer";
-import IProsumerDTO from "../dto/IProsumerDTO";
+import IProsumerDTO, { IProsumerDataDTO } from "../dto/IProsumerDTO";
 import IBatteryDTO from "../dto/IBatteryDTO";
 import { IUserDTO } from "../dto/IUserDTO";
 import { Battery } from "../domain/Prosumer/Battery.ts/Battery";
@@ -16,12 +16,25 @@ import { Community } from "../domain/Community/Community";
 import { CommunityMap } from "./CommunityMap";
 
 export class ProsumerMap {
-  public static toDTO(profile: Prosumer): IProsumerDTO {
+  public static toDTO(prosumer: Prosumer): IProsumerDTO {
     return {
-        id: profile.id.toString(),
-        batteryId: profile.battery.id.toString(),
-        userId: profile.user.id.toString(),
-        communityId: profile.community.id.toString() ,
+        id: prosumer.id.toString(),
+        batteryId: prosumer.battery.id.toString(),
+        userId: prosumer.user.id.toString(),
+        communityId: prosumer.community ? prosumer.community.id.toString() : undefined
+    };
+  }
+
+  public static toDTO2(prosumer: Prosumer): IProsumerDataDTO {
+    return {
+      id: prosumer.id.toString(),
+      batteryId: prosumer.battery.id.toString(),
+      batteryName: prosumer.battery.batteryInformation.name,
+      userId: prosumer.user.id.toString(),
+      userName: `${prosumer.user.firstName} ${prosumer.user.lastName}`,
+      email: prosumer.user.email.value,
+      communityId:  prosumer.community ? prosumer.community.id.toString() : undefined,
+      communityName:  prosumer.community ? prosumer.community.communityInformation.name.toString() : undefined
     };
   }
 
@@ -40,8 +53,9 @@ export class ProsumerMap {
       try {
         const batteryInstance = (await BatteryMap.toDomain(raw.battery)).getValue();
         const userInstance = (await UserMap.toDomain(raw.user)).getValue();
-        const communityInstance = (await CommunityMap.toDomain(raw.community)).getValue();
-     
+        
+        const communityInstance = raw.community ? (await CommunityMap.toDomain(raw.community)).getValue() : undefined;
+
 
         // Criar a entidade Prosumer
         const prosumerProps = {
@@ -69,7 +83,7 @@ export class ProsumerMap {
         id: prosumer.id.toString(),
         batteryId: prosumer.battery.id.toString(),
         userId: prosumer.user.id.toString(),
-        communityId:  prosumer.community.id.toString() ,
+        communityId: prosumer.community ? prosumer.community.id.toString() : undefined
         };
     }
 }

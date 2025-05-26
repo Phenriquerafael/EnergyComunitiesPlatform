@@ -98,4 +98,49 @@ export default class ProsumerController implements IProsumerController {
         }
   }
 
+    public async findByCommunityId(req: Request, res: Response, next: NextFunction) {
+            try {
+                const prosumersOrError = await this.prosumerServiceInstance.findByCommunityId(req.params.communityId);
+                
+                if (prosumersOrError.isFailure) {
+                return res.status(404).json({ message: prosumersOrError.error });
+                }
+        
+                const prosumersDTO = prosumersOrError.getValue();
+                return res.status(200).json(prosumersDTO);
+            } catch (error) {
+                return next(error); // Pass error to Express error handler
+            }
+    }
+
+    public async findAll2(req: Request, res: Response, next: NextFunction) {
+            try {
+                const prosumersOrError = await this.prosumerServiceInstance.findAll2() as Result<IProsumerDTO[]>;
+                
+                if (prosumersOrError.isFailure) {
+                return res.status(404).json({ message: prosumersOrError.error });
+                }
+        
+                const prosumersDTO = prosumersOrError.getValue();
+                return res.status(200).json(prosumersDTO);
+            } catch (error) {
+                return next(error); // Pass error to Express error handler
+            }
+
+    }
+
+    public async deleteProsumer(req: Request, res: Response, next: NextFunction) {
+            try {
+                const prosumerOrError = await this.prosumerServiceInstance.deleteProsumer(req.params.id);
+                
+                if (prosumerOrError.isFailure) {
+                return res.status(404).json({ message: prosumerOrError.error });
+                }
+        
+                return res.status(204).send(); // No content
+            } catch (error) {
+                return next(error); // Pass error to Express error handler
+            }
+    }
+
 }

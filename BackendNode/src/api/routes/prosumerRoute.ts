@@ -21,6 +21,7 @@ export default (app: Router) => {
             body: Joi.object({
                 userId: Joi.string().required(),
                 batteryId: Joi.string().required(),
+                communityId: Joi.string().optional(),
             }),}),
         (req, res, next) => ctrl.createProsumer(req, res, next)
     );
@@ -48,6 +49,16 @@ export default (app: Router) => {
     );
 
     route.get(
+        '/all2',
+        (req, res, next) => ctrl.findAll2(req, res, next)
+    );
+
+    route.get(
+        '/community/:id',
+        (req, res, next) => ctrl.findByCommunityId(req, res, next)
+    );
+
+    route.get(
         '/user/:id',
         (req, res, next) => ctrl.findByUserId(req, res, next)
     );
@@ -55,7 +66,11 @@ export default (app: Router) => {
     route.get(
         '/battery/:id',
         (req, res, next) => ctrl.findByBatteryId(req, res, next)
+    );    
+    
+    route.delete(
+        '/:id',
+        (req, res, next) => ctrl.deleteProsumer(req, res, next)
     );
-
 
 }
