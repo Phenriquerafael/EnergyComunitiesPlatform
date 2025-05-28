@@ -255,5 +255,19 @@ export default class ProfileService implements IProfileService {
     }
   }
 
+  public async findByCommunityId(communityId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const profilesOrError = await this.profileRepoInstance.findByCommunityId(communityId);
+      if (profilesOrError.isFailure) {
+        return Result.fail<IProfileDTO[]>('Profiles not found for community');
+      }
+      const profiles = profilesOrError.getValue();
+      return Result.ok<IProfileDTO[]>(profiles.map((profile) => ProfileMap.toDTO(profile)));
+    } catch (error) {
+      console.log('Error getting profiles by community ID: ', error);
+      return Result.fail<IProfileDTO[]>('Error getting profiles by community ID');
+    }
+  }
+
 
 }

@@ -167,18 +167,18 @@ export default class ProsumerService implements IProsumerService {
         }
     }
 
-    public async findByCommunityId(communityId: string): Promise<Result<IProsumerDTO[]>> {
+    public async findByCommunityId(communityId: string): Promise<Result<IProsumerDataDTO[]>> {
         try {
             const prosumersOrError = await this.prosumerRepo.findByCommunityId(communityId);
             if (prosumersOrError.isFailure) {
-                return Result.fail<IProsumerDTO[]>("Prosumer doesn't exist");
+                return Result.fail<IProsumerDataDTO[]>("Prosumer doesn't exist");
             }
             const prosumers = prosumersOrError.getValue();
-            const prosumersDTO = prosumers.map((prosumer) => ProsumerMap.toDTO(prosumer));
-            return Result.ok<IProsumerDTO[]>(prosumersDTO);
+            const prosumersDTO = prosumers.map((prosumer) => ProsumerMap.toDTO2(prosumer));
+            return Result.ok<IProsumerDataDTO[]>(prosumersDTO);
         } catch (error) {
             console.log("Error finding prosumers by communityId: ", error);
-            return Result.fail<IProsumerDTO[]>("Error finding prosumers by communityId");
+            return Result.fail<IProsumerDataDTO[]>("Error finding prosumers by communityId");
             
         }
     }
@@ -213,6 +213,68 @@ export default class ProsumerService implements IProsumerService {
         } catch (error) {
             console.log("Error deleting prosumer: ", error);
             return Result.fail<void>("Error deleting prosumer");
+            
+        }
+    }
+
+    public async addToCommunity(communityId: string, prosumers: { prosumerId: string }[]): Promise<Result<void>> {
+        try {
+            const prosumerOrErrors = await Promise.all(
+                prosumers.map(async (prosumer) => {
+                    const prosumerOrError = await this.prosumerRepo.findById(prosumer.prosumerId);
+                    if (prosumerOrError.isFailure) {
+                        return Result.fail<void>(`Prosumer with ID ${prosumer.prosumerId} doesn't exist`);
+                    }
+                    return Result.ok<void>();
+                })
+            );
+            
+            await Promise.all(
+                prosumers.map(async (prosumer) => {
+                    const prosumerOrError = await this.prosumerRepo.findById(prosumer.prosumerId);
+                    if (prosumerOrError.isFailure) {
+                        return Result.fail<void>(`Prosumer with ID ${prosumer.prosumerId} doesn't exist`);
+                    }
+                    const prosumerDomain = prosumerOrError.getValue();
+                    prosumerDomain.community = (await this.communityRepo.findById(communityId)).getValue();
+                    return this.prosumerRepo.save(prosumerDomain);
+                })
+            );
+
+        } catch (error) {
+            console.log("Error adding prosumers to community: ", error);
+            return Result.fail<void>("Error adding prosumers to community");
+            
+        }
+    }
+
+    public async removeFromCommunity(communityId: string, prosumers: { prosumerId: string }[]): Promise<Result<void>> {
+        try {
+            const prosumerOrErrors = await Promise.all(
+                prosumers.map(async (prosumer) => {
+                    const prosumerOrError = await this.prosumerRepo.findById(prosumer.prosumerId);
+                    if (prosumerOrError.isFailure) {
+                        return Result.fail<void>(`Prosumer with ID ${prosumer.prosumerId} doesn't exist`);
+                    }
+                    return Result.ok<void>();
+                })
+            );
+
+            await Promise.all(
+                prosumers.map(async (prosumer) => {
+                    const prosumerOrError = await this.prosumerRepo.findById(prosumer.prosumerId);
+                    if (prosumerOrError.isFailure) {
+                        return Result.fail<void>(`Prosumer with ID ${prosumer.prosumerId} doesn't exist`);
+                    }
+                    const prosumerDomain = prosumerOrError.getValue();
+                    prosumerDomain.community = undefined;
+                    return this.prosumerRepo.save(prosumerDomain);
+                })
+            );
+
+        } catch (error) {
+            console.log("Error removing prosumers from community: ", error);
+            return Result.fail<void>("Error removing prosumers from community");
             
         }
     }

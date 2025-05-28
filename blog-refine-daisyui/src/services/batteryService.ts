@@ -1,8 +1,8 @@
 import axios from "axios";
-import IBatteryDTO from "../interfaces";
+import {IBatteryDTO} from "../interfaces";
 
 const BASE_URL = "http://localhost:4000/api/batteries";
-const Optimization_BASE_URL = "http://localhost:8000";
+const Optimization_BASE_URL = "http://localhost:8000/optimizationModule";
 
 export const createBattery = async (data: IBatteryDTO) => {
     const response = await axios.post(`${BASE_URL}/create`, data);

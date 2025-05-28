@@ -13,4 +13,6 @@ export default interface IProsumerService {
     findByCommunityId(communityId: string): Promise<Result<IProsumerDataDTO[]>>;
     findAll2(): Promise<Result<IProsumerDataDTO[]>>;
     deleteProsumer(prosumerId: string): Promise<Result<void>>;
+    addToCommunity(communityId: string, prosumers: { prosumerId: string }[]): Promise<Result<void>>;
+    removeFromCommunity(communityId: string, prosumers: { prosumerId: string }[]): Promise<Result<void>>;
 }

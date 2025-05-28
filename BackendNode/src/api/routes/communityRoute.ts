@@ -40,7 +40,7 @@ export default (app: Router) => {
     );
 
     route.get(
-        'id/:id',
+        '/id/:id',
         (req, res, next) => ctrl.getCommunity(req, res, next)
     );
 

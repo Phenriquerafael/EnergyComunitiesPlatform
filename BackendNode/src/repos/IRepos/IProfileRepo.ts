@@ -9,4 +9,5 @@ export default interface IProfileRepo {
   findByProsumerId(prosumerId: string): Promise<Result<Profile[]>>;
   findAll(): Promise<Result<Profile[]>>;
   delete(profile: Profile): Promise<Result<void>>;
+  findByCommunityId(communityId: string): Promise<Result<Profile[]>>;
 }

@@ -73,4 +73,35 @@ export default (app: Router) => {
         (req, res, next) => ctrl.deleteProsumer(req, res, next)
     );
 
+    route.patch(
+        '/addToCommunity',
+        celebrate({
+            body: Joi.array().items(
+                Joi.object({
+                    communityId: Joi.string().required(),
+                    prosumers: Joi.object({
+                        prosumerId: Joi.string().required(),
+                    })
+                })
+            ),
+        }),
+        (req, res, next) => ctrl.addToCommunity(req, res, next)
+    );
+
+    route.delete(
+        '/removeFromCommunity',
+        celebrate({
+            body: Joi.array().items(
+                Joi.object({
+                    communityId: Joi.string().required(),
+                    prosumers: Joi.object({
+                        prosumerId: Joi.string().required(),
+                    })
+                })
+            ),
+        }),
+        (req, res, next) => ctrl.removeFromCommunity(req, res, next)
+    );
+    
+
 }

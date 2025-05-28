@@ -212,5 +212,42 @@ export default class ProfileRepo implements IProfileRepo {
         }
     }
 
+    public async findByCommunityId(communityId: string): Promise<Result<Profile[]>> {
+        try {
+            const profiles = await prisma.profile.findMany({
+                where: { prosumer: { communityId: communityId } },
+                include: {
+                    prosumer: {
+                        include: {
+                            user: true, // Include the full User object
+                            battery: true, // Include the full Battery object
+                        },
+                    },
+                },
+            });
+
+            if (!profiles || profiles.length === 0) {
+                return Result.fail<Profile[]>("Profiles not found for community");
+            }
+
+            const profileResults = await Promise.all(
+                profiles.map(profile => ProfileMap.toDomain(profile))
+            );
+
+            const failedProfiles = profileResults.filter(result => result.isFailure);
+            if (failedProfiles.length > 0) {
+                const errors = failedProfiles.map(result => result.error).join(", ");
+                return Result.fail<Profile[]>(`Error converting some profiles to domain objects: ${errors}`);
+            }
+
+            const validProfiles = profileResults.map(result => result.getValue());
+
+            return Result.ok<Profile[]>(validProfiles);
+        } catch (error) {
+            return Result.fail<Profile[]>(error instanceof Error ? error.message : "Unexpected error fetching profiles by communityId");
+        }
+    }
+
+
 
 }

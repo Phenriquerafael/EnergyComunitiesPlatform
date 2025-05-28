@@ -38,6 +38,7 @@ import { Login } from "./pages/auth/Login";
 import { Register } from "./pages/auth/Register";
 import { ChangePassword } from "./pages/auth/ChangePassword";
 import { ProsumerCreate, ProsumerEdit, ProsumerList, ProsumerShow } from "./pages/prosumers";
+import { CommunityManagerPage } from "./pages/communities/communityPage";
 
 
 function App() {
@@ -147,6 +148,7 @@ function App() {
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/profiles" element={<ProfileAnalyticsPage />} />
               <Route path= "/uploadData" element={<ProfileUpload />} />
+              <Route path= "/communities" element={<CommunityManagerPage />}></Route>
               <Route path="/batteries">
                 <Route index element={<BatteryList />} />
                 <Route path="create" element={<BatteryCreate />} />

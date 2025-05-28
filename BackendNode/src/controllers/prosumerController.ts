@@ -100,7 +100,7 @@ export default class ProsumerController implements IProsumerController {
 
     public async findByCommunityId(req: Request, res: Response, next: NextFunction) {
             try {
-                const prosumersOrError = await this.prosumerServiceInstance.findByCommunityId(req.params.communityId);
+                const prosumersOrError = await this.prosumerServiceInstance.findByCommunityId(req.params.id);
                 
                 if (prosumersOrError.isFailure) {
                 return res.status(404).json({ message: prosumersOrError.error });
@@ -141,6 +141,36 @@ export default class ProsumerController implements IProsumerController {
             } catch (error) {
                 return next(error); // Pass error to Express error handler
             }
+    }
+
+    public async addToCommunity(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { communityId, prosumers } = req.body;
+            const result = await this.prosumerServiceInstance.addToCommunity(communityId, prosumers);
+            
+            if (result.isFailure) {
+                return res.status(400).json({ message: result.error });
+            }
+    
+            return res.status(200).json({ message: "Prosumers added to community successfully" });
+        } catch (error) {
+            return next(error); // Pass error to Express error handler
+        }
+    }
+
+    public async removeFromCommunity(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { communityId, prosumers } = req.body;
+            const result = await this.prosumerServiceInstance.removeFromCommunity(communityId, prosumers);
+            
+            if (result.isFailure) {
+                return res.status(400).json({ message: result.error });
+            }
+    
+            return res.status(200).json({ message: "Prosumers removed from community successfully" });
+        } catch (error) {
+            return next(error); // Pass error to Express error handler
+        }
     }
 
 }

@@ -124,6 +124,23 @@ export default class ProfileController implements IProfileController {
         }
     }
 
+  public async findByCommunityId(req: Request, res: Response, next: NextFunction) {
+      try {
+        const profileOrError = await this.profileServiceInstance.findByCommunityId(req.params.id);
+
+        if (profileOrError.isFailure) {
+          return res.status(404).json({ message: profileOrError.error });
+        }
+
+        const profileDTO = profileOrError.getValue();
+        return res.status(200).json(profileDTO);
+
+      } catch (error) {
+        return next(error); // Pass error to Express error handler
+        
+      } 
+    }
+
 
 
 }

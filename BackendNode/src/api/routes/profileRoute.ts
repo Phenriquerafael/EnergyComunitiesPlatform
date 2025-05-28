@@ -106,9 +106,11 @@ export default (app: Router) => {
         (req, res, next) => ctrl.findByProsumerId(req, res, next)
     );
 
-    app.use('/profiles', route);
-    // Middleware de erro do celebrate
-    app.use(errors());
+    route.get(
+      '/community/:id',
+      (req, res, next) => ctrl.findByCommunityId(req, res, next
+      )
+    );
 
     route.delete(
         '/:id',
@@ -119,5 +121,9 @@ export default (app: Router) => {
         }),
         (req, res, next) => ctrl.deleteProfile(req, res, next)
     );
+
+        app.use('/profiles', route);
+    // Middleware de erro do celebrate
+    app.use(errors());
 
 }

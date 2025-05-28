@@ -129,6 +129,8 @@ export default class CommunityManagerRepo implements ICommunityManagerRepo {
             
         }
     }
+
+
     public async findByCommunityId(communityId: string): Promise<Result<CommunityManager>> {
         try {
             const rawCommunityManager = await prisma.communityManager.findUnique({

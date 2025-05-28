@@ -19,8 +19,20 @@ from io import BytesIO
 
 import requests
 
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:4000"],  
+    allow_credentials=True,
+    allow_methods=["*"],  # permite todos os métodos (GET, POST, etc.)
+    allow_headers=["*"],  # permite todos os headers
+)
+
+
 
 # Defina uma variável para armazenar o progresso da otimização
 optimization_status = {
@@ -303,7 +315,7 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
         "detailed_results": detailed_results
     }
 
-@app.post("/optimize")
+@app.post("/loadData")
 async def optimize_excel(file: UploadFile = File(...)):
     contents = await file.read()
     input_io = BytesIO(contents)

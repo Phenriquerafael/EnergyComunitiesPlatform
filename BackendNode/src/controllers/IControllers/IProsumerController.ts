@@ -10,4 +10,6 @@ export default interface IProsumerController {
     findByCommunityId(req: Request, res: Response, next: NextFunction);
     findAll2(req: Request, res: Response, next: NextFunction);
     deleteProsumer(req: Request, res: Response, next: NextFunction);
+    addToCommunity(req: Request, res: Response, next: NextFunction);
+    removeFromCommunity(req: Request, res: Response, next: NextFunction);
 }

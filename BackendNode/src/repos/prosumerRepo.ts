@@ -167,36 +167,37 @@ export default class ProsumerRepo implements IProsumerRepo {
         }
     }
 
-    public async findByCommunityId(communityId: string): Promise<Result<Prosumer[]>> {
-        try {
-            const rawProsumers = await prisma.prosumer.findMany({
-                where: { communityId: communityId },
-                include: {
-                    user: true, // Incluir o User para o mapeamento
-                    battery: true, // Incluir a Battery para o mapeamento
-                    community: true, // Incluir a Community para o mapeamento
-                },
-            });
-            
-            const prosumerPromises = rawProsumers.map(async (raw) => {
-                const prosumerOrError = await ProsumerMap.toDomain(raw);
-                
-                if (prosumerOrError.isFailure) {
-                    return Result.fail<Prosumer>(prosumerOrError.error);
-                }
-                
-                return Result.ok<Prosumer>(prosumerOrError.getValue());
-            });
-            
-            const prosumersResults = await Promise.all(prosumerPromises);
-            
-            return Result.ok<Prosumer[]>(prosumersResults.map((result) => result.getValue()));
-        } catch (error) {
-            console.log("Error finding prosumers by community ID: ", error);
-            return Result.fail<Prosumer[]>("Error finding prosumers by community ID");
-            
+public async findByCommunityId(communityId: string): Promise<Result<Prosumer[]>> {
+    try {
+        const rawProsumers = await prisma.prosumer.findMany({
+            where: { communityId },
+            include: {
+                user: true,
+                battery: true,
+                community: true,
+            },
+        });
+
+        const prosumers: Prosumer[] = [];
+
+        for (const raw of rawProsumers) {
+            const prosumerOrError = await ProsumerMap.toDomain(raw);
+
+            if (prosumerOrError.isFailure) {
+                // Se houver um erro, para e retorna a falha
+                return Result.fail<Prosumer[]>(`Erro ao mapear Prosumer: ${prosumerOrError.error}`);
+            }
+
+            prosumers.push(prosumerOrError.getValue());
         }
+
+        return Result.ok<Prosumer[]>(prosumers);
+    } catch (error) {
+        console.error("Erro ao buscar Prosumers por Community ID:", error);
+        return Result.fail<Prosumer[]>("Erro ao buscar Prosumers por Community ID");
     }
+}
+
 
     public async deleteProsumer(prosumerId: string): Promise<Result<void>> {
         try {

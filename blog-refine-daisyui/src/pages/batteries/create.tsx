@@ -4,6 +4,7 @@ import { useForm } from "@refinedev/react-hook-form";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { createBattery, createBatteries, createBatteriesFromExcel } from "../../services/batteryService";
 import {IBatteryDTO} from "../../interfaces";
+import { useCreate } from "@refinedev/core";
 
 export const BatteryCreate = () => {
   const { list } = useNavigation();
@@ -79,21 +80,38 @@ export const BatteryCreate = () => {
     }
   };
 
-  const handleExcelUpload = async () => {
-    if (!file) {
-      setExcelStatus("Nenhum ficheiro Excel selecionado.");
+  // Usando refine para criar baterias via resource personalizado
+const handleExcelUpload = async () => {
+  if (!file) {
+    setExcelStatus("Nenhum ficheiro Excel selecionado.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch("http://localhost:8000/optimizationModule/batteryList", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error(error);
+      setExcelStatus("Erro ao enviar Excel: " + (error?.message || "Erro desconhecido."));
       return;
     }
 
-    try {
-      await createBatteriesFromExcel(file);
-      setExcelStatus("Excel upload successful.");
-      list("batteries");
-    } catch (error: any) {
-      console.error(error);
-      setExcelStatus("Excel upload failed: " + error.message);
-    }
-  };
+    const result = await response.json();
+    setExcelStatus("Excel enviado com sucesso.");
+    list("batteries"); // Atualiza a lista
+  } catch (error: any) {
+    console.error(error);
+    setExcelStatus("Erro ao enviar Excel: " + error.message);
+  }
+};
+
 
   return (
     <div className="page-container">

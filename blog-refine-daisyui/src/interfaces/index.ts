@@ -153,4 +153,10 @@ export interface IProsumerDataDTO {
   communityName?: string;
 }
 
+export interface ICommunityManagerDTO {
+  id?: string;
+  userId?: string;
+  communityId?: string;
+}
+
     

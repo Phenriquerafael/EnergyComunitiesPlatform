@@ -11,7 +11,7 @@ login: async ({ email, password }) => {
     });
 
     const token = response.data.data.token; // ✅ caminho correto
-    console.log("Token received:", token);
+    /* console.log("Token received:", token); */
 
     localStorage.setItem("token", token);
     return { success: true, redirectTo: "/batteries" };
@@ -34,7 +34,7 @@ login: async ({ email, password }) => {
 
   getIdentity: async () => {
     const token = localStorage.getItem("token");
-    console.log("Token for getIdentity:", token);
+    /* console.log("Token for getIdentity:", token); */
     if (!token) return null;
     try {
       const response = await axios.get("http://localhost:4000/api/users/me", {

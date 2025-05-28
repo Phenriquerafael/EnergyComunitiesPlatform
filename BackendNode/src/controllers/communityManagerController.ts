@@ -57,7 +57,8 @@ export default class CommunityManagerController implements ICommunityManagerCont
   }
   public async findByUserId(req: Request, res: Response, next: NextFunction) {
         try {
-            const communityManagerOrError = await this.communityManagerServiceInstance.findByUserId(req.params.userId);
+            
+            const communityManagerOrError = await this.communityManagerServiceInstance.findByUserId(req.params.id);
             
             if (communityManagerOrError.isFailure) {
             return res.status(404).json({ message: communityManagerOrError.error });
