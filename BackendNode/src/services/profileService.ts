@@ -57,11 +57,6 @@ export default class ProfileService implements IProfileService {
   }
 
   public async createFromOptimizationResults(results: IOptimizationResults): Promise<Result<IProfileDTO>> {
-    const prosumersResultOrError = await this.prosumerRepoInstance.findAll();
-    if (prosumersResultOrError.isFailure||prosumersResultOrError.getValue().length === 0) {
-      return Result.fail<IProfileDTO>('Prosumers not found');
-    }
-    const prosumers = prosumersResultOrError.getValue();
     try {
       if (results.total_objective_value === undefined) {
         return Result.fail<IProfileDTO>('Total objective value not found in optimization results');
@@ -70,11 +65,14 @@ export default class ProfileService implements IProfileService {
         return Result.fail<IProfileDTO>('Detailed results not found in optimization results');
       }
       let finalResult;
-      for (const result of results.detailed_results) {
+/*       for (const result of results.detailed_results) { */
+      for (let i = 0; i < results.detailed_results.length; i++) {
+        let result = results.detailed_results[i];
         //POR CORRIGIR
         const profileDTO: IProfileDTO = {
-          prosumerId: prosumers[Number(result.Prosumer) - 1].id.toString(), // Anexing profile to the prosumers bootstraped in the database
-          date: result.Day,
+          /* prosumerId: prosumers[Number(result.Prosumer) - 1].id.toString(), // Anexing profile to the prosumers bootstraped in the database */
+          prosumerId: result.Prosumer, // Anexing profile to the prosumers bootstraped in the database
+          date: result.DateTime,
           intervalOfTime: "15", //To be corrected: the interval is assumed to be 15 minutes
           numberOfIntervals: Number(result.Time_Step),
           stateOfCharge: result.SOC,

@@ -9,9 +9,10 @@ import envs as en
 import pyomo.contrib.solver.ipopt
 import os
 from pyomo.environ import value
+from tqdm import tqdm
 
 # Load data
-file_path = r"D:\My Projects\Satcomm project\sampledata3.xlsx"
+file_path = r"sampledata3.xlsx"
 all_data = pd.read_excel(file_path, sheet_name=None)
 
 # Extract data using Pandas
@@ -131,6 +132,11 @@ update_interval = 28800  # Update SOC every 288 time steps
 
 #for day in range(days):  # Loop over days 0,1,2,..., days-1
     
+""" Thorizon = 28800  # Total de tempo em segundos
+update_interval = 3600  # Intervalo de atualização em segundos
+
+for chunk_start_time in tqdm(range(0, Thorizon, update_interval), desc="Processing time steps", unit="chunk"):
+  """
 for chunk_start_time in range(0, Thorizon+1, update_interval):
     
     chunk_end_time = min(chunk_start_time + update_interval, Thorizon)
@@ -374,15 +380,14 @@ for chunk_start_time in range(0, Thorizon+1, update_interval):
     # Update SOC_end_of_previous_period 
     #SOC_end_of_day.update({(PL, day): value(instance.P_ESS_s[PL, Thorizon]) for PL in model.PL})
     SOC_end_of_previous_period.update( {pl: value(instance.P_ESS_s[pl, model.T.last()]) for pl in model.PL})
-    print(f"SOC updated at time step: {chunk_end_time}")
-    print(SOC_end_of_previous_period)
+"""pass"""
 
     
 # Concatenate all chunk results
 detailed_results_df = pd.concat(detailed_results, ignore_index=True)
 
 # Convert results to a DataFrame and save to Excel
-detailed_results_path = r"D:\My Projects\Satcomm project\detailed_results.xlsx"
+detailed_results_path = r"detailed_results.xlsx"
 detailed_results_df.to_excel(detailed_results_path, index=False)
 
 print(f"Detailed results for the period saved to: {detailed_results_path}")

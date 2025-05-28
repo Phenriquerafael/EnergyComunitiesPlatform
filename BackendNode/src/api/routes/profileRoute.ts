@@ -48,7 +48,7 @@ export default (app: Router) => {
         total_objective_value: Joi.string().optional(),
         detailed_results: Joi.array().items(
           Joi.object({
-            Day: Joi.string().required(),
+            DateTime: Joi.string().required(),
             Time_Step: Joi.number().required(),
             Prosumer: Joi.string().required(),
             P_buy: Joi.string().required(),

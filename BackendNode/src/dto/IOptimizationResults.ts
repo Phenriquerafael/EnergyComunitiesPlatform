@@ -2,7 +2,7 @@ export default interface IOptimizationResults {
     total_objective_value: string;
     detailed_results:
         {
-            Day: string;
+            DateTime: string;
             Time_Step: string;
             Prosumer: string;
             P_buy: string;

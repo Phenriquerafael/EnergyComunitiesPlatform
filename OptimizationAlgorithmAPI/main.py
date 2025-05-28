@@ -1,4 +1,5 @@
 #libs do optimization algorithm
+import json
 from scipy.optimize import newton_krylov
 from pyomo.environ import SolverFactory, SolverManagerFactory
 from pyomo.environ import*
@@ -12,10 +13,11 @@ import os
 from pyomo.environ import value
 
 #libs do FastAPI
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, Form, UploadFile, File
 from fastapi.responses import JSONResponse
 import pandas as pd
 from io import BytesIO
+from typing import List
 
 import requests
 
@@ -41,153 +43,254 @@ optimization_status = {
 }
 
 
-def run_optimization(file_path: BytesIO) -> BytesIO:
-    global optimization_status  # Acesse a variável global para atualização
+def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
+    
+    all_data = pd.read_excel(file_path, sheet_name=None)
 
-    # Comece o processo de otimização
-    optimization_status["status"] = "processing"
-    optimization_status["progress"] = 0
-    print(optimization_status)
-# Ler o Excel recebido (sem salvar no disco)
-    #df = pd.read_excel(file_path, sheet_name=None)
+    # Extract data using Pandas
+    df_pv = all_data['PPV_capacity']
+    df_pl = all_data['PL']
+    df_buysell = all_data['buysell']
+    df_ess = all_data['ESS-Param']
 
-    df = pd.read_excel(file_path,'PPV_capacity',usecols='B:F')
-    PPV_capacity=df.to_numpy()      #  maximum PV production of each PV unit in each hour
-
-
-    df = pd.read_excel(file_path,'PL',usecols='B:F')
-    PLoad=df.to_numpy()      #  hourly load profile of prosumers
-
-    df = pd.read_excel(file_path,'buysell',usecols='B:C')
-    Cbuysell=df.to_numpy()     
-    Cbuy=Cbuysell[:,0]         # The price of electricity bought from the grid
-    Csell=Cbuysell[:,1]         # The price of electricity sold to the grid
+    # Extract date and time columns
+    date_pv = df_pv.iloc[:, 0].to_numpy().astype(str)
+    time_pv = df_pv.iloc[:, 1].to_numpy().astype(str)
+    datetime_pv = pd.to_datetime(
+        pd.Series(date_pv).str.cat(pd.Series(time_pv), sep=' '),
+        dayfirst=True
+    ).to_numpy()
 
 
-    df = pd.read_excel(file_path,'ESS-Param',usecols='B:F')
-    ESSparam=df.to_numpy()      # Energy Storage System parameters
+    date_pl = df_pl.iloc[:, 0].to_numpy().astype(str)
+    time_pl = df_pl.iloc[:, 1].to_numpy().astype(str)
+    datetime_pl = pd.to_datetime(
+        pd.Series(date_pl).str.cat(pd.Series(time_pl), sep=' '),
+        dayfirst=True
+    ).to_numpy()
+
+
+
+    date_buysell = df_buysell.iloc[:, 0].to_numpy().astype(str)
+    time_buysell = df_buysell.iloc[:, 1].to_numpy().astype(str)
+    datetime_buysell = pd.to_datetime(
+        pd.Series(date_buysell).str.cat(pd.Series(time_buysell), sep=' '),
+        dayfirst=True
+    ).to_numpy()
+
+    # Extract data as numpy arrays
+    PPV_capacity_full = df_pv.iloc[:, 2:].to_numpy()
+    PLoad_full = df_pl.iloc[:, 2:].to_numpy()
+    Cbuysell_full = df_buysell.iloc[:, 2:].to_numpy()
+    Cbuy_full = Cbuysell_full[:, 0]
+    Csell_full = Cbuysell_full[:, 1]
+    ESSparam = df_ess.iloc[:, 1:].to_numpy()
         
+    #%%
+
+    # Define the date range for the simulation
+    start_date_str = '01.01.2024 00:00:00'
+    end_date_str = '10.10.2024 23:45:00'
 
 
 
-    ΔT = 0.25  # Time interval (e.g., 15-minute periods)
+    # print(f"Default Start Date: {start_date_str}")
+    # print(f"Default End Date: {end_date_str}")
 
+    # # Ask user if they want to keep the default or input new dates
+    # response = input("Do you want to continue with these dates? (yes/no): ").strip().lower()
+
+    # if response == 'no':
+    #     start_date_str = input("Enter new start date (format DD.MM.YYYY HH:MM:SS): ").strip()
+    #     end_date_str = input("Enter new end date (format DD.MM.YYYY HH:MM:SS): ").strip()
+
+    # print(f"Using Start Date: {start_date_str}")
+    # print(f"Using End Date: {end_date_str}")
+
+    start_date = pd.to_datetime(start_date_str, dayfirst=True).to_numpy()
+    end_date = pd.to_datetime(end_date_str, dayfirst=True).to_numpy()
+
+
+    # Filter data based on the date range using numpy
+    mask_pv = (datetime_pv >= start_date) & (datetime_pv <= end_date)
+    mask_pl = (datetime_pl >= start_date) & (datetime_pl <= end_date)
+    mask_buysell = (datetime_buysell >= start_date) & (datetime_buysell <= end_date)
+
+
+    PPV_capacity = PPV_capacity_full[mask_pl]
+    PLoad = PLoad_full[mask_pl]
+    Cbuy = Cbuy_full[mask_buysell]
+    Csell = Csell_full[mask_buysell]
+    datetime_sim = datetime_pl[mask_pl]
+
+    # Ensure all data has the same number of time steps
+    num_time_steps = len(PLoad)
+    if PPV_capacity.shape[0] != num_time_steps or Cbuy.shape[0] != num_time_steps or Csell.shape[0] != num_time_steps:
+        raise ValueError(
+            "The number of time steps in PLoad, PPV_capacity, Cbuy, and Csell must be the same for the selected date range.")
+
+    # Calculate ΔT using numpy
+    time_diff_seconds = np.diff(datetime_sim).astype('timedelta64[s]').astype(np.float64)
+    time_diff_minutes = time_diff_seconds / 60
+    unique_dt_minutes = np.unique(time_diff_minutes)
+    #%%
+    # if unique_dt_minutes.size > 1:
+    #     raise ValueError("ΔT is not constant. The time step between data points must be constant.")
+    # elif unique_dt_minutes.size == 0:
+    #     raise ValueError("No time differences calculated. Check input data.")
+    # else:
+    #     dt_minutes_value = unique_dt_minutes[0]
+    ΔT = 0.25  #dt_minutes_value / 60
+
+    #%%
+
+    # Calculate the number of days
+    days = ((datetime_sim[-1] - datetime_sim[0]) / np.timedelta64(1, 'D')) + 1
+    days = int(days)  # optional: convert to integer
     # Model Definition
+    nPlayers = PLoad.shape[1]
+    Thorizon = num_time_steps
 
-    nPlayers=len(PLoad[1,:])
-    Thorizon = 96  # Periods per day
-    #Thorizon=len(PLoad.loc[:,1])-1
-    days =int(len(PLoad) / Thorizon)  # Number of days
-
-    # Initialize a dictionary to store results
-    SOC_end_of_day = {}   #{(1, 1): 0.2, (2, 1): 0.2,(3, 1): 0.2,(4, 1): 0.2, (5, 1): 0.2}
-
+    # Initialize SOC
+    SOC_end_of_previous_period = {pl: ESSparam[3, pl - 1] for pl in range(1, nPlayers + 1)}
     detailed_results = []
+    total_objective_value = 0
+    update_interval = 28800  # Update SOC every 288 time steps
 
+    #print(f"Solving for the period from {datetime_sim[0]} to {datetime_sim[-1]}...")
 
-    total_objective_value =0
-
+    #%%
     ################## Indexes ####################################################################################
 
-    for day in range(1, days + 1):
-        print(f"Solving for Day {day}...")
+    #for day in range(days):  # Loop over days 0,1,2,..., days-1
+        
+    """ Thorizon = 28800  # Total de tempo em segundos
+    update_interval = 3600  # Intervalo de atualização em segundos
 
-        # Extract daily data
-        start_idx = (day - 1) * Thorizon 
-        end_idx = start_idx + Thorizon 
-        PLoad_day = PLoad[start_idx:end_idx]
-        PPV_capacity_day = PPV_capacity[start_idx:end_idx]
-        Cbuy_day = Cbuy[start_idx:end_idx]
-        Csell_day = Csell[start_idx:end_idx]  
-        PLoad[0:96]=PLoad_day
-        PPV_capacity[0:96]= PPV_capacity_day
-        Cbuy[0:96]=Cbuy_day
-        Csell[0:96]=Csell_day
+    for chunk_start_time in tqdm(range(0, Thorizon, update_interval), desc="Processing time steps", unit="chunk"):
+    """
+    for chunk_start_time in range(0, Thorizon+1, update_interval):
+        
+        chunk_end_time = min(chunk_start_time + update_interval, Thorizon)
+        
+        print(f"Solving for time steps: {chunk_start_time} to {chunk_end_time}")
+        
+        
+    
+        
+        model = ConcreteModel()  # Use ConcreteModel
 
-        model=AbstractModel()    
-    # Define sets
-        model.PL = RangeSet(nPlayers)                      # Prosumers
-        model.T = RangeSet(Thorizon)                       # Time Horizon
-        model.ESS1 =  RangeSet(len(ESSparam))              # Energy Storage Systems
+        # Define sets
+        model.PL = RangeSet(nPlayers)
+        model.T = RangeSet(chunk_end_time - chunk_start_time)
+        model.ESS1 = RangeSet(ESSparam.shape[0])
 
-        model.PLs=Param(model.T,model.PL,initialize=lambda model,r,c:PLoad[r-1,c-1], within=Reals)
-        model.PPV_capacitys=Param(model.T,model.PL,initialize=lambda model,r,c:PPV_capacity[r-1,c-1], within=Reals)
-        model.Cbuys=Param(model.T,initialize=lambda model,r:Cbuy[r-1], within=Reals)
-        model.Csells=Param(model.T,initialize=lambda model,r:Csell[r-1], within=Reals)
+        # Define parameters using numpy arrays
+        PLoad_chunk = PLoad[chunk_start_time:chunk_end_time]
+        PPV_capacity_chunk = PPV_capacity[chunk_start_time:chunk_end_time]
+        Cbuy_chunk = Cbuy[chunk_start_time:chunk_end_time]
+        Csell_chunk = Csell[chunk_start_time:chunk_end_time]
+        datetime_chunk = datetime_sim[chunk_start_time:chunk_end_time]
+        
+        
+        model.PLs=Param(model.T,model.PL,initialize=lambda model,r,c:PLoad_chunk[r-1,c-1], within=Reals)
+        model.PPV_capacitys=Param(model.T,model.PL,initialize=lambda model,r,c:PPV_capacity_chunk[r-1,c-1], within=Reals)
+        model.Cbuys=Param(model.T,initialize=lambda model,r:Cbuy_chunk[r-1], within=Reals)
+        model.Csells=Param(model.T,initialize=lambda model,r:Csell_chunk[r-1], within=Reals)
         model.ESSparams=Param(model.ESS1,model.PL,initialize=lambda model,r,c:ESSparam[r-1,c-1], within=Reals)
-
-
-
-    # Variables
-        model.P_ESS_s = Var(model.PL, model.T, within=NonNegativeReals)  # ESS state of charge
-        model.P_ESS_ch = Var(model.PL, model.T, within=NonNegativeReals)  # ESS charging
-        model.P_ESS_dch = Var(model.PL, model.T, within=NonNegativeReals)  # ESS discharging
-        model.I_ESS_ch = Var(model.PL, model.T, within=Binary)  # ESS charging binary
-        model.I_ESS_dch = Var(model.PL, model.T, within=Binary)  # ESS discharging binary
-        model.P_buy = Var(model.PL, model.T, within=NonNegativeReals)  # Power bought from the grid
-        model.P_sell = Var(model.PL, model.T, within=NonNegativeReals)  # Power sold to the grid
-        model.P_peer = Var(model.PL, model.PL, model.T, within=NonNegativeReals)
         
 
-    #    model.P_PV = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for charging battery
-    #    model.P_PV_load = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for direct load consumption
+        # Variables
+        model.P_ESS_s = Var(model.PL, model.T, within=NonNegativeReals)
+        model.P_ESS_ch = Var(model.PL, model.T, within=NonNegativeReals)
+        model.P_ESS_dch = Var(model.PL, model.T, within=NonNegativeReals)
+        model.I_ESS_ch = Var(model.PL, model.T, within=Binary)
+        model.I_ESS_dch = Var(model.PL, model.T, within=Binary)
+        model.P_buy = Var(model.PL, model.T, within=NonNegativeReals)
+        model.P_sell = Var(model.PL, model.T, within=NonNegativeReals)
+        model.P_peer = Var(model.PL, model.PL, model.T, within=NonNegativeReals)
+        #    model.P_PV = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for charging battery
+        #    model.P_PV_load = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for direct load consumption
 
-    # Constraints
-        def SocESS(model, PL, T):
+
+
+        # Constraints
+        def SocESS_rule(model, PL, T):
             if T == 1:
-                # Initial SOC set to the previous day's final SOC
-                prev_SOC = SOC_end_of_day.get((PL, day-1), model.ESSparams[4, PL])
-                return model.P_ESS_s[PL, T] == prev_SOC + ΔT * (model.ESSparams[1, PL] * model.P_ESS_ch[PL, T] - model.P_ESS_dch[PL, T] / model.ESSparams[1, PL])
+                prev_SOC = SOC_end_of_previous_period[PL]
+                return model.P_ESS_s[PL, T] == prev_SOC + ΔT * (
+                    model.ESSparams[model.ESS1.ord(1), PL] * model.P_ESS_ch[PL, T] - model.P_ESS_dch[PL, T] /
+                    model.ESSparams[model.ESS1.ord(1), PL])
             else:
                 return model.P_ESS_s[PL, T] == (model.P_ESS_s[PL, T - 1]
-                                                + ΔT * (model.ESSparams[1, PL] * model.P_ESS_ch[PL, T]
-                                                        - model.P_ESS_dch[PL, T] / model.ESSparams[1, PL]))
+                                                + ΔT * (model.ESSparams[model.ESS1.ord(1), PL] * model.P_ESS_ch[PL, T]
+                                                        - model.P_ESS_dch[PL, T] / model.ESSparams[model.ESS1.ord(1), PL]))
 
-        model.c_SOC = Constraint(model.PL, model.T, rule=SocESS)
+        model.c_SOC = Constraint(model.PL, model.T, rule=SocESS_rule)
+
+
+
+        def CapacitylimitESS1_rule(model, PL, T):
+            return model.P_ESS_s[PL, T] <= model.ESSparams[model.ESS1.ord(3), PL]
+
+        model.c92 = Constraint(model.PL, model.T, rule=CapacitylimitESS1_rule)
+
+
+
+        def chargeESS1_rule(model, PL, T):
+            return model.P_ESS_ch[PL, T] <= model.ESSparams[model.ESS1.ord(2), PL] * model.ESSparams[
+                model.ESS1.ord(3), PL] * model.I_ESS_ch[PL, T]
+
+        model.c42 = Constraint(model.PL, model.T, rule=chargeESS1_rule)
         
-        def CapacitylimitESS1(model,PL,T):
+            
         
-                return  model.P_ESS_s[PL, T]<=model.ESSparams[3,PL]
+        def dischargeESS1_rule(model, PL, T):
+            return model.P_ESS_dch[PL, T] <= model.ESSparams[model.ESS1.ord(2), PL] * model.ESSparams[
+                model.ESS1.ord(3), PL] * model.I_ESS_dch[PL, T]
+
+        model.c43 = Constraint(model.PL, model.T, rule=dischargeESS1_rule)
+
+
+
+        def chargedischargeESS_rule(model, PL, T):
+            return model.I_ESS_ch[PL, T] + model.I_ESS_dch[PL, T] <= 1
+
+        model.c44 = Constraint(model.PL, model.T, rule=chargedischargeESS_rule)
         
-        model.c92=Constraint(model.PL,model.T,rule=CapacitylimitESS1) #  ESS constraints
-
-        def chargeESS1(model,PL,T):
+        # def chargedischargelimit(model,PL):
         
-                return model.P_ESS_ch[PL,T]<=model.ESSparams[2,PL]*model.ESSparams[3,PL]*model.I_ESS_ch[PL,T]
+        #         return sum( model.I_ESS_ch[PL,T]+model.I_ESS_dch[PL,T] for T in model.T) <=8
         
-        model.c42=Constraint(model.PL,model.T,rule=chargeESS1) #  ESS constraints
+        # model.c45=Constraint(model.PL,rule=chargedischargelimit) #  ESS constraints
 
 
-        def dischargeESS1(model,PL,T):
+
+        def load_balance_rule(model, PL, T):
+            return model.PLs[T, PL] + model.P_ESS_ch[PL, T] == model.PPV_capacitys[T, PL] + model.P_buy[PL, T] - \
+            model.P_sell[PL, T] + model.P_ESS_dch[PL, T] + sum(
+                model.P_peer[PL2, PL, T] - model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)
+
+        model.c_balance = Constraint(model.PL, model.T, rule=load_balance_rule)
         
-                return model.P_ESS_dch[PL,T]<=model.ESSparams[2,PL]*model.ESSparams[3,PL]*model.I_ESS_dch[PL,T]
+        def peer_flow_origin_rule(model, t):
+            total_peer_in = sum(model.P_peer[pl2, pl, t] for pl in model.PL for pl2 in model.PL if pl2 != pl)
+            total_peer_out = sum(model.P_peer[pl, pl2, t] for pl in model.PL for pl2 in model.PL if pl2 != pl)
+            return total_peer_in == total_peer_out
+        model.peer_origin = Constraint(model.T, rule=peer_flow_origin_rule)
+
         
-        model.c43=Constraint(model.PL,model.T,rule=dischargeESS1) #  ESS constraints
-
-
-        def chargedischargeESS(model,PL,T):
         
-                return model.I_ESS_ch[PL,T]+model.I_ESS_dch[PL,T]<=1
         
-        model.c44=Constraint(model.PL,model.T,rule=chargedischargeESS) #  ESS constraints
-
-        def chargedischargelimit(model,PL):
         
-                return sum( model.I_ESS_ch[PL,T]+model.I_ESS_dch[PL,T] for T in model.T) <=8
         
-        model.c45=Constraint(model.PL,rule=chargedischargelimit) #  ESS constraints
+        def peer_transfer_limit_rule(model, PL, T):
+            return sum(model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL) <= np.maximum(0,
+                                                                                    model.PPV_capacitys[T, PL] -
+                                                                                    model.PLs[T, PL])
 
-
-
-        def load_balance(model, PL, T):
-            return model.PLs[T,PL]+model.P_ESS_ch[PL, T] == model.PPV_capacitys[T,PL] + model.P_buy[PL, T] - model.P_sell[PL, T] + model.P_ESS_dch[PL, T]  + sum(model.P_peer[PL2, PL, T] - model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)
-
-        model.c_balance = Constraint(model.PL, model.T, rule=load_balance)
-
-        def peer_transfer_limit(model, PL,  T):
-                return sum(model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)<= max(0, model.PPV_capacitys[T, PL] - model.PLs[T, PL])
-        model.c_peer = Constraint(model.PL,  model.T, rule=peer_transfer_limit)
-
+        model.c_peer = Constraint(model.PL, model.T, rule=peer_transfer_limit_rule)
+        
     #    def PV_utilization(model, PL, T):
     #        return model.P_PV_ESS[PL, T] + model.P_PV_load[PL, T] == model.PPV_capacitys[T, PL]
 
@@ -199,101 +302,108 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
 
 
 
-        def enforce_battery_soc_limit(model, PL, T):
-            """
-            Prevents battery from discharging below SOC_min.
-            """
-            return model.P_ESS_s[PL, T] - ΔT * model.P_ESS_dch[PL, T] >= model.ESSparams[4,PL]
-        model.c21=Constraint(model.PL,model.T,rule=enforce_battery_soc_limit) 
+        def enforce_battery_soc_limit_rule(model, PL, T):
+            return model.P_ESS_s[PL, T]  >= model.ESSparams[model.ESS1.ord(4), PL]
+
+        model.c21 = Constraint(model.PL, model.T, rule=enforce_battery_soc_limit_rule)
 
 
 
-        def Pbuy11(model,PL,T):
-        
-            return model.P_buy[PL,T]<=200       #(sum(model.Pro_C[PL,NEC]*model.PV_connections[PL,PV]*model.PPV_capacitys[12,PV] for PV in model.PV  for PL in model.PL ))/1  
-    
-        model.c22=Constraint(model.PL,model.T,rule=Pbuy11) 
+        def Pbuy11_rule(model, PL, T):
+            return model.P_buy[PL, T] <= 200
 
-
-        def Psell11(model,PL,T):
-        
-            return model.P_sell[PL,T]<=200      #(sum(model.Pro_C[PL,NEC]*model.PV_connections[PL,PV]*model.PPV_capacitys[12,PV] for PV in model.PV  for PL in model.PL ))/1  
-    
-        model.c23=Constraint(model.PL,model.T,rule=Psell11) 
+        model.c22 = Constraint(model.PL, model.T, rule=Pbuy11_rule)
 
 
 
+        def Psell11_rule(model, PL, T):
+            return model.P_sell[PL, T] <= 200
 
-    # Objective Function
+        model.c23 = Constraint(model.PL, model.T, rule=Psell11_rule)
 
+
+
+        # Objective Function
         def rule_OF(model):
             return sum(
-                (model.Cbuys[t] * model.P_buy[PL, t]  # 
+                (model.Cbuys[t] * model.P_buy[PL, t]
                 - model.Csells[t] * model.P_sell[PL, t])
                 for t in model.T
-                for PL in model.PL  # 
-                )
+                for PL in model.PL
+            )
 
         model.Objective = Objective(rule=rule_OF, sense=minimize)
-
-
-    #    model.c_ESS_PV_only.deactivate()
-
-
+        
+    #      model.c_ESS_PV_only.deactivate()
+        
+        
+        
 
         opt = SolverFactory('gurobi')
-
-
-
-    #opt.options['TimeLimit'] = 100000  # Set a time limit of 300 seconds
-    #opt.options['MIPGap'] = 0.01    # Set a MIP gap tolerance of 1%
+        #opt.options['TimeLimit'] = 100000  # Set a time limit of 300 seconds
+        #opt.options['MIPGap'] = 0.01    # Set a MIP gap tolerance of 1%
         instance=model.create_instance() 
-    # Solve the model
+        # Solve the model
 
-        opt.options['Threads'] = 28       # Use 4 threads (adjust based on your hardware)
+        opt.options['Threads'] = 28       
         opt.options['TimeLimit'] = 60000   # Set a time limit of 600 seconds (10 minutes)
-    #    opt.options['MIPGap'] = 0.00005     # Allow 1% optimality gap
-    #    opt.options['Heuristics'] = 0.3
-    # Solve and measure time
+        #    opt.options['MIPGap'] = 0.00005     # Allow 1% optimality gap
+        #    opt.options['Heuristics'] = 0.3
+        # Solve and measure time
 
         results = opt.solve(instance)
-
-
         results.write()
-        SOC_end_of_day.update({(PL, day): value(instance.P_ESS_s[PL, Thorizon]) for PL in model.PL})
+
+        total_objective_value += value(instance.Objective)
         
-        day_objective_value = value(instance.Objective)
-        total_objective_value += day_objective_value
+        # Prepare results for DataFrame 
+        chunk_results_list = []
+        # for t_index, t in enumerate(model.T):
+        #     for pl_index, pl in enumerate(model.PL):
+        #         chunk_results_list.append({
+        #             "DateTime": datetime_chunk[t_index],
+        #             "Time_Step": chunk_start_time + t_index + 1,  # Corrected time step
+        #             "Prosumer": pl,
+        #             "P_buy": value(instance.P_buy[pl, t]),
+        #             "P_sell": value(instance.P_sell[pl, t]),
+        #             "SOC": value(instance.P_ESS_s[pl, t]),
+        #             "P_ESS_ch": value(instance.P_ESS_ch[pl, t]),
+        #             "P_ESS_dch": value(instance.P_ESS_dch[pl, t]),
+        #             "P_PV": value(instance.PPV_capacitys[t, pl]),
+        #             "P_Peer_out": sum(value(instance.P_peer[pl, pl2, t]) for pl2 in model.PL if pl2 != pl),
+        #             "P_Peer_in": sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl),
+        #             "P_Load": value(instance.PLs[t, pl])
+        #         })
         
-        # Atualizar o progresso a cada dia
-        progress = int((day / days) * 100)  # Calcula o progresso em percentagem
-        optimization_status["progress"] = progress
+    for t_index, t in enumerate(model.T):
+        dt = pd.to_datetime(datetime_chunk[t_index])  # Timestamp
+
+        for pl in model.PL:
+            chunk_row = {
+                "DateTime": dt.isoformat(),
+                "Time_Step": str(chunk_start_time + t_index + 1),
+                "Prosumer": str(prosumersList[pl]),
+                "P_buy": str(value(instance.P_buy[pl, t])),
+                "P_sell": str(value(instance.P_sell[pl, t])),
+                "SOC": str(value(instance.P_ESS_s[pl, t])),
+                "P_ESS_ch": str(value(instance.P_ESS_ch[pl, t])),
+                "P_ESS_dch": str(value(instance.P_ESS_dch[pl, t])),
+                "P_PV_load": str(value(instance.PPV_capacitys[t, pl])),
+                "P_Peer_out": str(sum(value(instance.P_peer[pl, pl2, t]) for pl2 in model.PL if pl2 != pl)),
+                "P_Peer_in": str(sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl)),
+                "P_Load": str(value(instance.PLs[t, pl]))
+            }
+
+            chunk_results_list.append(chunk_row)
 
 
-        for PL in model.PL:
-            for t in model.T:
-                detailed_results.append({
-                    "Day": str(day),
-                    "Time_Step": int(t),
-                    "Prosumer": str(PL),
-                    "P_buy": str(value(instance.P_buy[PL, t])),
-                    "P_sell": str(value(instance.P_sell[PL, t])),
-                    "SOC": str(value(instance.P_ESS_s[PL, t])),
-                    "P_ESS_ch": str(value(instance.P_ESS_ch[PL, t])),
-                    "P_ESS_dch": str(value(instance.P_ESS_dch[PL, t])),
-                    "P_PV_load": str(value(instance.PPV_capacitys[t, PL])),   # Corrigido nome
-                    #"P_PV_ESS": str(value(instance.P_PV_ESS[PL, t])),          # Descomenta e corrige
-                    "P_Peer_out": str(sum(value(instance.P_peer[PL, PL2, t]) for PL2 in model.PL if PL2 != PL)),
-                    "P_Peer_in": str(sum(value(instance.P_peer[PL2, PL, t]) for PL2 in model.PL if PL2 != PL)),
-                    "P_Load": str(value(instance.PLs[t, PL]))
-                })
-
         
-                    
-    #End of optimization algorithm
-    optimization_status["status"] = "completed"
-    optimization_status["progress"] = 100
-    print(optimization_status)
+        # Convert chunk results to DataFrame and append
+        chunk_results_df = pd.DataFrame(chunk_results_list)
+        detailed_results.append(chunk_results_df)
+
+    detailed_results_df = pd.concat(detailed_results, ignore_index=True)
+    detailed_results = detailed_results_df.to_dict(orient="records")
 
     #send data do backen using lib requests
     # Dados a enviar
@@ -324,16 +434,27 @@ async def optimize_excel(file: UploadFile = File(...)):
     return JSONResponse(content=result)
 
 
+app = FastAPI()
+
 @app.post("/run-optimization")
-async def start_optimization(file: UploadFile = File(...)):
-    # Aqui você pode chamar a função de otimização
+async def start_optimization(
+    file: UploadFile = File(...),
+    prosumers: str = Form(...)  # Receber a lista como string JSON via form field
+):
+    # Ler conteúdo do arquivo
     file_content = await file.read()
     file_path = BytesIO(file_content)
 
-    # Execute a otimização de forma assíncrona, por exemplo, em outro thread ou processo
-    run_optimization(file_path)
+    # Converter a string JSON para lista Python
+    prosumers_list = json.loads(prosumers)
+
+    print("Lista de prosumers recebida:", prosumers_list)
+
+    # Chamar função de otimização passando file_path e prosumers_list
+    run_optimization(file_path, prosumers_list)
 
     return {"message": "Optimization started"}
+
 
 @app.get("/optimization-status")
 async def get_optimization_status():
