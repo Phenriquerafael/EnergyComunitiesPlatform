@@ -77,7 +77,7 @@ export default class ProfileController implements IProfileController {
   }
   public async findByProsumerId(req: Request, res: Response, next: NextFunction) {
       try {
-        const profileOrError = await this.profileServiceInstance.findByProsumerId(req.params.userId);
+        const profileOrError = await this.profileServiceInstance.findByProsumerId(req.params.id);
 
         if (profileOrError.isFailure) {
           return res.status(404).json({ message: profileOrError.error });

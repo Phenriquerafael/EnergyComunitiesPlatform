@@ -304,7 +304,7 @@ def run_optimization(file_path: BytesIO) -> BytesIO:
         "detailed_results": detailed_results
     }
 
-    url = "http://localhost:4000/api/profiles/optimize-results"  # corrige o URL conforme já falámos
+    url = "http://localhost:4000/api/profiles/optimize-results" 
 
     try:
         response = requests.post(url, json=data)
@@ -345,7 +345,7 @@ async def start_optimization(
     # Chamar função de otimização passando file_path e prosumers_list
     run_optimization(file_path, prosumers_list)
 
-    return {"message": "Optimization started"}
+    return {"message": "Optimization Data received and processed successfully."}
 
 
 @app.get("/optimization-status")

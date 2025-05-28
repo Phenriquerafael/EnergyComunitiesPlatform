@@ -85,12 +85,13 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
     Cbuy_full = Cbuysell_full[:, 0]
     Csell_full = Cbuysell_full[:, 1]
     ESSparam = df_ess.iloc[:, 1:].to_numpy()
+
         
     #%%
 
     # Define the date range for the simulation
     start_date_str = '01.01.2024 00:00:00'
-    end_date_str = '10.10.2024 23:45:00'
+    end_date_str = '10.02.2024 23:45:00'
 
 
 
@@ -132,6 +133,7 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
     # Calculate ΔT using numpy
     time_diff_seconds = np.diff(datetime_sim).astype('timedelta64[s]').astype(np.float64)
     time_diff_minutes = time_diff_seconds / 60
+    #indices = np.where(time_diff_minutes == 75)[0]
     unique_dt_minutes = np.unique(time_diff_minutes)
     #%%
     # if unique_dt_minutes.size > 1:
@@ -155,7 +157,7 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
     SOC_end_of_previous_period = {pl: ESSparam[3, pl - 1] for pl in range(1, nPlayers + 1)}
     detailed_results = []
     total_objective_value = 0
-    update_interval = 28800  # Update SOC every 288 time steps
+    update_interval = 28800 # Update SOC every 288 time steps
 
     #print(f"Solving for the period from {datetime_sim[0]} to {datetime_sim[-1]}...")
 
@@ -164,11 +166,6 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
 
     #for day in range(days):  # Loop over days 0,1,2,..., days-1
         
-    """ Thorizon = 28800  # Total de tempo em segundos
-    update_interval = 3600  # Intervalo de atualização em segundos
-
-    for chunk_start_time in tqdm(range(0, Thorizon, update_interval), desc="Processing time steps", unit="chunk"):
-    """
     for chunk_start_time in range(0, Thorizon+1, update_interval):
         
         chunk_end_time = min(chunk_start_time + update_interval, Thorizon)
@@ -208,7 +205,15 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
         model.I_ESS_dch = Var(model.PL, model.T, within=Binary)
         model.P_buy = Var(model.PL, model.T, within=NonNegativeReals)
         model.P_sell = Var(model.PL, model.T, within=NonNegativeReals)
+        model.P_sell_grid = Var(model.PL, model.T, within=NonNegativeReals)
+        model.P_buy_grid = Var(model.PL, model.T, within=NonNegativeReals)
         model.P_peer = Var(model.PL, model.PL, model.T, within=NonNegativeReals)
+        model.I_buy= Var(model.PL, model.T, within=Binary)
+        model.I_sell = Var(model.PL, model.T, within=Binary)
+        
+        
+        
+        
         #    model.P_PV = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for charging battery
         #    model.P_PV_load = Var(model.PL, model.T, within=NonNegativeReals)  # PV used for direct load consumption
 
@@ -267,8 +272,8 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
 
 
         def load_balance_rule(model, PL, T):
-            return model.PLs[T, PL] + model.P_ESS_ch[PL, T] == model.PPV_capacitys[T, PL] + model.P_buy[PL, T] - \
-            model.P_sell[PL, T] + model.P_ESS_dch[PL, T] + sum(
+            return model.PLs[T, PL] + model.P_ESS_ch[PL, T] == model.PPV_capacitys[T, PL] + model.P_buy_grid[PL, T] - \
+            model.P_sell_grid[PL, T] + model.P_ESS_dch[PL, T] + sum(
                 model.P_peer[PL2, PL, T] - model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)
 
         model.c_balance = Constraint(model.PL, model.T, rule=load_balance_rule)
@@ -310,24 +315,46 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
 
 
         def Pbuy11_rule(model, PL, T):
-            return model.P_buy[PL, T] <= 200
+            return model.P_buy[PL, T] <= 200* model.I_buy[PL, T]
 
         model.c22 = Constraint(model.PL, model.T, rule=Pbuy11_rule)
 
 
 
+        def Psell_balance(model, PL, T):
+            return model.P_sell[PL, T] == model.P_sell_grid[PL, T]+sum(model.P_peer[PL, PL2, T] for PL2 in model.PL if PL2 != PL)
+
+        model.psellbalance = Constraint(model.PL, model.T, rule=Psell_balance)
+
+
+        def Pbuy_balance(model, PL, T):
+            return model.P_buy[PL, T] == model.P_buy_grid[PL, T]+sum(model.P_peer[PL2, PL, T] for PL2 in model.PL if PL2 != PL)
+
+        model.pbuybalance = Constraint(model.PL, model.T, rule=Pbuy_balance)
+
+
+
         def Psell11_rule(model, PL, T):
-            return model.P_sell[PL, T] <= 200
+            return model.P_sell[PL, T] <= 100* model.I_sell[PL, T]
 
         model.c23 = Constraint(model.PL, model.T, rule=Psell11_rule)
+        
+        
+        def Psellbuy(model, PL, T):
+            return model.I_sell[PL, T]+model.I_buy[PL, T] <= 1
+
+        model.csellbuy = Constraint(model.PL, model.T, rule=Psellbuy)
+        
+        
+        
 
 
 
         # Objective Function
         def rule_OF(model):
             return sum(
-                (model.Cbuys[t] * model.P_buy[PL, t]
-                - model.Csells[t] * model.P_sell[PL, t])
+                (model.Cbuys[t] * model.P_buy_grid[PL, t]
+                - model.Csells[t] * model.P_sell_grid[PL, t])
                 for t in model.T
                 for PL in model.PL
             )
@@ -350,6 +377,9 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
         #    opt.options['MIPGap'] = 0.00005     # Allow 1% optimality gap
         #    opt.options['Heuristics'] = 0.3
         # Solve and measure time
+        
+        
+        
 
         results = opt.solve(instance)
         results.write()
@@ -357,7 +387,7 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
         total_objective_value += value(instance.Objective)
         
         # Prepare results for DataFrame 
-        chunk_results_list = []
+        #chunk_results_list = []
         # for t_index, t in enumerate(model.T):
         #     for pl_index, pl in enumerate(model.PL):
         #         chunk_results_list.append({
@@ -375,35 +405,37 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
         #             "P_Load": value(instance.PLs[t, pl])
         #         })
         
-    for t_index, t in enumerate(model.T):
-        dt = pd.to_datetime(datetime_chunk[t_index])  # Timestamp
+        chunk_results_list = []  # fora do loop
 
-        for pl in model.PL:
-            chunk_row = {
-                "DateTime": dt.isoformat(),
-                "Time_Step": str(chunk_start_time + t_index + 1),
-                "Prosumer": str(prosumersList[pl]),
-                "P_buy": str(value(instance.P_buy[pl, t])),
-                "P_sell": str(value(instance.P_sell[pl, t])),
-                "SOC": str(value(instance.P_ESS_s[pl, t])),
-                "P_ESS_ch": str(value(instance.P_ESS_ch[pl, t])),
-                "P_ESS_dch": str(value(instance.P_ESS_dch[pl, t])),
-                "P_PV_load": str(value(instance.PPV_capacitys[t, pl])),
-                "P_Peer_out": str(sum(value(instance.P_peer[pl, pl2, t]) for pl2 in model.PL if pl2 != pl)),
-                "P_Peer_in": str(sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl)),
-                "P_Load": str(value(instance.PLs[t, pl]))
-            }
+        for t_index, t in enumerate(model.T):
+            dt = pd.to_datetime(datetime_chunk[t_index])
 
-            chunk_results_list.append(chunk_row)
+            for pl in model.PL:
+                chunk_row = {
+                    "DateTime": dt.isoformat(),
+                    "Time_Step": str(chunk_start_time + t_index + 1),
+                    "Prosumer": str(prosumersList[pl]),
+                    "P_buy": str(value(instance.P_buy[pl, t])),
+                    "P_sell": str(value(instance.P_sell[pl, t])),
+                    "SOC": str(value(instance.P_ESS_s[pl, t])),
+                    "P_ESS_ch": str(value(instance.P_ESS_ch[pl, t])),
+                    "P_ESS_dch": str(value(instance.P_ESS_dch[pl, t])),
+                    "P_PV_load": str(value(instance.PPV_capacitys[t, pl])),
+                    "P_Peer_out": str(sum(value(instance.P_peer[pl, pl2, t]) for pl2 in model.PL if pl2 != pl)),
+                    "P_Peer_in": str(sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl)),
+                    "P_Load": str(value(instance.PLs[t, pl]))
+                }
+
+                chunk_results_list.append(chunk_row)
+
+        # Agora só um DataFrame final
+        detailed_results_df = pd.DataFrame(chunk_results_list)
+        detailed_results = detailed_results_df.to_dict(orient="records")
 
 
-        
-        # Convert chunk results to DataFrame and append
-        chunk_results_df = pd.DataFrame(chunk_results_list)
-        detailed_results.append(chunk_results_df)
-
-    detailed_results_df = pd.concat(detailed_results, ignore_index=True)
-    detailed_results = detailed_results_df.to_dict(orient="records")
+    # Convert results to a DataFrame and save to Excel
+    #detailed_results_path = r"detailed_results.xlsx"
+    #detailed_results_df.to_excel(detailed_results_path, index=False)
 
     #send data do backen using lib requests
     # Dados a enviar
@@ -412,11 +444,11 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
         "detailed_results": detailed_results
     }
 
-    url = "http://localhost:4000/api/profiles/optimize-results"  # corrige o URL conforme já falámos
+    url = "http://localhost:4000/api/profiles/optimize-results"  
 
     try:
-        response = requests.post(url, json=data)
-        print(response.status_code, response.text)
+         response = requests.post(url, json=data) 
+         print(response.status_code, response.text) 
     except requests.exceptions.RequestException as e:
         print('Erro ao enviar o pedido:', e)
 
