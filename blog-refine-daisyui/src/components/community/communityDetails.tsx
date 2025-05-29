@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Descriptions, Spin, Select, Button, message, Typography, Divider } from "antd";
-import { useOne, useList, useUpdate } from "@refinedev/core";
+import { useOne, useList, useCustomMutation } from "@refinedev/core";
 
 const { Title } = Typography;
 
@@ -21,7 +21,8 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
     resource: "prosumers/all2",
   });
 
-  const { mutate: updateProsumers, isLoading: isUpdating } = useUpdate();
+  const { mutate: addProsumers, isLoading: isAdding } = useCustomMutation();
+  const { mutate: removeProsumers, isLoading: isRemoving } = useCustomMutation();
 
   const onAddProsumers = () => {
     if (selectedProsumersToAdd.length === 0) {
@@ -34,9 +35,10 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       prosumers: selectedProsumersToAdd.map((prosumerId) => ({ prosumerId })),
     };
 
-    updateProsumers(
+    addProsumers(
       {
-        resource: "prosumers/addToCommunity",
+        url: "prosumers/addToCommunity",
+        method: "patch",
         values: payload,
       },
       {
@@ -62,9 +64,10 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       prosumers: selectedProsumersToRemove.map((prosumerId) => ({ prosumerId })),
     };
 
-    updateProsumers(
+    removeProsumers(
       {
-        resource: "prosumers/removeFromCommunity",
+        url: "prosumers/removeFromCommunity",
+        method: "patch",
         values: payload,
       },
       {
@@ -115,7 +118,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       <Button
         danger
         onClick={onRemoveProsumers}
-        loading={isUpdating}
+        loading={isRemoving}
         disabled={selectedProsumersToRemove.length === 0}
         style={{ marginBottom: 24 }}
       >
@@ -143,7 +146,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       <Button
         type="primary"
         onClick={onAddProsumers}
-        loading={isUpdating}
+        loading={isAdding}
         disabled={selectedProsumersToAdd.length === 0}
       >
         Add Selected Prosumers

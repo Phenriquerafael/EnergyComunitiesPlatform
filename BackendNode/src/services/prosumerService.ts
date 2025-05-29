@@ -9,6 +9,7 @@ import { Battery } from "../domain/Prosumer/Battery.ts/Battery";
 import IBatteryRepo from "../repos/IRepos/IBatteryRepo";
 import IUserRepo from "../repos/IRepos/IUserRepo";
 import ICommunityRepo from "../repos/IRepos/ICommunityRepo";
+import { Community } from "../domain/Community/Community";
 
 @Service()
 export default class ProsumerService implements IProsumerService {
@@ -237,9 +238,14 @@ export default class ProsumerService implements IProsumerService {
                     }
                     const prosumerDomain = prosumerOrError.getValue();
                     prosumerDomain.community = (await this.communityRepo.findById(communityId)).getValue();
-                    return this.prosumerRepo.save(prosumerDomain);
+                    const saveResult = await this.prosumerRepo.save(prosumerDomain);
+                    if (saveResult.isFailure) {
+                        return Result.fail<void>(`Error saving prosumer with ID ${prosumer.prosumerId} to community`);
+                    }
+                    
                 })
             );
+            return Result.ok<void>();
 
         } catch (error) {
             console.log("Error adding prosumers to community: ", error);
@@ -267,10 +273,15 @@ export default class ProsumerService implements IProsumerService {
                         return Result.fail<void>(`Prosumer with ID ${prosumer.prosumerId} doesn't exist`);
                     }
                     const prosumerDomain = prosumerOrError.getValue();
-                    prosumerDomain.community = undefined;
-                    return this.prosumerRepo.save(prosumerDomain);
+                    prosumerDomain.community = undefined; // Remove community association
+                    const saveResult = await this.prosumerRepo.save(prosumerDomain);
+                    if (saveResult.isFailure) {
+                        return Result.fail<void>(`Error saving prosumer with ID ${prosumer.prosumerId} after removing from community`);
+                    }
+                    
                 })
             );
+            return Result.ok<void>();
 
         } catch (error) {
             console.log("Error removing prosumers from community: ", error);

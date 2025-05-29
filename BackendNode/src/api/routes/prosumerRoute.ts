@@ -76,29 +76,29 @@ export default (app: Router) => {
     route.patch(
         '/addToCommunity',
         celebrate({
-            body: Joi.array().items(
-                Joi.object({
-                    communityId: Joi.string().required(),
-                    prosumers: Joi.object({
+            body: Joi.object({
+                communityId: Joi.string().required(),
+                prosumers: Joi.array().items(
+                    Joi.object({
                         prosumerId: Joi.string().required(),
                     })
-                })
-            ),
+                ).required()
+            }),
         }),
         (req, res, next) => ctrl.addToCommunity(req, res, next)
     );
 
-    route.delete(
+    route.patch(
         '/removeFromCommunity',
         celebrate({
-            body: Joi.array().items(
-                Joi.object({
-                    communityId: Joi.string().required(),
-                    prosumers: Joi.object({
+            body: Joi.object({
+                communityId: Joi.string().required(),
+                prosumers: Joi.array().items(
+                    Joi.object({
                         prosumerId: Joi.string().required(),
                     })
-                })
-            ),
+                ).required()
+            }),
         }),
         (req, res, next) => ctrl.removeFromCommunity(req, res, next)
     );

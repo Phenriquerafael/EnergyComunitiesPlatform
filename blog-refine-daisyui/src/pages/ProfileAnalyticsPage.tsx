@@ -3,7 +3,7 @@ import { Card, Row, Col, Descriptions, Select, DatePicker } from "antd";
 import { Line } from "@ant-design/plots";
 import { useList } from "@refinedev/core";
 import { IProsumerDataDTO, ProfileDTO } from "../interfaces";
-import { format, startOfHour, startOfDay, parse, isValid, isWithinInterval } from "date-fns";
+import { format, startOfHour, startOfDay, parse, isValid, isWithinInterval, } from "date-fns";
 import type { RangePickerProps } from "antd/es/date-picker";
 // Removed invalid import of RangeValue
 
@@ -63,7 +63,10 @@ export const ProfileAnalyticsPage = () => {
     }
 
     const start = startOfDay(dateRange[0] ? dateRange[0].toDate() : undefined as any);
-    const end = startOfDay(dateRange[1] ? dateRange[1].toDate() : undefined as any);
+    const end = new Date(startOfDay(dateRange[1]?.toDate() as any));
+    end.setHours(23, 59, 59, 999);
+    console.log("Filtrando profiles entre:", start, "e", end);
+
 
     const filtered = profiles.filter((profile) => {
       if (!profile.date) return false;
@@ -100,45 +103,53 @@ export const ProfileAnalyticsPage = () => {
     return parsedDate;
   };
 
-  const formatDateByResolution = (date: string) => {
-    let parsedDate: Date;
-    try {
-      parsedDate = parseDate(date);
-    } catch (error) {
-      // console.warn("Erro ao parsear date:", date, error);
-      return "Invalid Date";
-    }
 
-    if (timeResolution === "1h") {
-      return format(startOfHour(parsedDate), "yyyy-MM-dd HH:00");
-    } else if (timeResolution === "1d") {
-      return format(startOfDay(parsedDate), "yyyy-MM-dd");
-    }
-    return format(parsedDate, "yyyy-MM-dd HH:mm");
-  };
 
-  const groupProfilesByTime = (profiles: ProfileDTO[]) => {
-    const grouped: Record<string, ProfileDTO[]> = {};
-    for (const profile of profiles) {
-      if (!profile.date) {
-        // console.warn("profile.date ausente:", profile);
-        continue;
-      }
+const formatDateByResolution = (date: string, includeDate:boolean=false) => {
+  let parsedDate: Date;
+  try {
+    parsedDate = parseDate(date);
+  } catch {
+    return "Invalid Date";
+  }
 
-      const key = formatDateByResolution(profile.date);
-      if (key === "Invalid Date") {
-        // console.warn("Ignorando profile devido a data inválida:", profile);
-        continue;
-      }
+  if (timeResolution === "1d") {
+    return format(startOfDay(parsedDate), "yyyy-MM-dd"); // Agrupa por dia
+  } else if (timeResolution === "1h") {
+    return format(startOfHour(parsedDate), "yyyy-MM-dd HH:00"); // Agrupa por hora
+  }
 
-      if (!grouped[key]) {
-        grouped[key] = [];
-      }
-      grouped[key].push(profile);
-    }
-    // console.log("Dados agrupados:", grouped);
-    return grouped;
-  };
+  const time = format(parsedDate, "HH:mm");
+  const day = format(parsedDate, "yyyy-MM-dd");
+  return includeDate ? `${day} ${time}` : time;
+};
+
+
+
+
+const groupProfilesByTime = (profiles: ProfileDTO[]) => {
+  const grouped: Record<string, ProfileDTO[]> = {};
+  let lastDay = "";
+
+  for (const profile of profiles) {
+    if (!profile.date) continue;
+
+    const parsedDate = parseDate(profile.date);
+    const currentDay = format(parsedDate, "yyyy-MM-dd");
+
+    const includeDate = currentDay !== lastDay;
+    const key = formatDateByResolution(profile.date, includeDate);
+    lastDay = currentDay;
+
+    if (key === "Invalid Date") continue;
+
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(profile);
+  }
+
+  return grouped;
+};
+
 
   const generateChartData = () => {
     const grouped = groupProfilesByTime(filteredProfiles);
@@ -214,7 +225,7 @@ export const ProfileAnalyticsPage = () => {
       title: { text: `Time (${timeResolution})` },
       label: { rotate: 45 },
     },
-    yAxis: {
+    yAxis: { 
       title: { text: "Value (kWh)" },
     },
     tooltip: {
@@ -340,7 +351,7 @@ export const ProfileAnalyticsPage = () => {
                     <Descriptions.Item label="Energy Bought">{prosumerProfile.boughtEnergyAmount} kWh</Descriptions.Item>
                     <Descriptions.Item label="Energy Sold">{prosumerProfile.soldEnergyAmount} kWh</Descriptions.Item>
                     <Descriptions.Item label="Profile Load">{prosumerProfile.profileLoad} kWh</Descriptions.Item>
-                    <br /><br />
+                    <br/><br/>
                     {averageFields.map((field) => (
                       <Descriptions.Item key={field.key} label={field.label}>
                         {calculateAverage(field.key as keyof ProfileDTO)} kWh

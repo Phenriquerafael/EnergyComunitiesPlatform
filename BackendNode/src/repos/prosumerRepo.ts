@@ -7,48 +7,52 @@ import { ProsumerMap } from "../mappers/ProsumerMap";
 
 @Service()
 export default class ProsumerRepo implements IProsumerRepo {
-    public async save(prosumer: Prosumer): Promise<Result<Prosumer>> {
-        try {
-            // Mapear o Prosumer para o formato de persistência
-            const rawProsumer = ProsumerMap.toPersistence(prosumer);
-            
-            // Verificar se o Prosumer já existe
-            const existingProsumer = await prisma.prosumer.findUnique({
-                where: { id: prosumer.id.toString() },
-            });
-            
-            let savedProsumer;
-            if (!existingProsumer) {
-                // Criar novo Prosumer
-                savedProsumer = await prisma.prosumer.create({
-                    data: rawProsumer,
-                    include: {
-                        user: true, // Incluir o User para o mapeamento
-                        battery: true, // Incluir a Battery para o mapeamento
-                        community: rawProsumer.community ?? undefined
-                    },
-                });
-            } else {
-                // Atualizar Prosumer existente
-                savedProsumer = await prisma.prosumer.update({
-                    where: { id: prosumer.id.toString() },
-                    data: rawProsumer,
-                    include: {
-                        user: true, // Incluir o User para o mapeamento
-                        battery: true, // Incluir a Battery para o mapeamento
-                        community: rawProsumer.community ?? undefined
-                    },
-                });
-            }
-            
-            return Result.ok<Prosumer>(savedProsumer);
-            
-        } catch (error) {
-            console.log("Error saving prosumer: ", error);
-            return Result.fail<Prosumer>("Error saving prosumer");
-            
-        }
+public async save(prosumer: Prosumer): Promise<Result<Prosumer>> {
+  try {
+    const rawProsumer = ProsumerMap.toPersistence(prosumer);
+
+    const existingProsumer = await prisma.prosumer.findUnique({
+      where: { id: prosumer.id.toString() },
+    });
+
+    let savedProsumer;
+    const prismaData = {
+      batteryId: rawProsumer.batteryId,
+      userId: rawProsumer.userId,
+      communityId: rawProsumer.communityId ?? null,
+    };
+
+    if (!existingProsumer) {
+      savedProsumer = await prisma.prosumer.create({
+        data: {
+          id: rawProsumer.id,
+          ...prismaData,
+        },
+        include: {
+          user: true,
+          battery: true,
+          community: true,
+        },
+      });
+    } else {
+      savedProsumer = await prisma.prosumer.update({
+        where: { id: prosumer.id.toString() },
+        data: prismaData,
+        include: {
+          user: true,
+          battery: true,
+          community: true,
+        },
+      });
     }
+
+    return Result.ok<Prosumer>(savedProsumer);
+  } catch (error) {
+    console.log("Error saving prosumer: ", error);
+    return Result.fail<Prosumer>("Error saving prosumer");
+  }
+}
+
     public async findById(id: string): Promise<Result<Prosumer>> {
         try {
             const rawProsumer = await prisma.prosumer.findUnique({
