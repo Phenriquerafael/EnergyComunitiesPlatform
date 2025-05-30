@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Descriptions, Spin, Select, Button, message, Typography, Divider } from "antd";
 import { useOne, useList, useCustomMutation } from "@refinedev/core";
+import ProsumerTableBody from "../prosumers/prosumerTableBody";
 
 const { Title } = Typography;
 
@@ -17,8 +18,12 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
     id: communityId,
   });
 
-  const { data: prosumerData, isLoading: isProsumersLoading } = useList({
+  const { data: prosumerData, isLoading: isProsumersLoading,refetch } = useList({
     resource: "prosumers/all2",
+  });
+
+  const { data: communityProsumersData, isLoading: isCommunityProsumersLoading, refetch: refetchCommunityProsumers } = useList({
+    resource: `prosumers/community/${communityId}`,
   });
 
   const { mutate: addProsumers, isLoading: isAdding } = useCustomMutation();
@@ -45,6 +50,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         onSuccess: () => {
           message.success("Prosumers added successfully!");
           setSelectedProsumersToAdd([]);
+          refetch(); // Refresh the prosumer list after adding
         },
         onError: () => {
           message.error("Failed to add prosumers.");
@@ -74,6 +80,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         onSuccess: () => {
           message.success("Prosumers removed successfully!");
           setSelectedProsumersToRemove([]);
+          refetch(); // Refresh the prosumer list after removing
         },
         onError: () => {
           message.error("Failed to remove prosumers.");
@@ -87,7 +94,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
   }
 
   const community = data?.data;
-  const prosumersInCommunity = prosumerData?.data.filter((p) => p.communityId === communityId);
+  const prosumersInCommunity = communityProsumersData?.data.filter((p) => p.communityId === communityId);
   const prosumersNotInCommunity = prosumerData?.data.filter((p) => p.communityId !== communityId);
 
   return (
@@ -100,6 +107,10 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       <Divider />
 
       <Title level={4}>Prosumers in this Community</Title>
+
+      <ProsumerTableBody 
+        prosumers={communityProsumersData?.data ?? []}
+      ></ProsumerTableBody>
 
       <Select
         mode="multiple"

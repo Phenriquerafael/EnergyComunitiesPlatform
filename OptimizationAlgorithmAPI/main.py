@@ -13,7 +13,7 @@ import os
 from pyomo.environ import value
 
 #libs do FastAPI
-from fastapi import FastAPI, Form, UploadFile, File
+from fastapi import FastAPI, Form, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 import pandas as pd
 from io import BytesIO
@@ -22,6 +22,8 @@ from typing import List
 import requests
 
 from fastapi.middleware.cors import CORSMiddleware
+
+
 
 app = FastAPI()
 
@@ -43,7 +45,8 @@ optimization_status = {
 }
 
 
-def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
+def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date_str) -> BytesIO:
+#print("\n\n\ndates: "+start_date_str, end_date_str)
     
     all_data = pd.read_excel(file_path, sheet_name=None)
 
@@ -90,9 +93,11 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
     #%%
 
     # Define the date range for the simulation
-    start_date_str = '01.01.2024 00:00:00'
-    end_date_str = '10.02.2024 23:45:00'
-
+    if(start_date_str is None):start_date_str = '01.01.2024 00:00:00'
+    if(end_date_str is None):end_date_str = '10.02.2024 23:45:00'
+    
+    #start_date_str = '01.01.2024 00:00:00'
+    #end_date_str = '10.02.2024 23:45:00'
 
 
     # print(f"Default Start Date: {start_date_str}")
@@ -157,7 +162,8 @@ def run_optimization(file_path: BytesIO, prosumersList) -> BytesIO:
     SOC_end_of_previous_period = {pl: ESSparam[3, pl - 1] for pl in range(1, nPlayers + 1)}
     detailed_results = []
     total_objective_value = 0
-    update_interval = 28800 # Update SOC every 288 time steps
+
+    update_interval = int(days/10);  #= 28800 # Update SOC every 288 time steps
 
     #print(f"Solving for the period from {datetime_sim[0]} to {datetime_sim[-1]}...")
 
@@ -471,21 +477,28 @@ app = FastAPI()
 @app.post("/run-optimization")
 async def start_optimization(
     file: UploadFile = File(...),
-    prosumers: str = Form(...)  # Receber a lista como string JSON via form field
+    prosumers: str = Form(...),  # Receber a lista como string JSON via form field
+    start_date_str: str = Form(...),  # Receber a data de início como string
+    end_date_str: str = Form(...),  # Receber a data de fim como string
 ):
     # Ler conteúdo do arquivo
     file_content = await file.read()
     file_path = BytesIO(file_content)
 
-    # Converter a string JSON para lista Python
-    prosumers_list = json.loads(prosumers)
+    try:
+        prosumers_list = json.loads(prosumers)
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid prosumers JSON: {str(e)}")
 
-    print("Lista de prosumers recebida:", prosumers_list)
+    # Log for debugging
+    print("Received prosumers list:", prosumers_list)
+    print("Start date:", start_date_str)
+    print("End date:", end_date_str)
 
-    # Chamar função de otimização passando file_path e prosumers_list
-    run_optimization(file_path, prosumers_list)
+    # Call run_optimization
+    result = run_optimization(file_path, prosumers_list, start_date_str, end_date_str)
 
-    return {"message": "Optimization started"}
+    return {"message": "Optimization started", "result": result}
 
 
 @app.get("/optimization-status")

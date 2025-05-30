@@ -4,9 +4,10 @@ import { useList, useCreate, useUpdate } from "@refinedev/core";
 
 interface CommunityFormProps {
   userId: string;
+  onSuccess?: () => void; // callback para notificar sucesso
 }
 
-const CommunityForm: React.FC<CommunityFormProps> = ({ userId }) => {
+const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
   const [form] = Form.useForm();
   const [selectedProsumers, setSelectedProsumers] = useState<string[]>([]);
 
@@ -30,6 +31,7 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId }) => {
       {
         onSuccess: (communityResponse) => {
           const newCommunity = communityResponse.data;
+
           createCommunityManager(
             {
               resource: "communityManager",
@@ -40,90 +42,80 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId }) => {
             },
             {
               onSuccess: () => {
-                message.success("Comunidade criada com sucesso!");
+                message.success("Community created successfully!");
+                onSuccess?.(); // Notifica o componente pai
               },
               onError: () => {
-                message.error("Erro ao criar o gerente da comunidade.");
+                message.error("Error assigning community manager.");
               },
             }
           );
-            if (selectedProsumers.length > 0) {
+
+          if (selectedProsumers.length > 0) {
             const payload = {
               communityId: newCommunity.id,
               prosumers: selectedProsumers.map((prosumerId: string) => ({
-              prosumerId,
+                prosumerId,
               })),
             };
 
             updateProsumers(
               {
-              resource: "prosumers/addToCommunity",
-              values: payload,
+                resource: "prosumers/addToCommunity",
+                values: payload,
               },
               {
-              onSuccess: () => {
-                message.success("Prosumer(s) atualizado(s) com sucesso!");
-              },
-              onError: () => {
-                message.error("Erro ao atualizar os prosumers.");
-              },
+                onSuccess: () => {
+                  message.success("Prosumers assigned to community successfully!");
+                },
+                onError: () => {
+                  message.error("Failed to assign prosumers.");
+                },
               }
             );
-            }
+          }
         },
         onError: () => {
-          message.error("Erro ao criar a comunidade.");
+          message.error("Failed to create community.");
         },
       }
     );
   };
 
-  if (isProsumersLoading) {
-    return <Spin />;
-  }
+  if (isProsumersLoading) return <Spin />;
 
   return (
     <Form form={form} layout="vertical" onFinish={onFinish}>
       <Form.Item
-        label="Nome da Comunidade"
+        label="Community Name"
         name="name"
-        rules={[{ required: true, message: "Por favor, insira o nome da comunidade." }]}
+        rules={[{ required: true, message: "Please enter the community name." }]}
       >
         <Input />
       </Form.Item>
-      <Form.Item label="Descrição" name="description">
+
+      <Form.Item label="Description" name="description">
         <Input.TextArea rows={4} />
       </Form.Item>
-      <Form.Item label="Selecionar Prosumer">
+
+      <Form.Item label="Assign Prosumers">
         <Select
           mode="multiple"
-          placeholder="Select a prosumer"
+          placeholder="Select prosumers"
           style={{ width: "100%" }}
           loading={isProsumersLoading}
-          onChange={(id) => {
-        const selected = prosumerData?.data.find((p) => p.id === id);
-        setSelectedProsumers(selected ? [selected] : []);
-          }}
-          optionLabelProp="label"
+          onChange={(values) => setSelectedProsumers(values)}
+          value={selectedProsumers}
           options={prosumerData?.data.map((p) => ({
-        value: p.id,
-        label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ? `Email: ${p.email}` : ''}${p.batteryName ? ` -  Battery: ${p.batteryName}` : ''}${p.communityName ? ` -  Community: ${p.communityName}` : ''}`,
-        render: () => (
-          <div style={{ display: "flex", flexDirection: "column", fontSize: 12 }}>
-            <strong>{p.userName ?? `Prosumer ${p.id}`}</strong>
-            <div style={{ color: "#666", fontSize: 12 }}>
-          {p.email && <span>Email: {p.email}</span>}
-          {p.batteryName && <span> | Battery: {p.batteryName}</span>}
-          {p.communityName && <span> | Community: {p.communityName}</span>}
-            </div>
-          </div>
-        ),
+            value: p.id,
+            label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ''} ${p.batteryName ? ` - Battery: ${p.batteryName}` : ''} ${p.communityName ? ` - Community: ${p.communityName}` : ''}`,
           }))}
         />
       </Form.Item>
+
       <Form.Item>
-        <Button type="primary" htmlType="submit" loading={isCreatingCommunity}>
-          Criar Comunidade
+        <Button type="primary" htmlType="submit" loading={isCreatingCommunity || isUpdating}>
+          Create Community
         </Button>
       </Form.Item>
     </Form>

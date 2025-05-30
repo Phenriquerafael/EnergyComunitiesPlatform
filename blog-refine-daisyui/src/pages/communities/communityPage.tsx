@@ -1,52 +1,76 @@
 import React, { useEffect, useState } from "react";
-import { Card, Spin } from "antd";
-import { useList, useOne } from "@refinedev/core";
+import { Card, Spin, Button } from "antd";
+import { useList } from "@refinedev/core";
 import CommunityDetails from "../../components/community/communityDetails";
 import CommunityForm from "../../components/community/communityForm";
-import { authProvider } from "../../authProvider";
-import { ICommunityDTO, ICommunityManagerDTO, IUserDTO } from "../../interfaces";
 
+import { authProvider } from "../../authProvider";
+import { ICommunityDTO, IUserDTO } from "../../interfaces";
+import AlgorithmUploadSection from "../../components/Algorithms/algorithmSelection";
 
 export const CommunityManagerPage = () => {
-  const [user, setUserId] = useState<IUserDTO | null>(null);
-  const [communityId, setCommunityId] = useState<string | null>(null);
+  const [user, setUser] = useState<IUserDTO | null>(null);
+  const [selectedCommunityId, setSelectedCommunityId] = useState<string | null>(null);
+  const [showCommunityForm, setShowCommunityForm] = useState(false);
 
-// Obtenção do userId atual usando o authProvider do refine
-useEffect(() => {
-    const fetchUserId = async () => {
-        const  user   = await authProvider.getIdentity?.() as IUserDTO;
-        setUserId(user || null);
+  // Buscar o utilizador autenticado
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await authProvider.getIdentity?.() as IUserDTO;
+      setUser(user || null);
     };
-    fetchUserId();
-}, []);
+    fetchUser();
+  }, []);
 
-  // Busca o CommunityManager associado ao userId
-  const { data: communityManagerData, isLoading: isCommunityManagerLoading } = useList<ICommunityManagerDTO>({
-    resource: user?.id ?`communityManager/user/${user.id }`:"",
-
-    queryOptions: {
-      enabled: !!user?.id ,
-    },
+  // Obter todas as comunidades
+  const { data: communitiesData, isLoading: isCommunitiesLoading } = useList<ICommunityDTO>({
+    resource: "communities/all",
+    queryOptions: { enabled: !!user },
   });
 
-  useEffect(() => {
-    if (communityManagerData/*  && communityManagerData?.data?.length > 0 */) {
-      console.log("Community Manager Data:", communityManagerData.data);
-      setCommunityId(communityManagerData.data.communityId ?? null);
-    }
-  }, [communityManagerData]);
-
-  if (!user || isCommunityManagerLoading) {
+  if (!user || isCommunitiesLoading) {
     return <Spin />;
   }
 
   return (
-    <Card title="Gestão de Comunidade">
-      {communityId ? (
-        <CommunityDetails communityId={communityId} />
+    <Card title="Community Management">
+      {/* Seletor de comunidade */}
+      <div style={{ marginBottom: 16 }}>
+        <strong>Select a community:</strong>{" "}
+        <select
+          value={selectedCommunityId ?? ""}
+          onChange={(e) => setSelectedCommunityId(e.target.value)}
+          style={{ marginLeft: 8 }}
+        >
+          <option value="">-- Select --</option>
+          {communitiesData?.data.map((community) => (
+            <option key={community.id} value={community.id}>
+              {community.name}
+            </option>
+          ))}
+        </select>
+        <Button
+          type="default"
+          onClick={() => setShowCommunityForm((prev) => !prev)}
+          style={{ marginLeft: 16 }}
+        >
+          {showCommunityForm ? "Hide Create Form" : "Create New Community"}
+        </Button>
+      </div>
+
+      {/* Mostrar detalhes ou formulário */}
+      {selectedCommunityId ? (
+        <CommunityDetails communityId={selectedCommunityId} />
+      ) : showCommunityForm ? (
+        <CommunityForm userId={user.id ?? ""} />
       ) : (
-        <CommunityForm userId={user.id as string} />
+        <p>Please select a community or create a new one.</p>
       )}
+
+      {/* Secção do algoritmo */}
+      <div style={{ marginTop: 32 }}>
+        <AlgorithmUploadSection />
+      </div>
     </Card>
   );
 };
