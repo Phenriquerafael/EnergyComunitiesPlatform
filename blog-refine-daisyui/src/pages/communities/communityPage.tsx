@@ -22,6 +22,14 @@ export const CommunityManagerPage = () => {
     fetchUser();
   }, []);
 
+  // 
+  useEffect(() => {
+  if (showCommunityForm) {
+    setSelectedCommunityId(null);
+  }
+}, [showCommunityForm]);
+
+
   // Obter todas as comunidades
   const { data: communitiesData, isLoading: isCommunitiesLoading } = useList<ICommunityDTO>({
     resource: "communities/all",
@@ -54,7 +62,7 @@ export const CommunityManagerPage = () => {
           onClick={() => setShowCommunityForm((prev) => !prev)}
           style={{ marginLeft: 16 }}
         >
-          {showCommunityForm ? "Hide Create Form" : "Create New Community"}
+          {showCommunityForm ? "Hide Create Form"  : "Create New Community"}
         </Button>
       </div>
 
@@ -62,15 +70,18 @@ export const CommunityManagerPage = () => {
       {selectedCommunityId ? (
         <CommunityDetails communityId={selectedCommunityId} />
       ) : showCommunityForm ? (
-        <CommunityForm userId={user.id ?? ""} />
+
+        <CommunityForm userId={user.id ?? ""} />  
       ) : (
         <p>Please select a community or create a new one.</p>
       )}
 
       {/* Secção do algoritmo */}
-      <div style={{ marginTop: 32 }}>
-        <AlgorithmUploadSection />
-      </div>
+      {selectedCommunityId && (
+        <div style={{ marginTop: 32 }}>
+          <AlgorithmUploadSection />
+        </div>
+      )}
     </Card>
   );
 };

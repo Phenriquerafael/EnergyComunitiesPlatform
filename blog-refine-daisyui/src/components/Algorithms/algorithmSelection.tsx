@@ -6,6 +6,7 @@ interface Algorithm {
   id: string;
   name: string;
   description: string;
+  communityId?: string; // Opcional, se necessário para filtrar por comunidade
 }
 
 const mockAlgorithms: Algorithm[] = [
@@ -35,7 +36,7 @@ const AlgorithmUploadSection: React.FC = () => {
   };
 
   return (
-    <Card title="Run Algorithm with Excel Input">
+    <Card title="Upload Community Data">
       <Form layout="vertical">
         <Form.Item label="Select Algorithm" required>
           <Select

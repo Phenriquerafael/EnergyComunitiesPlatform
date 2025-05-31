@@ -112,56 +112,73 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         prosumers={communityProsumersData?.data ?? []}
       ></ProsumerTableBody>
 
-      <Select
-        mode="multiple"
-        placeholder="Select prosumers to remove"
-        style={{ width: "100%", marginBottom: 16 }}
-        loading={isProsumersLoading}
-        onChange={(values) => setSelectedProsumersToRemove(values)}
-        value={selectedProsumersToRemove}
-        optionLabelProp="label"
-        options={prosumersInCommunity?.map((p) => ({
-          value: p.id,
-          label: p.userName ?? `Prosumer ${p.id}`,
-        }))}
-      />
+      <br />
+      <br />
 
-      <Button
-        danger
-        onClick={onRemoveProsumers}
-        loading={isRemoving}
-        disabled={selectedProsumersToRemove.length === 0}
-        style={{ marginBottom: 24 }}
-      >
-        Remove Selected Prosumers
-      </Button>
+      <div className="flex flex-row gap-60 justify-left items-start">
+          <div>
+          <Title level={4}>Remove Prosumers from Community</Title>
 
+        <Select
+          mode="multiple"
+          placeholder="Select prosumers to remove"
+          style={{ width: "100%", marginBottom: 16 }}
+          loading={isProsumersLoading}
+          onChange={(values) => setSelectedProsumersToRemove(values)}
+          value={selectedProsumersToRemove}
+          optionLabelProp="label"
+          options={prosumersInCommunity?.map((p) => ({
+            value: p.id,
+            label: p.userName ?? `Prosumer ${p.id}`,
+          }))}
+        />
+
+        <Button
+          danger
+          onClick={onRemoveProsumers}
+          loading={isRemoving}
+          disabled={selectedProsumersToRemove.length === 0}
+          style={{ marginBottom: 24 }}
+        >
+          Remove Selected Prosumers
+        </Button>
+
+        </div>
+        
+        <div>
+          <Title level={4}>Add Prosumers to Community</Title>
+
+        <Select
+          mode="multiple"
+          placeholder="Select prosumers to add"
+          style={{ width: "100%", marginBottom: 16 }}
+          loading={isProsumersLoading}
+          onChange={(values) => setSelectedProsumersToAdd(values)}
+          value={selectedProsumersToAdd}
+          optionLabelProp="label"
+          options={prosumersNotInCommunity?.map((p) => ({
+            value: p.id,
+            label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ''}`,
+          }))}
+        />
+
+          <Button
+          type="primary"
+          onClick={onAddProsumers}
+          loading={isAdding}
+          disabled={selectedProsumersToAdd.length === 0}
+        >
+          Add Selected Prosumers
+        </Button>
+
+        </div>
+      </div>
+
+      
       <Divider />
 
-      <Title level={4}>Add Prosumers to Community</Title>
 
-      <Select
-        mode="multiple"
-        placeholder="Select prosumers to add"
-        style={{ width: "100%", marginBottom: 16 }}
-        loading={isProsumersLoading}
-        onChange={(values) => setSelectedProsumersToAdd(values)}
-        value={selectedProsumersToAdd}
-        optionLabelProp="label"
-        options={prosumersNotInCommunity?.map((p) => ({
-          value: p.id,
-          label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ''}`,
-        }))}
-      />
 
-      <Button
-        type="primary"
-        onClick={onAddProsumers}
-        loading={isAdding}
-        disabled={selectedProsumersToAdd.length === 0}
-      >
-        Add Selected Prosumers
-      </Button>
     </>
   );
 };
