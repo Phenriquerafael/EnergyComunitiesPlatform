@@ -13,5 +13,6 @@ export default interface IUserController  {
     getAllUsers(req: Request, res: Response, next: NextFunction);
     updateUser(req: Request, res: Response, next: NextFunction);
     toogleActiveStatus(req: Request, res: Response, next: NextFunction);
+    findUnlinkedUsers(req: Request, res: Response, next: NextFunction);
     
 }

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Descriptions, Spin, Select, Button, message, Typography, Divider } from "antd";
 import { useOne, useList, useCustomMutation } from "@refinedev/core";
 import ProsumerTableBody from "../prosumers/prosumerTableBody";
+import AlgorithmUploadSection from "../Algorithms/algorithmSelection";
+import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
 
 const { Title } = Typography;
 
@@ -117,7 +119,12 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
 
       <div className="flex flex-row gap-60 justify-left items-start">
           <div>
-          <Title level={4}>Remove Prosumers from Community</Title>
+          <Title level={4}>
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <UserMinusIcon style={{ width: 24, height: 24 }} />
+              Remove Prosumers from Community
+            </span>
+          </Title>
 
         <Select
           mode="multiple"
@@ -146,7 +153,12 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         </div>
         
         <div>
-          <Title level={4}>Add Prosumers to Community</Title>
+          <Title level={4}>
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <UserPlusIcon style={{ width: 24, height: 24 }} />
+              Add Prosumers to Community
+            </span>
+          </Title>
 
         <Select
           mode="multiple"
@@ -177,6 +189,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       
       <Divider />
 
+      <AlgorithmUploadSection />
 
 
     </>

@@ -102,4 +102,20 @@ export default class UserRepo implements IUserRepo {
       where: { id: id },
     });
   }
+
+  public async findUnlinkedUsers(): Promise<User[]> {
+    const users = await prisma.user.findMany({
+      where: {
+            isActive: true,
+            Prosumer: null,
+            CommunityManager: null,
+      },
+    });
+    const result: User[] = [];
+    for (const user of users) {
+      const domainUser = (await UserMap.toDomain(user)).getValue();
+      result.push(domainUser);
+    }
+    return result;
+  }
 }

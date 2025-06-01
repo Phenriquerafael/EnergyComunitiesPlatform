@@ -14,6 +14,7 @@ export default interface IUserService  {
   getAllUsers(): Promise<Result<IUserDTO[]>>;
   updateUser(id: string, userDTO: IUserDTO);
   toogleActiveStatus(id: string): Promise<Result<void>>;
+  findUnlinkedUsers(): Promise<Result<IUserDTO[]>>;
   
 
 

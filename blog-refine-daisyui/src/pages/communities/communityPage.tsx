@@ -76,12 +76,7 @@ export const CommunityManagerPage = () => {
         <p>Please select a community or create a new one.</p>
       )}
 
-      {/* Secção do algoritmo */}
-      {selectedCommunityId && (
-        <div style={{ marginTop: 32 }}>
-          <AlgorithmUploadSection />
-        </div>
-      )}
+
     </Card>
   );
 };

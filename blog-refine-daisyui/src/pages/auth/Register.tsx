@@ -1,19 +1,25 @@
 // src/pages/auth/Register.tsx
 import React from "react";
 import { LockOutlined, MailOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Space } from "antd";
-import { useNavigation } from "@refinedev/core";
+import { Button, Form, Input, message, Select, Space } from "antd";
+import { useNavigation, useList } from "@refinedev/core";
 import { UserService } from "../../services/userService";
 import { console } from "inspector";
 import { IUserDTO, IRoleDTO } from "../../interfaces";
 import { roleService } from "../../services/roleService";
 
+
 export const Register: React.FC = () => {
   const { push } = useNavigation();
 
+  const { data: roles } = useList<IRoleDTO>({
+    resource: "roles/all",
+
+  });
+
 const onFinish = async (values: IUserDTO) => {
     try {
-        const role = await roleService.getByName("COMMUNITY_MANAGER") as IRoleDTO;
+        
         
         await UserService.signup({
             firstName: values.firstName,
@@ -21,7 +27,7 @@ const onFinish = async (values: IUserDTO) => {
             email: values.email,
             phoneNumber: values.phoneNumber,
             password: values.password,
-            role: role.id ? role.id : "",
+            role: values.role, 
         });
         message.success("Registration successful");
         push("/signUp");
@@ -50,6 +56,15 @@ const onFinish = async (values: IUserDTO) => {
         <Form.Item name="phoneNumber" label="Phone Number" rules={[{ required: true }]}>
           <Input prefix={<PhoneOutlined />} placeholder="Phone Number" />
         </Form.Item>
+
+        <Form.Item name="role" label="Role" rules={[{ required: true }]}>
+          <Select
+            options={roles?.data.map(role => ({ label: role.name, value: role.id }))}
+            placeholder="Select a role"
+            allowClear
+          />
+        </Form.Item>
+
 
         <Form.Item name="password" label="Password" rules={[{ required: true }]}>
           <Input.Password prefix={<LockOutlined />} placeholder="Password" />

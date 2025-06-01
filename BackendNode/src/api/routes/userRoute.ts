@@ -164,8 +164,12 @@ export default (app: Router) => {
         middlewares.isAuth,
         (req, res, next) => ctrl.updateUser(req, res, next)
     );
+    
+    route.get("/unlinked-users", (req, res, next) => ctrl.findUnlinkedUsers(req, res, next));
 
     route.get("/toogle-active-status/:id", middlewares.isAuth, (req, res, next) => ctrl.toogleActiveStatus(req, res, next));
+
+    
 
 
 };

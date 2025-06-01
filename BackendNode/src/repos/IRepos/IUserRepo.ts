@@ -11,6 +11,7 @@ export default interface IUserRepo extends Repo<User> {
 	/* 	findByResetToken(token: string): Promise<User>; */
 	delete(id: string): Promise<void>;
 	findAll(): Promise<User[]>;
+	findUnlinkedUsers(): Promise<User[]>;
 	/* 	findStaff(): Promise<User[]>; */
 	
 

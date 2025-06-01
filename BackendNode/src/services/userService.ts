@@ -372,4 +372,20 @@ export default class UserService implements IUserService {
     }
   }
 
+  public async findUnlinkedUsers(): Promise<Result<IUserDTO[]>> {
+    try {
+      const users = await this.userRepo.findUnlinkedUsers();
+      if (!users || users.length === 0) {
+        return Result.fail<IUserDTO[]>('No unlinked users found. \nRegister new users to link to a prosumer account.');
+      }
+      const userDTOs = users.map(user => UserMap.toDTO(user) as IUserDTO);
+      return Result.ok<IUserDTO[]>(userDTOs);
+    } catch (error) {
+      this.logger.error('Error fetching unlinked users:', error);
+      return Result.fail<IUserDTO[]>('Error fetching unlinked users: ' + error.message);
+    }
+  }
+
+
+
 }

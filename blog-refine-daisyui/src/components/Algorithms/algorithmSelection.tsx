@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Card, Select, Upload, Button, message, Form } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { CloudArrowUpIcon } from "@heroicons/react/20/solid";
 
 interface Algorithm {
   id: string;
@@ -36,7 +37,15 @@ const AlgorithmUploadSection: React.FC = () => {
   };
 
   return (
-    <Card title="Upload Community Data">
+    <Card
+      title={
+      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <CloudArrowUpIcon style={{ width: 24, height: 24 }} />
+        Upload Community Data
+      </span>
+      }
+    >
+
       <Form layout="vertical">
         <Form.Item label="Select Algorithm" required>
           <Select

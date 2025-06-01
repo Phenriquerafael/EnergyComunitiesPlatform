@@ -137,9 +137,9 @@ export interface ICommunityDTO {
 
 export interface IProsumerDTO {
     id?: string;
-    battery: IBatteryDTO;
-    user: IUserDTO;
-    community?: ICommunityDTO;
+    batteryId: IBatteryDTO;
+    userId: IUserDTO;
+    communityId?: ICommunityDTO;
 }
 
 export interface IProsumerDataDTO {

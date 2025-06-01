@@ -221,4 +221,20 @@ export default class UserController implements IUserController {
       return next(error);
     }
   }
+
+  public async findUnlinkedUsers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.userServiceInstance.findUnlinkedUsers() as Result<IUserDTO[]>;
+
+      if (result.isFailure) {
+        return res.status(400).json({ message: result.error });
+      }
+      const userDTOs = result.getValue();
+
+      return res.status(200).json( userDTOs );
+
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
