@@ -81,6 +81,47 @@ export interface ProfileDTO {
     profileLoad: string;
   }
 
+
+export interface IStorageEfficiency {
+  prosumer: string;
+  efficiency: number;
+}
+
+export interface IP2PEnergyFlow {
+  source: string;
+  target: string;
+  value: number;
+}
+
+export interface ICommunityEnergy {
+  community: string;
+  generated: number;
+  traded: number;
+}
+
+export interface IConsumptionDistribution {
+  intervals: string;
+  count: number;
+}
+
+export interface IProfileCluster {
+  prosumer: string;
+  x: number;
+  y: number;
+}
+
+export interface IGenerationConsumption {
+  date: string;
+  generated: number;
+  consumed: number;
+}
+
+export interface IBoughtVsSold {
+  date: string;
+  bought: number;
+  sold: number;
+}
+
   export interface OptimizationResult {
     Day: string;
     Time_Step: number;

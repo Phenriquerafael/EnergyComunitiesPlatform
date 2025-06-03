@@ -108,13 +108,13 @@ function App() {
                 icon: <ChartBarIcon className="h-4 w-4" />,
               },
             },
-            {
+/*             {
               name: "uploadData",
               list: "/uploadData",
               meta: {
                 icon: <ArrowDownOnSquareIcon className="h-5 w-5 font-bold" />,
               },
-            },
+            }, */
 
             {
               name: "batteries",

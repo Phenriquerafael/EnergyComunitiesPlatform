@@ -31,7 +31,7 @@ export default (app: Router) => {
     );
 
     route.patch(
-        '/',
+        '/:id',
         celebrate({
             body: Joi.object({
                 id: Joi.string().required(),

@@ -11,35 +11,40 @@ import {
 import { ChartTooltip } from './ChartTooltip';
 import { ProfileDTO } from '../../interfaces';
 
-interface ResponsiveAreaChartProps {
+interface StackedAreaChartProps {
   kpi: string;
-  data: ProfileDTO[] | any[];
-  colors: { stroke: string; fill: string } | { stroke: string; fill: string }[];
-  dataKey: string;
+  data: ProfileDTO[];
+  colors: { stroke: string; fill: string }[];
 }
 
-export const ResponsiveAreaChart: React.FC<ResponsiveAreaChartProps> = ({
+export const StackedAreaChart: React.FC<StackedAreaChartProps> = ({
   kpi,
   data,
   colors,
-  dataKey,
 }) => {
-  const color = Array.isArray(colors) ? colors[0] : colors;
-  const formattedData = data.map(item => ({
-    ...item,
-    date: new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      year: 'numeric',
-      day: 'numeric',
-    }).format(new Date(item.date)),
-    value: parseFloat(item[dataKey as keyof ProfileDTO] as string),
-  }));
+  const formattedData = data.reduce((acc, item) => {
+    const existing = acc.find(d => d.date === item.date);
+    if (existing) {
+      existing.generated += parseFloat(item.photovoltaicEnergyLoad);
+      existing.consumed += parseFloat(item.profileLoad);
+    } else {
+      acc.push({
+        date: new Intl.DateTimeFormat('en-US', {
+          month: 'short',
+          year: 'numeric',
+          day: 'numeric',
+        }).format(new Date(item.date)),
+        generated: parseFloat(item.photovoltaicEnergyLoad),
+        consumed: parseFloat(item.profileLoad),
+      });
+    }
+    return acc;
+  }, [] as any[]);
 
   return (
     <ResponsiveContainer height={400}>
       <AreaChart
         data={formattedData}
-        height={400}
         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
       >
         <CartesianGrid strokeDasharray="0 0 0" />
@@ -55,7 +60,7 @@ export const ResponsiveAreaChart: React.FC<ResponsiveAreaChartProps> = ({
           domain={[0, 'dataMax + 10']}
         />
         <Tooltip
-          content={<ChartTooltip kpi={kpi} colors={color} />}
+          content={<ChartTooltip kpi={kpi} colors={colors[0]} />}
           wrapperStyle={{
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             border: '0 solid #000',
@@ -64,11 +69,17 @@ export const ResponsiveAreaChart: React.FC<ResponsiveAreaChartProps> = ({
         />
         <Area
           type="monotone"
-          dataKey="value"
-          stroke={color?.stroke}
-          strokeWidth={3}
-          fill={color?.fill}
-          dot={{ stroke: color?.stroke, strokeWidth: 3 }}
+          dataKey="generated"
+          stackId="1"
+          stroke={colors[0].stroke}
+          fill={colors[0].fill}
+        />
+        <Area
+          type="monotone"
+          dataKey="consumed"
+          stackId="1"
+          stroke={colors[1].stroke}
+          fill={colors[1].fill}
         />
       </AreaChart>
     </ResponsiveContainer>

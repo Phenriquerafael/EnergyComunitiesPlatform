@@ -202,15 +202,15 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
   };
 
   const averageFields = [
-    { label: "Average State of Charge", key: "stateOfCharge" },
-    { label: "Average Energy Charged", key: "energyCharge" },
-    { label: "Average Energy Discharged", key: "energyDischarge" },
-    { label: "Average PV Energy Load", key: "photovoltaicEnergyLoad" },
-    { label: "Average Energy Bought", key: "boughtEnergyAmount" },
-    { label: "Average Energy Sold", key: "soldEnergyAmount" },
-    { label: "Average Peer Output Load", key: "peerOutputEnergyLoad" },
-    { label: "Average Peer Input Load", key: "peerInputEnergyLoad" },
-    { label: "Average Profile Load", key: "profileLoad" },
+    { label: "State of Charge", key: "stateOfCharge" },
+    { label: "Energy Charged", key: "energyCharge" },
+    { label: "Energy Discharged", key: "energyDischarge" },
+    { label: "PV Energy Load", key: "photovoltaicEnergyLoad" },
+    { label: "Energy Bought", key: "boughtEnergyAmount" },
+    { label: "Energy Sold", key: "soldEnergyAmount" },
+    { label: "Peer Output Load", key: "peerOutputEnergyLoad" },
+    { label: "Peer Input Load", key: "peerInputEnergyLoad" },
+    { label: "Profile Load", key: "profileLoad" },
   ];
 
   const chartData = generateChartData();
@@ -334,10 +334,10 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
           {prosumerProfile && (
             <Row gutter={16} style={{ marginTop: 20 }}>
               <Col span={24}>
-                <Card title={`Prosumer ${selectedProsumer?.userName ?? selectedProsumer?.id} – Profile Details`}>
+                <Card title={`Prosumer ${selectedProsumer?.userName ?? selectedProsumer?.id} – Profile Average Details`}>
                   <Descriptions column={2}>
                     <Descriptions.Item label="Prosumer ID">{prosumerProfile.prosumerId}</Descriptions.Item>
-                    <Descriptions.Item label="Day">
+{/*                     <Descriptions.Item label="Day">
                       {formatDateAndTimeSeparately(prosumerProfile.date).day}
                     </Descriptions.Item>
                     <Descriptions.Item label="Time">
@@ -351,7 +351,7 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
                     <Descriptions.Item label="Energy Bought">{prosumerProfile.boughtEnergyAmount} kWh</Descriptions.Item>
                     <Descriptions.Item label="Energy Sold">{prosumerProfile.soldEnergyAmount} kWh</Descriptions.Item>
                     <Descriptions.Item label="Profile Load">{prosumerProfile.profileLoad} kWh</Descriptions.Item>
-                    <br/><br/>
+                    <br/><br/> */}
                     {averageFields.map((field) => (
                       <Descriptions.Item key={field.key} label={field.label}>
                         {calculateAverage(field.key as keyof ProfileDTO)} kWh

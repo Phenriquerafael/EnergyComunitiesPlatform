@@ -2,26 +2,26 @@ import React from "react";
 
 type TKpiCardProps = {
   title: string;
-  total: number | string;
-  trend: number | string;
+  data: any;
   icon: JSX.Element;
   colors: {
     stroke: string;
     fill: string;
   };
-  formatTotal?: (value: number | string) => number | string;
+  formatTotal?: (value: number | string) => typeof value;
 };
 
 export const KpiCard = ({
   title,
-  total,
-  trend,
+  data,
   icon,
   colors,
   formatTotal = (value) => value,
 }: TKpiCardProps) => {
-  const calc = total && trend ? Math.round((Number(trend) / Number(total)) * 100) : 0;
-  const percent = total > trend ? `+${calc}%` : `-${calc}%`;
+  const total = data?.data?.total;
+  const trend = data?.data?.trend;
+  const calc = Math.round((trend / total) * 100);
+  const percent = total > trend ? `+ ${calc}%` : `- ${calc}%`;
   const textColor = total > trend ? "seagreen" : "crimson";
 
   return (
@@ -43,7 +43,7 @@ export const KpiCard = ({
         <span className="mx-1 text-l font-bold" style={{ color: textColor }}>
           {percent}
         </span>
-        since last period
+        since last week
       </div>
     </div>
   );

@@ -1030,22 +1030,7 @@ package "<<agr Community>>"{
     Community --> "1" CommunityManager
 }
 
-package "<<agr MembershipRequest>>" {
-    class MembershipRequest<<entity>><<root>>{}
-    class RequestId<<vo>>{}
-    class ProsumerId<<vo>>{}
-    class CommunityId<<vo>>{}
-    class Status<<vo>>{}
-    class TimeStamp<<vo>>{}
 
-    MembershipRequest --> "1" RequestId
-    MembershipRequest --> "1" ProsumerId
-    MembershipRequest --> "1" CommunityId
-    MembershipRequest --> "1" Status
-    MembershipRequest --> "1" TimeStamp
-    Prosumer --> "1..*" MembershipRequest
-    CommunityManager --> "1..*" MembershipRequest
-}
 
 package "<<agr CommunityEnergyProfile>>" {
     class CommunityEnergyProfile<<entity>><<root>>{}
@@ -1558,13 +1543,6 @@ class Community {
   - communityProsumerIds: String[*]
 }
 
-class MembershipRequest {
-  - requestId: String
-  - prosumerId: String
-  - communityId: String
-  - status: String
-  - timeStamp: TimeStamp
-}
 
 class CommunityEnergyProfile {
   - communityEnergyProfileId: String

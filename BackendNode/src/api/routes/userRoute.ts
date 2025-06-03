@@ -149,16 +149,17 @@ export default (app: Router) => {
 
     route.get("/isAdmin/:id", (req, res, next) => ctrl.isAdmin(req, res, next));
 
-    route.put(
+    route.patch(
         "/update/:id",
         celebrate({
             body: Joi.object({
+                id: Joi.string().required(),
                 firstName: Joi.string().optional(),
                 lastName: Joi.string().optional(),
                 phoneNumber: Joi.string().optional(),
                 email: Joi.string().email().optional(),
                 role: Joi.string().optional(),
-                password: Joi.string().optional(),
+                /* password: Joi.string().optional(), */
             }),
         }),
         middlewares.isAuth,

@@ -199,6 +199,7 @@ export default class UserController implements IUserController {
 
       // Gather the data to update from the request body
       const userDTO: IUserDTO = {
+        id,  // Required field
         firstName: firstName ?? undefined,  // Optional fields
         lastName: lastName ?? undefined,
         phoneNumber: phoneNumber ?? undefined,
@@ -208,7 +209,7 @@ export default class UserController implements IUserController {
       };
 
       // Call the userService's update method to handle the actual update logic
-      const result = await this.userServiceInstance.updateUser(id, userDTO);
+      const result = await this.userServiceInstance.updateUser( userDTO);
 
       // If the update failed, return an error response
       if (result.isFailure) {

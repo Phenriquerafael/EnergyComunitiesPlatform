@@ -5,6 +5,8 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { createBattery, createBatteries, createBatteriesFromExcel } from "../../services/batteryService";
 import {IBatteryDTO} from "../../interfaces";
 import { useCreate } from "@refinedev/core";
+import { id } from "date-fns/locale";
+import { message } from "antd";
 
 export const BatteryCreate = () => {
   const { list } = useNavigation();
@@ -12,6 +14,7 @@ export const BatteryCreate = () => {
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [excelStatus, setExcelStatus] = useState<string | null>(null);
   const [preview, setPreview] = useState<IBatteryDTO[] | null>(null);
+  const { mutate: create } = useCreate();
 
   const {
     refineCore: { onFinish },
@@ -29,13 +32,23 @@ export const BatteryCreate = () => {
     },
   });
 
-  const handleBatteryCreate = async (data: any) => {
-    try {
-      await createBattery(data);
-      list("batteries");
-    } catch (error) {
-      console.error("Erro ao criar bateria:", error);
-    }
+  const handleBatteryCreate = async (data: IBatteryDTO) => {
+
+    create(
+      {
+      resource: "batteries/create",
+      values: data,
+      },
+      {
+      onSuccess: () => {
+        message.success("Battery created successfully!");
+        list("batteries");
+      },
+      onError: (error: any) => {
+        message.error("Failed to create battery: " + error.message);
+      },
+      }
+    );
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

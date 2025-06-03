@@ -324,10 +324,10 @@ export default class UserService implements IUserService {
   }
 
 
-  public async updateUser(id: string, userDTO: IUserDTO): Promise<Result<IUserDTO>> {
+  public async updateUser( userDTO: IUserDTO): Promise<Result<IUserDTO>> {
     try {
       // Check if the user exists
-      const user = await this.userRepo.findById(id);
+      const user = await this.userRepo.findById(userDTO.id);
       if (!user) {
         return Result.fail<IUserDTO>('User not found');
       }

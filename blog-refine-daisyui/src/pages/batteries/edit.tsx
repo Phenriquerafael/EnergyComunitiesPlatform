@@ -3,6 +3,7 @@ import { useNavigation, useResource, useOne, useUpdate } from "@refinedev/core";
 import { useForm } from "@refinedev/react-hook-form";
 import { ArrowLeftIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import {IBatteryDTO} from "../../interfaces";
+import { message } from "antd";
 
 export const BatteryEdit = () => {
   const { list } = useNavigation();
@@ -42,7 +43,11 @@ const handleBatteryUpdate = async (formData: IBatteryDTO) => {
       values: formData, // O body enviado será só este
     },
     {
-      onSuccess: () => list("batteries"),
+      onSuccess: () => {
+        message.success("Battery updated successfully!");
+        list("batteries")
+
+      },
       onError: (error) => console.error("Erro no update:", error),
     }
   );

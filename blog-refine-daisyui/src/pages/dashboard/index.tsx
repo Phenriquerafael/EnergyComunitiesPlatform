@@ -1,113 +1,178 @@
-import React, { useMemo } from "react";
-import { type CrudFilter, useList } from "@refinedev/core";
-import dayjs from "dayjs";
-import Stats from "../../components/dashboard/Stats";
-import { ResponsiveAreaChart } from "../../components/dashboard/ResponsiveAreaChart";
-import { ResponsiveBarChart } from "../../components/dashboard/ResponsiveBarChart";
-import { TabView } from "../../components/dashboard/TabView";
-import { RecentSales } from "../../components/dashboard/RecentSales";
-import type { IChartDatum, TTab } from "../../interfaces";
+import React, { useMemo } from 'react';
+import { TTab } from '../../interfaces';
 
-const filters: CrudFilter[] = [
-  {
-    field: "start",
-    operator: "eq",
-    value: dayjs()?.subtract(7, "days")?.startOf("day"),
-  },
-  {
-    field: "end",
-    operator: "eq",
-    value: dayjs().startOf("day"),
-  },
-];
-
+import { TabView } from '../../components/dashboard/TabView';
+import {
+  profileData,
+  storageEfficiencyData,
+  p2pEnergyFlowData,
+  communityEnergyData,
+  consumptionDistributionData,
+  profileClusterData,
+} from '../../components/dashboard/mockEnergyData';
+import { ResponsiveAreaChart } from '../../components/dashboard/ResponsiveAreaChart';
+import { GroupedBarChart } from '../../components/dashboard/GroupedBarChart';
+import { StorageEfficiencyRadarChart } from '../../components/dashboard/StorageEfficiencyChart';
+import { StackedAreaChart } from '../../components/dashboard/StackedAreaChart';
+import { ResponsiveBarChart } from '../../components/dashboard/ResponsiveBarChart';
+import { HorizontalBarChart } from '../../components/dashboard/HorizontalBarChart';
+import { Histogram } from '../../components/dashboard/Histogram';
+import { ScatterPlot } from '../../components/dashboard/ScatterPlot';
+import { SankeyDiagram } from '../../components/dashboard/SankeyDiagram';
+import { Stats } from '../../components/dashboard/Stats';
+import { RecentSales } from '../../components/dashboard/RecentSimulations';
 export const Dashboard: React.FC = () => {
-  const { data: dailyRevenue } = useList<IChartDatum>({
-    resource: "dailyRevenue",
-    filters,
-  });
-
-  const { data: dailyOrders } = useList<IChartDatum>({
-    resource: "dailyOrders",
-    filters,
-  });
-
-  const { data: newCustomers } = useList<IChartDatum>({
-    resource: "newCustomers",
-    filters,
-  });
-
-  const useMemoizedChartData = (d: any) => {
-    return useMemo(() => {
-      return d?.data?.data?.map((item: IChartDatum) => ({
-        date: new Intl.DateTimeFormat("en-US", {
-          month: "short",
-          year: "numeric",
-          day: "numeric",
-        }).format(new Date(item.date)),
-        value: item?.value,
-      }));
-    }, [d]);
-  };
-
-  const memoizedRevenueData = useMemoizedChartData(dailyRevenue);
-  const memoizedOrdersData = useMemoizedChartData(dailyOrders);
-  const memoizedNewCustomersData = useMemoizedChartData(newCustomers);
-
-  const tabs: TTab[] = [
+  const specificCommunityTabs: TTab[] = [
     {
       id: 1,
-      label: "Daily Revenue",
+      label: 'Battery SoC',
       content: (
         <ResponsiveAreaChart
-          kpi="Daily revenue"
-          data={memoizedRevenueData}
-          colors={{
-            stroke: "rgb(54, 162, 235)",
-            fill: "rgba(54, 162, 235, 0.2)",
-          }}
+          kpi="Battery SoC (%)"
+          data={profileData}
+          dataKey="stateOfCharge"
+          colors={{ stroke: 'rgb(54, 162, 235)', fill: 'rgba(54, 162, 235, 0.2)' }}
         />
       ),
     },
     {
       id: 2,
-      label: "Daily Orders",
+      label: 'Charge/Discharge',
       content: (
-        <ResponsiveBarChart
-          kpi="Daily orders"
-          data={memoizedOrdersData}
-          colors={{
-            stroke: "rgb(255, 159, 64)",
-            fill: "rgba(255, 159, 64, 0.7)",
-          }}
+        <GroupedBarChart
+          kpi="Charge/Discharge (kWh)"
+          data={profileData}
+          colors={[
+            { stroke: 'rgb(54, 162, 235)', fill: 'rgba(54, 162, 235, 0.2)' },
+            { stroke: 'rgb(255, 99, 132)', fill: 'rgba(255, 99, 132, 0.2)' },
+            { stroke: 'rgb(75, 192, 192)', fill: 'rgba(75, 192, 192, 0.2)' },
+            { stroke: 'rgb(255, 159, 64)', fill: 'rgba(255, 159, 64, 0.2)' },
+            { stroke: 'rgb(153, 102, 255)', fill: 'rgba(153, 102, 255, 0.2)' },
+            { stroke: 'rgb(255, 205, 86)', fill: 'rgba(255, 205, 86, 0.2)' },
+          ]}
         />
       ),
     },
     {
       id: 3,
-      label: "New Customers",
+      label: 'Storage Efficiency',
+      content: <StorageEfficiencyRadarChart data={storageEfficiencyData} />,
+    },
+    {
+      id: 4,
+      label: 'Generation vs Consumption',
+      content: (
+        <StackedAreaChart
+          kpi="Energy (kWh)"
+          data={profileData}
+          colors={[
+            { stroke: 'rgb(54, 162, 235)', fill: 'rgba(54, 162, 235, 0.2)' },
+            { stroke: 'rgb(255, 99, 132)', fill: 'rgba(255, 99, 132, 0.2)' },
+          ]}
+        />
+      ),
+    },
+    {
+      id: 5,
+      label: 'Profile Load',
       content: (
         <ResponsiveAreaChart
-          kpi="New customers"
-          data={memoizedNewCustomersData}
-          colors={{
-            stroke: "rgb(76, 175, 80)",
-            fill: "rgba(54, 162, 235, 0.2)",
-          }}
+          kpi="Profile Load (kWh)"
+          data={profileData}
+          dataKey="profileLoad"
+          colors={{ stroke: 'rgb(76, 175, 80)', fill: 'rgba(76, 175, 80, 0.2)' }}
+        />
+      ),
+    },
+    {
+      id: 6,
+      label: 'P2P Energy Flows',
+      content: <SankeyDiagram data={profileData} />,
+    },
+    {
+      id: 7,
+      label: 'P2P Price',
+      content: (
+        <ResponsiveAreaChart
+          kpi="Price ($/kWh)"
+          data={profileData}
+          dataKey="peerOutPrice"
+          colors={{ stroke: 'rgb(153, 102, 255)', fill: 'rgba(153, 102, 255, 0.2)' }}
+        />
+      ),
+    },
+    {
+      id: 8,
+      label: 'Bought vs Sold',
+      content: (
+        <ResponsiveBarChart
+          kpi="Energy (kWh)"
+          data={profileData}
+          dataKey="boughtEnergyAmount"
+          colors={{ stroke: 'rgb(255, 159, 64)', fill: 'rgba(255, 159, 64, 0.7)' }}
+        />
+      ),
+    },
+  ];
+
+  const allCommunitiesTabs: TTab[] = [
+    {
+      id: 1,
+      label: 'Total Energy Generated',
+      content: (
+        <HorizontalBarChart
+          kpi="Generated Energy (kWh)"
+          data={communityEnergyData}
+          dataKey="generated"
+          colors={{ stroke: 'rgb(54, 162, 235)', fill: 'rgba(54, 162, 235, 0.7)' }}
+        />
+      ),
+    },
+    {
+      id: 2,
+      label: 'Total Energy Traded',
+      content: (
+        <HorizontalBarChart
+          kpi="Traded Energy (kWh)"
+          data={communityEnergyData}
+          dataKey="traded"
+          colors={{ stroke: 'rgb(255, 159, 64)', fill: 'rgba(255, 159, 64, 0.7)' }}
+        />
+      ),
+    },
+    {
+      id: 3,
+      label: 'Consumption Distribution',
+      content: (
+        <Histogram
+          kpi="Number of Intervals"
+          data={consumptionDistributionData}
+          colors={{ stroke: 'rgb(76, 175, 80)', fill: 'rgba(76, 175, 80, 0.7)' }}
+        />
+      ),
+    },
+    {
+      id: 4,
+      label: 'Profile Clustering',
+      content: (
+        <ScatterPlot
+          kpi="Profile Clusters"
+          data={profileClusterData}
+          colors={{ stroke: 'rgb(153, 102, 255)', fill: 'rgba(153, 102, 255, 0.7)' }}
         />
       ),
     },
   ];
 
   return (
-    <>
-      <Stats
-        dailyRevenue={dailyRevenue}
-        dailyOrders={dailyOrders}
-        newCustomers={newCustomers}
-      />
-      <TabView tabs={tabs} />
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Energy Community Dashboard</h1>
+      <Stats profileData={profileData} />
+      <h2 className="text-xl font-semibold mb-2">Specific Community</h2>
+      <TabView tabs={specificCommunityTabs} />
+      <h2 className="text-xl font-semibold mb-2 mt-8">All Communities</h2>
+      <TabView tabs={allCommunitiesTabs} />
       <RecentSales />
-    </>
+    </div>
   );
 };

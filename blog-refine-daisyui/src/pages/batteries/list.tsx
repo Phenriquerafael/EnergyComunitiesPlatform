@@ -58,7 +58,7 @@ export const BatteryList = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container bg-base-200">
       <div className="page-header">
         <h1 className="page-title">Batteries</h1>
         <button
@@ -70,7 +70,7 @@ export const BatteryList = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto bg-slate-50 border">
+      <div className="overflow-x-auto bg-base-200 border">
         <div className="flex justify-between items-center m-4">
           <button
             className="btn btn-outline btn-primary btn-sm normal-case font-light"
