@@ -5,6 +5,7 @@ import { useList } from "@refinedev/core";
 import { IProsumerDataDTO, ProfileDTO } from "../interfaces";
 import { format, startOfHour, startOfDay, parse, isValid, isWithinInterval, } from "date-fns";
 import type { RangePickerProps } from "antd/es/date-picker";
+import { simulations } from "../components/dashboard/mockEnergyData";
 // Removed invalid import of RangeValue
 
 const { RangePicker } = DatePicker;
@@ -17,6 +18,14 @@ export const ProfileAnalyticsPage = () => {
   const [dateRange, setDateRange] = useState<RangePickerProps['value']>([null, null]);
   const [minDate, setMinDate] = useState<Date | null>(null);
   const [maxDate, setMaxDate] = useState<Date | null>(null);
+
+  const [selectedSimulation, setSelectedSimulation] = useState(simulations[0]);
+  
+  const simulationOptions = simulations.map((sim, index) => ({
+    label: sim.description,
+    value: index,
+  }));
+  
 
   const { data: prosumerData, isLoading: isProsumersLoading } = useList<IProsumerDataDTO>({
     resource: "prosumers/all2",
@@ -220,7 +229,7 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
     xField: "time",
     yField: "value",
     seriesField: "type",
-    renderer: "svg",
+    renderer: "svg" as const,
     xAxis: {
       title: { text: `Time (${timeResolution})` },
       label: { rotate: 45 },
@@ -262,7 +271,37 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
   };
 
   return (
+    
     <Card title="Profile Analytics">
+        <div className="mb-6">
+            <div>
+              <label className="block text-md font-medium mb-2">Select Simulation</label>
+              <Select
+              className="w-full md:w-1/2"
+              placeholder="Choose a simulation"
+              options={simulationOptions.map((option, idx) => ({
+                ...option,
+                label:
+                selectedSimulation === simulations[idx]
+                  ? simulations[idx].description
+                  : (
+                  <div>
+                    <div>{simulations[idx].description}</div>
+                    <div style={{ fontSize: 12, color: "#888" }}>
+                    {simulations[idx].startDate} - {simulations[idx].endDate}
+                    </div>
+                  </div>
+                  ),
+              }))}
+              value={simulations.indexOf(selectedSimulation)}
+              onChange={(value) => setSelectedSimulation(simulations[value])}
+              />
+            </div>
+
+          <p className="text-sm text-gray-500 mt-2">
+            Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
+          </p>
+        </div>
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={8}>
           <Select

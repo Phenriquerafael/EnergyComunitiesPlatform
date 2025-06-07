@@ -1,0 +1,34 @@
+@startuml post2
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: POST Level 2 
+
+actor "User" as User
+participant "Frontend (React, Refine)" as SPA
+participant "Backend (Node.js API)" as Backend
+participant "PostgreSQL Database" as DB
+
+activate User
+User -> SPA : Asks to create an entity
+activate SPA
+SPA -> User : Requests entity data
+User -> SPA : Inserts requested data
+SPA -> Backend : POST /entity {data}
+activate Backend
+Backend -> DB : Insert entity record
+activate DB
+DB --> Backend : Status code
+deactivate DB
+alt successful case
+    Backend -> SPA : Entity created successfully
+    SPA -> User : Entity is created successfully
+else failure case
+    Backend -> SPA : Entity creation failed
+    SPA -> User : Entity is not created
+end
+deactivate Backend
+deactivate SPA
+
+@enduml

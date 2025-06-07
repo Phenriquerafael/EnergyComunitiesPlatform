@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { Card, Select, Upload, Button, message, Form } from "antd";
+import { Card, Select, Upload, Button, message, Form, DatePicker } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { CloudArrowUpIcon } from "@heroicons/react/20/solid";
+import dayjs, { Dayjs } from "dayjs";
 
 interface Algorithm {
   id: string;
   name: string;
   description: string;
-  communityId?: string; // Opcional, se necessário para filtrar por comunidade
+  communityId?: string;
 }
 
 const mockAlgorithms: Algorithm[] = [
@@ -19,33 +20,51 @@ const mockAlgorithms: Algorithm[] = [
 const AlgorithmUploadSection: React.FC = () => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [features, setFeatures] = useState({
+    battery: false,
+    load: false,
+    photovoltaicLoad: false,
+  });
+
+  const handleFeatureChange = (feature: keyof typeof features, value: boolean) => {
+    setFeatures((prev) => ({ ...prev, [feature]: value }));
+  };
 
   const handleSubmit = () => {
     if (!selectedAlgorithm) {
       message.error("Please select an algorithm.");
       return;
     }
-
     if (!selectedFile) {
       message.error("Please upload an Excel file.");
       return;
     }
+    if (!startDate || !endDate) {
+      message.error("Please select a start and end date.");
+      return;
+    }
 
-    // Simula submissão
     message.success("Data uploaded successfully!");
-    console.log("Submitted:", { selectedAlgorithm, selectedFile });
+    console.log("Submitted:", {
+      selectedAlgorithm,
+      selectedFile,
+      startDate: startDate.format("YYYY-MM-DD"),
+      endDate: endDate.format("YYYY-MM-DD"),
+      features,
+    });
   };
 
   return (
     <Card
       title={
-      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <CloudArrowUpIcon style={{ width: 24, height: 24 }} />
-        Upload Community Data
-      </span>
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <CloudArrowUpIcon style={{ width: 24, height: 24 }} />
+          Upload Community Data
+        </span>
       }
     >
-
       <Form layout="vertical">
         <Form.Item label="Select Algorithm" required>
           <Select
@@ -58,18 +77,76 @@ const AlgorithmUploadSection: React.FC = () => {
           />
         </Form.Item>
 
+        <div className="flex gap-4">
+          <Form.Item label="Start Date" required className="flex-1">
+            <DatePicker
+              value={startDate}
+              onChange={(date) => setStartDate(date)}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+          <Form.Item label="End Date" required className="flex-1">
+            <DatePicker
+              value={endDate}
+              onChange={(date) => setEndDate(date)}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+        </div>
+
+        <Form.Item label="Features">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {([
+              { key: "battery", label: "Battery" },
+              { key: "load", label: "Load" },
+              { key: "photovoltaicLoad", label: "Photovoltaic Load" },
+            ] as const).map(({ key, label }) => (
+              <fieldset
+                key={key}
+                className="border border-base-300 rounded-lg p-4 shadow-sm bg-base-100"
+              >
+                <legend className="font-semibold text-sm mb-2">{label}</legend>
+                <div className="flex items-center gap-4">
+                  <label className="label cursor-pointer">
+                    <input
+                      type="radio"
+                      name={key}
+                      className="radio radio-success"
+                      checked={features[key]}
+                      onChange={() => handleFeatureChange(key, true)}
+                    />
+                    <span className="label-text ml-2">On</span>
+                  </label>
+
+                  <label className="label cursor-pointer">
+                    <input
+                      type="radio"
+                      name={key}
+                      className="radio radio-error"
+                      checked={!features[key]}
+                      onChange={() => handleFeatureChange(key, false)}
+                    />
+                    <span className="label-text ml-2">Off</span>
+                  </label>
+                </div>
+              </fieldset>
+            ))}
+          </div>
+        </Form.Item>
+
+
         <Form.Item label="Upload Excel File" required>
           <Upload
             beforeUpload={(file) => {
               setSelectedFile(file);
-              return false; // impede upload automático
+              return false;
             }}
             maxCount={1}
             accept=".xlsx,.xls"
           >
             <Button icon={<UploadOutlined />}>Select Excel File</Button>
           </Upload>
-          {selectedFile && <p style={{ marginTop: 8 }}>Selected file: {selectedFile.name}</p>}
+          {selectedFile && <p className="mt-2 text-sm">Selected file: {selectedFile.name}</p>}
         </Form.Item>
 
         <Form.Item>

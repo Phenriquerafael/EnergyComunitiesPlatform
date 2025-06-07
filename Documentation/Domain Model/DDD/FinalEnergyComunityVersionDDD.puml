@@ -1,4 +1,4 @@
-@startuml
+@startuml 
 
 hide circle
 hide fields
@@ -11,7 +11,7 @@ skinparam titleFontName Arial Black
 skinparam titleFontColor #f8a978
 skinparam roundcorner 20
 skinparam stereotypeCBackgroundColor ffc5a1
-left to right direction
+top to bottom direction
 
 skinparam class {
 
@@ -21,7 +21,7 @@ BackgroundColor badfdb
 BackgroundColor<<Event>> skyblue
 BackgroundColor<<Service>> Moccasin
 }
-left to right direction
+
 
 package "<<agr Prosumer>>"{
     class Prosumer<<entity>><<root>>{}
@@ -38,6 +38,7 @@ package "<<agr Profile>>"{
 
     }
     class ProfileId<<vo>>{}
+    class Date<<vo>>{}
     class ProfileTimeStamp<<vo>>{}
     class ProfileValue<<vo>>{}  
     note right{
@@ -45,6 +46,7 @@ package "<<agr Profile>>"{
     }
 
     Prosumer --> "1" Profile
+    Profile --> "1" Date
     Profile --> "1" ProfileTimeStamp
     Profile --> "1" ProfileId
     Profile --> "1" ProfileValue
@@ -115,6 +117,7 @@ package "<<agr User>>"{
     class UserEmail<<vo>>{}
     class UserPassword<<vo>>{}
     class UserPhone<<vo>>{}
+    class UserRole<<vo>>{}
 
     User --> "1" UserId
     User --> "1" UserName
@@ -123,6 +126,8 @@ package "<<agr User>>"{
     User --> "1" UserPhone
     Community --> "1" User
     Prosumer --> "1" User
+    User --> "1" UserRole
+    
 }
 
 package "<<agr Administrator>>"{
@@ -133,9 +138,9 @@ package "<<agr Administrator>>"{
    
 }
 
-package "<<agr CommonUser>>"{
-    class CommonUser<<entity>><<root>>{}
-     CommonUser --|> User
+package "<<agr CommunityManager>>"{
+    class CommunityManager<<entity>><<root>>{}
+     CommunityManager --|> User
 }
 
 package "<<agr Photovoltaic Panel>>"{
@@ -168,19 +173,21 @@ package "<<agr Battery(ESS)>>"{
     class BatteryId<<vo>>{}
     class BatteryName<<vo>>{}
     class MaxCapacity<<vo>>{}
-    class EfficiencyCharge<<vo>>{}
-    class EfficiencyDischarge <<vo>>{}
-    class MinimalSOC <<vo>>{}
+    class Efficiency<<vo>>{}
+    class MaxChargeDischarge <<vo>>{}
+    class InitialCapacity <<vo>>{}
+    class TimeStamp <<vo>>{}
 
     Prosumer --> "1" Battery
     Battery --> "1" BatteryId
     Battery --> "1" BatteryName
     Battery --> "1" MaxCapacity
-    Battery --> "1" EfficiencyCharge
-    Battery --> "1" EfficiencyDischarge
-    Battery --> "1" MinimalSOC 
+    Battery --> "1" Efficiency
+    Battery --> "1" MaxChargeDischarge
+    Battery --> "1" InitialCapacity
+    Battery --> "1" TimeStamp 
 
-    note right of MaxCapacity 
+/'     note right of MaxCapacity 
     Represents the Cap values for each ESS.
     end note
 
@@ -195,7 +202,7 @@ package "<<agr Battery(ESS)>>"{
     note right of MinimalSOC
       Could represent a minimum state of charge (not explicitly provided in your data but could be relevant).
     end note
-
+ '/
 
 
 }

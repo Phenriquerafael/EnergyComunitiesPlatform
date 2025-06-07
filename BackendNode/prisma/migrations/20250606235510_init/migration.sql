@@ -44,10 +44,26 @@ CREATE TABLE "Profile" (
     "peerInputEnergyLoad" TEXT NOT NULL,
     "peerInPrice" TEXT,
     "profileLoad" TEXT NOT NULL,
+    "SimulationId" TEXT NOT NULL DEFAULT '',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Simulation" (
+    "id" TEXT NOT NULL,
+    "startDate" TEXT NOT NULL,
+    "endDate" TEXT NOT NULL,
+    "description" TEXT,
+    "profileLoad" BOOLEAN NOT NULL DEFAULT false,
+    "stateOfCharge" BOOLEAN NOT NULL DEFAULT false,
+    "photovoltaicEnergyLoad" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Simulation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -106,13 +122,7 @@ CREATE UNIQUE INDEX "Role_name_key" ON "Role"("name");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Prosumer_batteryId_key" ON "Prosumer"("batteryId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Prosumer_userId_key" ON "Prosumer"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Prosumer_communityId_key" ON "Prosumer"("communityId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Community_name_key" ON "Community"("name");
@@ -128,6 +138,9 @@ ALTER TABLE "User" ADD CONSTRAINT "User_roleId_fkey" FOREIGN KEY ("roleId") REFE
 
 -- AddForeignKey
 ALTER TABLE "Profile" ADD CONSTRAINT "Profile_prosumerId_fkey" FOREIGN KEY ("prosumerId") REFERENCES "Prosumer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Profile" ADD CONSTRAINT "Profile_SimulationId_fkey" FOREIGN KEY ("SimulationId") REFERENCES "Simulation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Prosumer" ADD CONSTRAINT "Prosumer_batteryId_fkey" FOREIGN KEY ("batteryId") REFERENCES "Battery"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

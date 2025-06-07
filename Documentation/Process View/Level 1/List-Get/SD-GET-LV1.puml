@@ -1,0 +1,17 @@
+@startuml get1
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: GET Level 1 
+
+actor "User" as User
+participant "SATCOMM System" as System
+
+activate User
+User -> System : 1 : Requests entity or list
+activate System
+System --> User : 1.1 : Displays entity/list data
+deactivate System
+
+@enduml

@@ -1,24 +1,35 @@
-```plantuml
 @startuml
-    top to bottom direction
-    node localhost as "Localhost:?"{
-        component Browser{
-            component UI
-        }
-        
-    }
-    node server1 as "Server1:??"{
-        component EM as "EnergyManagement"
-        component Auth as "Authentication"
-        component Optimization
-    }
+top to bottom direction
 
-    node server2 as "Server2:?"{
-        component HTTP as "HTTP Server"
-        folder U_I as "UI"
+node localhost as "Localhost:Browser" {
+    component Browser {
+        component UI_Client as "UI (cliente)"
     }
+}
 
-    localhost ---  server2 : http/s
-    localhost ---server1 : http/s
+node frontendServer as "Frontend Server :5137" {
+    component HTTP_Server as "HTTP Server"
+    folder UI_App as "Frontend (React, Refine)"
+}
+
+node backendServer as "Backend Server :4000" {
+    component Backend_API as "Backend (Node.js API)"
+    component Auth as "Authentication Module"
+    component EnergyManagement as "Energy Management"
+}
+
+node optimizationServer as "Optimization Module :8000" {
+    component Optimizer as "Optimizer (Python/R Script)"
+}
+
+database db as "PostgreSQL Database"
+
+' Conexões
+Browser -- HTTP_Server : HTTP Request
+HTTP_Server -- UI_App : Serve UI
+
+Browser -- Backend_API : API Requests (HTTP)
+Backend_API -- Optimizer : REST API (Port 8000)
+Backend_API -- db : SQL Queries
 
 @enduml

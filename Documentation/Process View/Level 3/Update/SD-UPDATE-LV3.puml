@@ -1,0 +1,96 @@
+
+@startuml update3
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: PUT/PATCH Level 3
+
+participant "Frontend (React, Refine)" as SPA
+participant "EnergyManagementAPI" as API
+participant "EntityController" as Controller
+participant "ApplicationService" as Service
+participant "EntityRepo" as Repo
+participant "EntityMap" as Map
+participant "Entity" as Entity
+participant "Persistence" as Pers
+participant "PostgreSQL Database" as DB
+
+activate SPA
+SPA -> API : GET /entities
+activate API
+API -> Controller : GET
+activate Controller
+Controller -> Service : getEntities()
+activate Service
+Service -> Repo : fetchEntities()
+activate Repo
+Repo -> Pers : Query entity list
+activate Pers
+Pers -> DB : Select entity records
+activate DB
+DB --> Pers : Return entity list
+deactivate DB
+Pers --> Repo : Return entities
+deactivate Pers
+Repo --> Service : entities
+deactivate Repo
+Service -> Map : toDTO(entities)
+activate Map
+Map -> Service : entitiesDTO
+deactivate Map
+Service -> Controller : entitiesDTO
+deactivate Service
+Controller -> API : Status code 200
+deactivate Controller
+API -> SPA : Success with entity list
+deactivate API
+SPA --> : Display entity list
+User -> SPA : Selects entity {id}
+SPA -> User : Requests updated data
+User -> SPA : Submits updated data
+SPA -> API : PUT /entity/{id} {data}
+activate API
+API -> Controller : PUT
+activate Controller
+Controller -> Service : updateEntity(id, data)
+activate Service
+Service -> Repo : fetchEntity(id)
+activate Repo
+Repo -> Pers : Query entity data
+activate Pers
+Pers -> DB : Select entity record
+activate DB
+DB --> Pers : Return entity data
+deactivate DB
+Pers --> Repo : Return entity
+deactivate Pers
+Repo --> Service : entity
+deactivate Repo
+Service -> Entity : update(data)
+Service -> Repo : save(entity)
+activate Repo
+Repo -> Pers : Persist updated entity data
+activate Pers
+Pers -> DB : Update entity record
+activate DB
+DB --> Pers : Confirm update
+deactivate DB
+Pers --> Repo : Return success
+deactivate Pers
+Repo --> Service : entity
+deactivate Repo
+Service -> Map : toDTO(entity)
+activate Map
+Map -> Service : entityDTO
+deactivate Map
+Service -> Controller : entityDTO
+deactivate Service
+Controller -> API : Status code 200
+deactivate Controller
+API -> SPA : Success
+deactivate API
+SPA --> : Display success
+deactivate SPA
+
+@enduml

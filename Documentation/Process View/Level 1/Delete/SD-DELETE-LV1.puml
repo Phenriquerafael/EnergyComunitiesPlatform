@@ -1,0 +1,21 @@
+@startuml delete1
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: DELETE Level 1
+
+actor "User" as User
+participant "SATCOMM System" as System
+
+activate User
+User -> System : 1 : Initiates entity deletion process
+activate System
+System --> User : 1.1 : Provides list of entities
+deactivate System
+User -> System : 2 : Selects entity to delete
+activate System
+System --> User : 2.1 : Displays success confirmation or error
+deactivate System
+
+@enduml

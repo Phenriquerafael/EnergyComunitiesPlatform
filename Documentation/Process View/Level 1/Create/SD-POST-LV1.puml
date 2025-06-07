@@ -1,0 +1,22 @@
+
+@startuml post
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: POST Level 1
+
+actor "User" as User
+participant "SATCOMM System" as System
+
+activate User
+User -> System : 1 : Initiates creation process
+activate System
+System --> User : 1.1 : Requests entity data
+deactivate System
+User -> System : 2 : Inserts the requested data
+activate System
+System --> User : 2.1 : Displays success confirmation and entity details
+deactivate System
+
+@enduml

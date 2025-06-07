@@ -1,0 +1,42 @@
+@startuml delete2
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: DELETE Level 2
+
+actor "User" as User
+participant "Frontend (React, Refine)" as SPA
+participant "Backend (Node.js API)" as Backend
+participant "PostgreSQL Database" as DB
+
+activate User
+User -> SPA : Requests to delete an entity
+activate SPA
+SPA -> Backend : GET /entities
+activate Backend
+Backend -> DB : Query entity list
+activate DB
+DB --> Backend : Return entity list
+deactivate DB
+Backend -> SPA : Entity list
+deactivate Backend
+SPA -> User : Displays entity list
+User -> SPA : Selects entity {id}
+SPA -> Backend : DELETE /entity/{id}
+activate Backend
+Backend -> DB : Delete entity record
+activate DB
+DB --> Backend : Status code
+deactivate DB
+alt successful case
+    Backend -> SPA : Entity deleted successfully
+    SPA -> User : Entity is deleted successfully
+else failure case
+    Backend -> SPA : Entity deletion failed
+    SPA -> User : Entity is not deleted
+end
+deactivate Backend
+deactivate SPA
+
+@enduml

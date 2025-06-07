@@ -1,0 +1,33 @@
+
+@startuml GET2
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: GET Level 2
+
+actor "User" as User
+participant "Frontend (React, Refine)" as SPA
+participant "Backend (Node.js API)" as Backend
+participant "PostgreSQL Database" as DB
+
+activate User
+User -> SPA : Requests entity or list
+activate SPA
+SPA -> Backend : GET /entity or /entities
+activate Backend
+Backend -> DB : Query entity/list data
+activate DB
+DB --> Backend : Return data
+deactivate DB
+alt successful case
+    Backend -> SPA : Success with data
+    SPA -> User : Displays entity/list data
+else failure case
+    Backend -> SPA : Failed to retrieve data
+    SPA -> User : Displays error
+end
+deactivate Backend
+deactivate SPA
+
+@enduml

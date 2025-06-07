@@ -7,87 +7,88 @@ import {
   BarsArrowDownIcon,
   BarsArrowUpIcon,
 } from "@heroicons/react/24/outline";
-export const RecentSales = () => {
+
+type Simulation = {
+  startDate: string;
+  endDate: string;
+  description: string;
+  profileLoad: boolean;
+  stateOfCharge: boolean;
+  photovoltaicEnergyLoad: boolean;
+  [key: string]: any;
+};
+
+type RecentSimulationsProps = {
+  data: Simulation[];
+};
+
+export const RecentSimulations: React.FC<RecentSimulationsProps> = ({ data }) => {
   const filterForm: any = useRef(null);
 
-  const columns = useMemo<ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<Simulation>[]>(
     () => [
       {
-        id: "id",
-        accessorKey: "id",
-        header: "Id",
-      },
-      {
-        id: "amount",
-        accessorKey: "amount",
-        header: "Amount",
-        cell: function render({ getValue }) {
-          const amountCur = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-          }).format(getValue() as number);
-
-          return <div>{amountCur}</div>;
+        id: "startDate",
+        accessorKey: "startDate",
+        header: "Start Date",
+        cell: ({ getValue }) => {
+          const date = new Date(getValue() as string);
+          return (
+            <div>
+              {date.toLocaleDateString("en-US")}
+            </div>
+          );
         },
       },
       {
-        id: "orderedBy",
-        accessorKey: "user.fullName",
-        header: "Ordered By",
-      },
-      {
-        id: "gender",
-        accessorKey: "user.gender",
-        header: "Gender",
-      },
-      {
-        id: "tel",
-        accessorKey: "user.gsm",
-        enableSorting: false,
-        header: "Tel",
-      },
-      {
-        id: "deliveryAddress",
-        accessorKey: "adress.text",
-        header: "Delivery Address",
-      },
-      {
-        id: "deliveryStatus",
-        accessorKey: "status.text",
-        header: "Delivery Status",
-        cell: function render({ getValue }) {
-          type TSaleStatusStyleMap = {
-            [key: string]: string;
-          };
-
-          const saleStatusStyleMap: TSaleStatusStyleMap = {
-            Cancelled: "error",
-            Ready: "primary",
-            "On The Way": "info",
-            Pending: "warning",
-            Delivered: "success",
-          };
-
-          const status = getValue() as string;
-          const daisyBadgeClasses = () =>
-            `badge badge-${saleStatusStyleMap[status]}`;
-
-          return <div className={daisyBadgeClasses()}>{status}</div>;
+        id: "endDate",
+        accessorKey: "endDate",
+        header: "End Date",
+        cell: ({ getValue }) => {
+          const date = new Date(getValue() as string);
+          return (
+            <div>
+              {date.toLocaleDateString("en-US")}
+            </div>
+          );
         },
       },
       {
-        id: "createdAt",
-        accessorKey: "createdAt",
-        header: "Created At",
-        cell: function render({ getValue }) {
-          const date = new Intl.DateTimeFormat("en-US", {
-            dateStyle: "short",
-            timeStyle: "short",
-          }).format(new Date(getValue() as string));
-
-          return <div>{date}</div>;
-        },
+        id: "description",
+        accessorKey: "description",
+        header: "Description",
       },
+      {
+        id: "profileLoad",
+        accessorKey: "profileLoad",
+        header: "Profile Load",
+        cell: ({ getValue }) => (
+          <span className={`badge badge-${getValue() ? "error" : "success"}`}>
+            {getValue() ? "Deactivated" : "Activated"}
+          </span>
+        ),
+      },
+      {
+        id: "stateOfCharge",
+        accessorKey: "stateOfCharge",
+        header: "State Of Charge",
+        cell: ({ getValue }) => (
+          <span className={`badge badge-${getValue() ? "error" : "success"}`}>
+            {getValue() ? "Deactivated" : "Activated"}
+          </span>
+        ),
+      },
+      {
+        id: "photovoltaicEnergyLoad",
+        accessorKey: "photovoltaicEnergyLoad",
+        header: "Photovoltaic Energy Load",
+        cell: ({ getValue }) => (
+          <span className={`badge badge-${getValue() ? "error" : "success"}`}>
+            {getValue() ? "Deactivated" : "Activated"}
+          </span>
+        ),
+      },
+
     ],
     [],
   );
@@ -97,13 +98,14 @@ export const RecentSales = () => {
     getHeaderGroups,
     getRowModel,
   } = useTable({
+    data,
+    columns,
     refineCoreProps: {
-      resource: "orders",
+      resource: "simulations",
       pagination: {
         pageSize: 5,
       },
     },
-    columns,
   });
 
   const header = (

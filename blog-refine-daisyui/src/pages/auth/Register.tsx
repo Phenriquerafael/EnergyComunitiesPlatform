@@ -4,7 +4,6 @@ import { LockOutlined, MailOutlined, PhoneOutlined, UserOutlined } from "@ant-de
 import { Button, Form, Input, message, Select, Space } from "antd";
 import { useNavigation, useList } from "@refinedev/core";
 import { UserService } from "../../services/userService";
-import { console } from "inspector";
 import { IUserDTO, IRoleDTO } from "../../interfaces";
 import { roleService } from "../../services/roleService";
 

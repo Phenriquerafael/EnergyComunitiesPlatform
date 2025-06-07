@@ -1,0 +1,46 @@
+```plantuml
+@startuml update2
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: PUT/PATCH Level 2
+
+actor "User" as User
+participant "Frontend (React, Refine)" as SPA
+participant "Backend (Node.js API)" as Backend
+participant "PostgreSQL Database" as DB
+
+activate User
+User -> SPA : Asks to update an entity
+activate SPA
+SPA -> Backend : GET /entities
+activate Backend
+Backend -> DB : Query entity list
+activate DB
+DB --> Backend : Return entity list
+deactivate DB
+Backend -> SPA : Entity list
+deactivate Backend
+SPA -> User : Displays entity list
+User -> SPA : Selects entity {id}
+SPA -> User : Requests updated entity data
+User -> SPA : Submits updated data
+SPA -> Backend : PUT /entity/{id} {data}
+activate Backend
+Backend -> DB : Update entity record
+activate DB
+DB --> Backend : Status code
+deactivate DB
+alt successful case
+    Backend -> SPA : Entity updated successfully
+    SPA -> User : Entity is updated successfully
+else failure case
+    Backend -> SPA : Entity update failed
+    SPA -> User : Entity is not updated
+end
+deactivate Backend
+deactivate SPA
+
+@enduml
+```

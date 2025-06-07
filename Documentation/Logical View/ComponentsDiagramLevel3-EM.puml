@@ -1,10 +1,12 @@
 ```plantuml
 @startuml
     skinparam linetype normal
+    left to right direction
     component EM as "Energy Management" <<Container (C4)>>{
         port p1 as " "
         port p2 as " "
         port p3 as " "
+        
         folder FD as "Frameworks and Drivers Layer"{
             component Routing <<Container (C4)>>
             component Persistence <<Container (C4)>>

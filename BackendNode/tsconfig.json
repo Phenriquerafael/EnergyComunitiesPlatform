@@ -6,6 +6,11 @@
       "./node_modules/@types",
       "./src/types"
     ],
+    "types": [
+      "node",
+      "jest",
+      "mocha"
+    ],
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

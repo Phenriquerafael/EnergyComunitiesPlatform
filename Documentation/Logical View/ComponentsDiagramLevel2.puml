@@ -1,5 +1,6 @@
 ```plantuml
 @startuml
+left to right direction
 component SATCOMM <<Container (C4)>>{
     port p1 as " "
     component View_UI as "View (UI)" <<Container (C4)>>{

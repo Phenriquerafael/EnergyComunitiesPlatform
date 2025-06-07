@@ -9,7 +9,10 @@ import {
   communityEnergyData,
   consumptionDistributionData,
   profileClusterData,
+  simulations,
 } from '../../components/dashboard/mockEnergyData';
+
+import { useState } from 'react';
 import { ResponsiveAreaChart } from '../../components/dashboard/ResponsiveAreaChart';
 import { GroupedBarChart } from '../../components/dashboard/GroupedBarChart';
 import { StorageEfficiencyRadarChart } from '../../components/dashboard/StorageEfficiencyChart';
@@ -20,8 +23,18 @@ import { Histogram } from '../../components/dashboard/Histogram';
 import { ScatterPlot } from '../../components/dashboard/ScatterPlot';
 import { SankeyDiagram } from '../../components/dashboard/SankeyDiagram';
 import { Stats } from '../../components/dashboard/Stats';
-import { RecentSales } from '../../components/dashboard/RecentSimulations';
+import { RecentSimulations } from '../../components/dashboard/RecentSimulations';
+import { Select } from "antd";
+
 export const Dashboard: React.FC = () => {
+  const [selectedSimulation, setSelectedSimulation] = useState(simulations[0]);
+
+const simulationOptions = simulations.map((sim, index) => ({
+  label: sim.description,
+  value: index,
+}));
+
+
   const specificCommunityTabs: TTab[] = [
     {
       id: 1,
@@ -168,11 +181,25 @@ export const Dashboard: React.FC = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Energy Community Dashboard</h1>
       <Stats profileData={profileData} />
+        <div className="mb-6">
+          <label className="block text-md font-medium mb-2">Select Simulation</label>
+          <Select
+            className="w-full md:w-1/2"
+            placeholder="Choose a simulation"
+            options={simulationOptions}
+            value={simulations.indexOf(selectedSimulation)}
+            onChange={(value) => setSelectedSimulation(simulations[value])}
+          />
+          <p className="text-sm text-gray-500 mt-2">
+            Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
+          </p>
+        </div>
+
       <h2 className="text-xl font-semibold mb-2">Specific Community</h2>
       <TabView tabs={specificCommunityTabs} />
       <h2 className="text-xl font-semibold mb-2 mt-8">All Communities</h2>
       <TabView tabs={allCommunitiesTabs} />
-      <RecentSales />
+      <RecentSimulations data= {simulations}/>
     </div>
   );
 };

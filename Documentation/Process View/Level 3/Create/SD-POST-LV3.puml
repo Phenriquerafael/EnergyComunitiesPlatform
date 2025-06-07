@@ -1,0 +1,53 @@
+```plantuml
+@startuml post3
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram:  POST Level 3
+
+participant "Frontend (React, Refine)" as SPA
+participant "EnergyManagementAPI" as API
+participant "EntityController" as Controller
+participant "ApplicationService" as Service
+participant "EntityRepo" as Repo
+participant "EntityMap" as Map
+participant "Entity" as Entity
+participant "Persistence" as Pers
+participant "PostgreSQL Database" as DB
+
+activate SPA
+SPA -> API : POST /entity {data}
+activate API
+API -> Controller : POST
+activate Controller
+Controller -> Service : createEntity(data)
+activate Service
+Service -> Entity : create
+Service -> Repo : save(entity)
+activate Repo
+Repo -> Pers : Persist entity data
+activate Pers
+Pers -> DB : Insert entity record
+activate DB
+DB --> Pers : Confirm insertion
+deactivate DB
+Pers --> Repo : Return success
+deactivate Pers
+Repo --> Service : entity
+deactivate Repo
+Service -> Map : toDTO(entity)
+activate Map
+Map -> Service : entityDTO
+deactivate Map
+Service -> Controller : entityDTO
+deactivate Service
+Controller -> API : Status code 201
+deactivate Controller
+API -> SPA : Success
+deactivate API
+SPA --> : Display success
+deactivate SPA
+
+@enduml
+```

@@ -1,0 +1,51 @@
+
+@startuml get3
+skinparam Monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+
+title Sequence Diagram: Generic GET
+
+participant "Frontend (React, Refine)" as SPA
+participant "EnergyManagementAPI" as API
+participant "EntityController" as Controller
+participant "ApplicationService" as Service
+participant "EntityRepo" as Repo
+participant "EntityMap" as Map
+participant "Entity" as Entity
+participant "Persistence" as Pers
+participant "PostgreSQL Database" as DB
+
+activate SPA
+SPA -> API : GET /entity/{id} or /entities
+activate API
+API -> Controller : GET
+activate Controller
+Controller -> Service : getEntity(id) or getEntities()
+activate Service
+Service -> Repo : fetchEntity(id) or fetchEntities()
+activate Repo
+Repo -> Pers : Query entity/list data
+activate Pers
+Pers -> DB : Select entity/list records
+activate DB
+DB -->Pers : Return data
+deactivate DB
+Pers --> Repo : Return entity/list
+deactivate Pers
+Repo --> Service : entity/list
+deactivate Repo
+Service -> Map : toDTO(entity/list)
+activate Map
+Map -> Service : entityDTO/listDTO
+deactivate Map
+Service -> Controller : entityDTO/listDTO
+deactivate Service
+Controller -> API : Status code 200
+deactivate Controller
+API -> SPA : Success with data
+deactivate API
+SPA --> : Display entity/list
+deactivate SPA
+
+@enduml

@@ -906,7 +906,8 @@ skinparam titleFontName Arial Black
 skinparam titleFontColor #f8a978
 skinparam roundcorner 20
 skinparam stereotypeCBackgroundColor ffc5a1
-left to right direction
+/' left to right direction '/
+top to bottom direction
 
 skinparam class {
 
@@ -916,23 +917,28 @@ BackgroundColor badfdb
 BackgroundColor<<Event>> skyblue
 BackgroundColor<<Service>> Moccasin
 }
-left to right direction
-
-package "<<agr Prosumer>>"{
-    class Prosumer<<entity>><<root>>{}
-    class ProsumerId<<vo>>{}
 
 
-    Prosumer --> "1" ProsumerId
+package "<<agr Simulation>>" {
+  class Simulation <<entity>><<root>> {}
+  class SimulationId <<vo>> {}
+  class StartDate <<vo>> extends Date {}
+  class EndDate <<vo>> extends Date {}
+  class Date <<vo>> {}
 
-    
+  Simulation --> "1" SimulationId
+  Simulation --> "1" StartDate
+  Simulation --> "1" EndDate
+
 }
+
 
 package "<<agr Profile>>"{
     class Profile<<entity>><<root>>{
 
     }
     class ProfileId<<vo>>{}
+    class Date<<vo>>{}
     class ProfileTimeStamp<<vo>>{}
     class ProfileLoad<<vo>>{} 
     class SoldEnergy<<vo>>{}
@@ -940,11 +946,11 @@ package "<<agr Profile>>"{
     class PhotovoltaicEnergyLoad<<vo>>{}
     class StateOfCharge<<vo>>{}
 
-    note right{
+/'     note right{
         Balance of the Prosumer in kw/h, positive values lead to buy energy from the grid
-    }
+    } '/
 
-    Prosumer --> "1" Profile
+    Profile --> "1" Date
     Profile --> "1" ProfileTimeStamp
     Profile --> "1" ProfileId
     Profile --> "1" ProfileLoad
@@ -953,10 +959,12 @@ package "<<agr Profile>>"{
     Profile --> "1" BoughtEnergy
     Profile --> "1" PhotovoltaicEnergyLoad
     Profile --> "1" StateOfCharge
+    Profile --> "1" Prosumer
+    Profile --> "1" Simulation
     
-    note right of ProfileLoad
+/'     note right of ProfileLoad
     Energy required by the user in the interval
-    end note 
+    end note  '/
     
 }
 
@@ -970,31 +978,18 @@ package "<<agr User>>"{
     class UserEmail<<vo>>{}
     class UserPassword<<vo>>{}
     class UserPhone<<vo>>{}
+    class UserRole<<vo>>{}
 
     User --> "1" UserId
     User --> "1" UserName
     User --> "1" UserEmail
     User --> "1" UserPassword
     User --> "1" UserPhone
-    Prosumer --|> "1" User
+    User --> "1" UserRole
+    
 }
 
-package "<<agr Administrator>>"{
-    class Administrator<<entity>><<root>>{
 
-    }
-    class AdminId<<vo>>{}
-
-    Administrator --|> User
-   Administrator--> "1" AdminId
-}
-
-package "<<agr CommunityManager>>"{
-    class CommunityManager<<entity>><<root>>{}
-    class CommunityManagerId <<vo>>
-     CommunityManager --|> User
-     CommunityManager --> "1" CommunityManagerId
-}
 
 
 
@@ -1006,14 +1001,13 @@ package "<<agr Battery(ESS)>>"{
     class Efficiency<<vo>>{}
     class MaxChargeDischarge <<vo>>{}
     
-
-    Prosumer --> "1" Battery
     Battery --> "1" BatteryId
     Battery --> "1" BatteryName
     Battery --> "1" MaxCapacity
     Battery --> "1" Efficiency
     Battery --> "1" MaxChargeDischarge
 }
+
 
 
 package "<<agr Community>>"{
@@ -1027,26 +1021,45 @@ package "<<agr Community>>"{
     Community --> "1" CommunityId
     Community -> "1" CommunityName
     Community --> "1" CommunityProsumerIds
-    Community --> "1" CommunityManager
+    
+    
+
+
 }
 
+package "<<agr Prosumer>>"{
+    class Prosumer<<entity>><<root>>{}
+    class ProsumerId<<vo>>{}
+    Prosumer --|> "1" User
 
+    Prosumer --> "1" ProsumerId
+    Prosumer --> "1" Community
+    Prosumer --> "1" Battery
+    Profile --> "1" Prosumer 
 
-package "<<agr CommunityEnergyProfile>>" {
-    class CommunityEnergyProfile<<entity>><<root>>{}
-    class CommunityEnergyProfileId<<vo>>{}
-    class TimeStamp<<vo>>{}
-    class TotalProduction<<vo>>{}
-    class TotalConsumption<<vo>>{}
-    class SharedEnergy<<vo>>{}
+    
 
-    CommunityEnergyProfile --> "1" CommunityEnergyProfileId
-    CommunityEnergyProfile --> "1" TimeStamp
-    CommunityEnergyProfile --> "1" TotalProduction
-    CommunityEnergyProfile --> "1" TotalConsumption
-    CommunityEnergyProfile --> "1" SharedEnergy
-    Community --> "1..*" CommunityEnergyProfile
+    
 }
+
+package "<<agr CommunityManager>>"{
+    class CommunityManager<<entity>><<root>>{}
+    class CommunityManagerId <<vo>>
+     CommunityManager --|> User
+     CommunityManager --> "1" CommunityManagerId
+     CommunityManager --> "1" Community
+}
+
+package "<<agr Administrator>>"{
+    class Administrator<<entity>><<root>>{
+
+    }
+    class AdminId<<vo>>{}
+
+    Administrator --|> User
+   Administrator--> "1" AdminId
+}
+
 
 @enduml
 
@@ -1096,6 +1109,7 @@ package "<<agr Profile>>"{
 
     }
     class ProfileId<<vo>>{}
+    class Date<<vo>>{}
     class ProfileTimeStamp<<vo>>{}
     class ProfileValue<<vo>>{}  
     note right{
@@ -1103,6 +1117,7 @@ package "<<agr Profile>>"{
     }
 
     Prosumer --> "1" Profile
+    Profile --> "1" Date
     Profile --> "1" ProfileTimeStamp
     Profile --> "1" ProfileId
     Profile --> "1" ProfileValue
@@ -1173,6 +1188,7 @@ package "<<agr User>>"{
     class UserEmail<<vo>>{}
     class UserPassword<<vo>>{}
     class UserPhone<<vo>>{}
+    class UserRole<<vo>>{}
 
     User --> "1" UserId
     User --> "1" UserName
@@ -1181,6 +1197,8 @@ package "<<agr User>>"{
     User --> "1" UserPhone
     Community --> "1" User
     Prosumer --> "1" User
+    User --> "1" UserRole
+    
 }
 
 package "<<agr Administrator>>"{
@@ -1498,14 +1516,17 @@ note right of BatteryEnergy: Charge and discharge constrained by efficiency and 
 skinparam style strictuml
 hide methods
 
-' Classes from DDD aggregates
+' Classes ajustadas segundo o modelo de domínio
+
 class Prosumer {
   - prosumerId: String
+  - community: Community
 }
 
 class Profile {
   - profileId: String
-  - profileTimeStamp: TimeStamp
+  - date: Date
+  - profileTimeStamp: ProfileTimeStamp
   - profileLoad: float
   - soldEnergy: float
   - boughtEnergy: float
@@ -1519,6 +1540,7 @@ class User {
   - userEmail: String
   - userPassword: String
   - userPhone: String
+  - userRole: String
 }
 
 class Administrator {
@@ -1527,6 +1549,7 @@ class Administrator {
 
 class CommunityManager {
   - communityManagerId: String
+  - communiy: Community
 }
 
 class Battery {
@@ -1540,42 +1563,40 @@ class Battery {
 class Community {
   - communityId: String
   - communityName: String
-  - communityProsumerIds: String[*]
+  - communityProsumerIds: List<String>
 }
 
-
-class CommunityEnergyProfile {
-  - communityEnergyProfileId: String
-  - timeStamp: TimeStamp
-  - totalProduction: float
-  - totalConsumption: float
-  - sharedEnergy: float
+class Simulation {
+  - simulationId: String
+  - startDate: Date
+  - endDate: Date
 }
 
-class TimeStamp {
+class Date {
+  - value: String
+}
+
+class ProfileTimeStamp {
   - intervalOfTime: String
   - numberOfIntervals: int
 }
 
-' Relationships
-Prosumer --> "1" Profile
-Prosumer --> "1" Battery
-Prosumer --|> "1" User
-Prosumer --> "1..*" MembershipRequest
+' Relações corrigidas
 
-Profile --> "1" TimeStamp
+Prosumer -->  Battery
+Prosumer -->  Community
+Prosumer --|> User
+
+Profile -->  Prosumer
+Profile -->  Simulation
+Profile -->  ProfileTimeStamp
+Profile --> Date
 
 User <|-- Administrator
 User <|-- CommunityManager
 
-Community --> "1..*" Prosumer
-Community --> "1" CommunityManager
-Community --> "1..*" CommunityEnergyProfile
-CommunityManager --> "1..*" MembershipRequest
-
-CommunityEnergyProfile --> "1" TimeStamp
-
-note right of Profile: Balance of the Prosumer in kW/h, positive values lead to buy energy from the grid
+CommunityManager --> Community
+Simulation --> Date
 
 @enduml
 ```
@@ -1951,26 +1972,40 @@ Model_API -- Domain
 **Level 2**
 ```plantuml
 @startuml
-    top to bottom direction
-    node localhost as "Localhost:?"{
-        component Browser{
-            component UI
-        }
-        
-    }
-    node server1 as "Server1:??"{
-        component EM as "EnergyManagement"
-        component Auth as "Authentication"
-        component Optimization
-    }
+top to bottom direction
 
-    node server2 as "Server2:?"{
-        component HTTP as "HTTP Server"
-        folder U_I as "UI"
+node localhost as "Localhost:Browser" {
+    component Browser {
+        component UI_Client as "UI (cliente)"
     }
+}
 
-    localhost ---  server2 : http/s
-    localhost ---server1 : http/s
+node frontendServer as "Frontend Server :5137" {
+    component HTTP_Server as "HTTP Server"
+    folder UI_App as "Frontend (React, Refine)"
+}
+
+node backendServer as "Backend Server :4000" {
+    component Backend_API as "Backend (Node.js API)"
+    component Auth as "Authentication Module"
+    component EnergyManagement as "Energy Management"
+}
+
+node optimizationServer as "Optimization Module :8000" {
+    component Optimizer as "Optimizer (Python/R Script)"
+}
+
+database db as "PostgreSQL Database"
+
+' Conexões
+Browser -- HTTP_Server : HTTP Request
+HTTP_Server -- UI_App : Serve UI
+
+Browser -- Backend_API : API Requests (HTTP)
+Backend_API -- Optimizer : REST API (Port 8000)
+Backend_API -- db : SQL Queries
 
 @enduml
+
+```
 

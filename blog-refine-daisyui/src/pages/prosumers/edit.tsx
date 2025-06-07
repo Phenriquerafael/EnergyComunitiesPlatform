@@ -61,7 +61,10 @@ export const ProsumerEdit = () => {
           firstName: data.data.userName?.split(" ")[0] ?? "",
           lastName: data.data.userName?.split(" ")[1] ?? "",
           email: data.data.email,
-        }]
+          phoneNumber: "", // Provide a default or fetch if available
+          password: "",    // Provide a default or fetch if available
+          role: "user",    // Provide a sensible default or fetch if available
+        } as IUserDTO]
       : [])
   ];
 

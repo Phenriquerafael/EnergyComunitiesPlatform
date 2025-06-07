@@ -2,14 +2,17 @@
 skinparam style strictuml
 hide methods
 
-' Classes from DDD aggregates
+' Classes ajustadas segundo o modelo de domínio
+
 class Prosumer {
   - prosumerId: String
+  - community: Community
 }
 
 class Profile {
   - profileId: String
-  - profileTimeStamp: TimeStamp
+  - date: Date
+  - profileTimeStamp: ProfileTimeStamp
   - profileLoad: float
   - soldEnergy: float
   - boughtEnergy: float
@@ -23,6 +26,7 @@ class User {
   - userEmail: String
   - userPassword: String
   - userPhone: String
+  - userRole: String
 }
 
 class Administrator {
@@ -31,6 +35,7 @@ class Administrator {
 
 class CommunityManager {
   - communityManagerId: String
+  - communiy: Community
 }
 
 class Battery {
@@ -44,48 +49,39 @@ class Battery {
 class Community {
   - communityId: String
   - communityName: String
-  - communityProsumerIds: String[*]
+  - communityProsumerIds: List<String>
 }
 
-class MembershipRequest {
-  - requestId: String
-  - prosumerId: String
-  - communityId: String
-  - status: String
-  - timeStamp: TimeStamp
+class Simulation {
+  - simulationId: String
+  - startDate: Date
+  - endDate: Date
 }
 
-class CommunityEnergyProfile {
-  - communityEnergyProfileId: String
-  - timeStamp: TimeStamp
-  - totalProduction: float
-  - totalConsumption: float
-  - sharedEnergy: float
+class Date {
+  - value: String
 }
 
-class TimeStamp {
+class ProfileTimeStamp {
   - intervalOfTime: String
   - numberOfIntervals: int
 }
 
-' Relationships
-Prosumer --> "1" Profile
-Prosumer --> "1" Battery
-Prosumer --|> "1" User
-Prosumer --> "1..*" MembershipRequest
+' Relações corrigidas
 
-Profile --> "1" TimeStamp
+Prosumer -->  Battery
+Prosumer -->  Community
+Prosumer --|> User
+
+Profile -->  Prosumer
+Profile -->  Simulation
+Profile -->  ProfileTimeStamp
+Profile --> Date
 
 User <|-- Administrator
 User <|-- CommunityManager
 
-Community --> "1..*" Prosumer
-Community --> "1" CommunityManager
-Community --> "1..*" CommunityEnergyProfile
-CommunityManager --> "1..*" MembershipRequest
-
-CommunityEnergyProfile --> "1" TimeStamp
-
-note right of Profile: Balance of the Prosumer in kW/h, positive values lead to buy energy from the grid
+CommunityManager --> Community
+Simulation --> Date
 
 @enduml

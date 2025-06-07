@@ -7,6 +7,50 @@ import {
   IProfileCluster,
 } from '../../interfaces';
 
+// Simulation objects
+export const simulations = [
+  {
+    startDate: '2025-06-01',
+    endDate: '2025-06-02',
+    description: 'Current period simulation',
+    profileLoad: true,
+    stateOfCharge: true,
+    photovoltaicEnergyLoad: true,
+  },
+  {
+    startDate: '2025-05-30',
+    endDate: '2025-05-31',
+    description: 'Previous period simulation',
+    profileLoad: true,
+    stateOfCharge: false,
+    photovoltaicEnergyLoad: true,
+  },
+  {
+    startDate: '2025-06-01',
+    endDate: '2025-06-02',
+    description: 'Only profileLoad',
+    profileLoad: true,
+    stateOfCharge: false,
+    photovoltaicEnergyLoad: false,
+  },
+  {
+    startDate: '2025-06-01',
+    endDate: '2025-06-02',
+    description: 'Only stateOfCharge',
+    profileLoad: false,
+    stateOfCharge: true,
+    photovoltaicEnergyLoad: false,
+  },
+  {
+    startDate: '2025-06-01',
+    endDate: '2025-06-02',
+    description: 'Only photovoltaicEnergyLoad',
+    profileLoad: false,
+    stateOfCharge: false,
+    photovoltaicEnergyLoad: true,
+  },
+];
+
 export const profileData: ProfileDTO[] = [
   // Current period (2025-06-01 to 2025-06-02)
   // Prosumer 1
@@ -48,6 +92,8 @@ export const profileData: ProfileDTO[] = [
     peerInPrice: '0.13',
     profileLoad: '150',
   },
+
+
   // Prosumer 2
   {
     prosumerId: 'prosumer2',
