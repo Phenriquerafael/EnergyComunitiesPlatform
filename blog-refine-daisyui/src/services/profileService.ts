@@ -3,7 +3,7 @@ import axios from "axios";
 import { OptimizeRequest, ProfileDTO } from "../interfaces";
 
 const BASE_URL = "http://localhost:4000/api/profiles";
-const Optimization_BASE_URL = "http://localhost:8000/optimize";
+const Optimization_BASE_URL = "http://localhost:8000";
 
 // Criação do perfil
 export const createProfile = async (data: ProfileDTO) => {

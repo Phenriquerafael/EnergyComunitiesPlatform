@@ -11,13 +11,17 @@ interface Algorithm {
   communityId?: string;
 }
 
+interface AlgorithmUploadSectionProps {
+  prosumerIds: string[];
+}
+
 const mockAlgorithms: Algorithm[] = [
   { id: "alg1", name: "Battery Optimizer", description: "Optimizes battery for energy consumption." },
   { id: "alg2", name: "Load Balancer", description: "Distributes loads across network nodes." },
   { id: "alg3", name: "Demand Predictor", description: "Predicts energy demand using historical data." },
 ];
 
-const AlgorithmUploadSection: React.FC = () => {
+const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosumerIds }) => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
@@ -32,7 +36,7 @@ const AlgorithmUploadSection: React.FC = () => {
     setFeatures((prev) => ({ ...prev, [feature]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedAlgorithm) {
       message.error("Please select an algorithm.");
       return;
@@ -46,14 +50,32 @@ const AlgorithmUploadSection: React.FC = () => {
       return;
     }
 
-    message.success("Data uploaded successfully!");
-    console.log("Submitted:", {
-      selectedAlgorithm,
-      selectedFile,
-      startDate: startDate.format("YYYY-MM-DD"),
-      endDate: endDate.format("YYYY-MM-DD"),
-      features,
-    });
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("prosumers", JSON.stringify(prosumerIds));
+    formData.append("start_date_str", startDate.format("YYYY-MM-DD"));
+    formData.append("end_date_str", endDate.format("YYYY-MM-DD"));
+
+    console.log("Submitting data:", formData);  
+
+    try {
+      const response = await fetch("http://localhost:8000/run-optimization", {
+        method: "POST",
+        body: formData,
+        //credentials: "include", // Handle CORS with credentials if needed
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text(); // Try text first to handle non-JSON
+        const errorData = errorText ? JSON.parse(errorText) : { detail: "Unknown error" };
+        throw new Error(errorData.detail || "Upload failed");
+      }
+
+      const result = await response.json();
+      message.success("Optimization started successfully!");
+    } catch (error: any) {
+      message.error(`Failed to start optimization: ${error.message}`);
+    }
   };
 
   return (
@@ -133,7 +155,6 @@ const AlgorithmUploadSection: React.FC = () => {
             ))}
           </div>
         </Form.Item>
-
 
         <Form.Item label="Upload Excel File" required>
           <Upload

@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+left to right direction
+
+title Optimization Module (API-centric Architecture)
+
+package "Optimization Module" {
+        
+    package "Presentation Layer" as p {
+        component "FastAPI Server (REST API)" as fastapi
+    }
+
+    package "Backend" as op {
+        
+        component "Optimization Service" as service
+        component "Solver (Gurobi/GLPK)" as solver
+        component "Data Loader (Pandas)" as dataloader
+        component "Optimization Model" as model
+
+        fastapi --> service : Recebe requisições API
+        service --> dataloader : Carrega dados
+        service --> model : Instancia modelo
+        dataloader --> model : Fornece dados
+        service --> solver : Chama solver externo
+        solver --> model : Resolve modelo
+        model --> service : Resultados da otimização
+        service --> fastapi : Resposta API
+    }
+
+
+
+}   
+  
+fastapi --( "Frontend Client" : API Requests
+fastapi -- "Backend Node" : API Responses
+
+@enduml

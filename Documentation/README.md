@@ -37,6 +37,13 @@ Q: How do you envision end-users interacting with the system? For example, shoul
 - Study how to deploy the optimization algorithm 
 - Study which calls the backend has to make to use the O.A
 
+### Frontend
+- Add feature to analyse if the file format is the expected type (eg: batteryList or optimization input)
+- Add loading percentage on otmimization processing
+
+### Backend
+- Add missing logs to process steps and erros 
+
 ## System Interation:
 
 1º Dataset 

@@ -11,7 +11,7 @@ import os
 from pyomo.environ import value
 
 # Load data
-file_path = r"D:\My Projects\Satcomm project\sampledata3.xlsx"
+file_path = r"sampledata3.xlsx"
 all_data = pd.read_excel(file_path, sheet_name=None)
 
 # Extract data using Pandas
@@ -57,8 +57,8 @@ ESSparam = df_ess.iloc[:, 1:].to_numpy()
 #%%
 
 # Define the date range for the simulation
-start_date_str = '01.01.2024 00:00:00'
-end_date_str = '10.02.2024 23:45:00'
+start_date_str = '01.06.2024 00:00:00'
+end_date_str = '30.06.2024 23:45:00'
 
 
 

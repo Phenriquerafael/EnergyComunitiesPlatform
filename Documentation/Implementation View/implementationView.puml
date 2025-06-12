@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+left to right direction
+database "PostgreSQL Database"
+
+node "Client Machine" {
+  [Browser] --> [Frontend Server] : HTTP Requests
+}
+
+node "Frontend Server :5137" {
+  [HTTP Server] --> [Frontend App (React, Refine)]
+}
+
+node "Backend Server :4000" {
+  [Node.js API] --> [Authentication Module]
+  [Node.js API] --> [Energy Management]
+  [Node.js API] --> [PostgreSQL Database] : SQL Queries
+  [Node.js API] --> [Optimization Server] : REST API (Port 8000)
+}
+
+node "Optimization Server :8000" {
+  [Optimizer (Python/R)]
+}
+
+
+
+note right of [Frontend App (React, Refine)]
+  Serves UI for users, admins, and community managers.
+end note
+
+note right of [Node.js API]
+  Handles business logic and API routingplices.
+end note
+
+@enduml

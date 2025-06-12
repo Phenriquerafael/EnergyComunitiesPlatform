@@ -104,7 +104,7 @@ const handleExcelUpload = async () => {
   formData.append("file", file);
 
   try {
-    const response = await fetch("http://localhost:8000/optimizationModule/batteryList", {
+    const response = await fetch("http://localhost:8000/batteryList", {
       method: "POST",
       body: formData,
     });

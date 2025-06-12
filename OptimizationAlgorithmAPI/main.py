@@ -27,15 +27,29 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:5173",
+    "http://localhost:4000",
+    "http://localhost",
+    "http://localhost:8000",
+]
+
 # CORS configuration
-app.add_middleware(
+""" app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:4000"],  
+    allow_origins=[],  
     allow_credentials=True,
     allow_methods=["*"],  # permite todos os métodos (GET, POST, etc.)
     allow_headers=["*"],  # permite todos os headers
 )
-
+ """
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Defina uma variável para armazenar o progresso da otimização
@@ -163,7 +177,11 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
     detailed_results = []
     total_objective_value = 0
 
-    update_interval = int(days/10);  #= 28800 # Update SOC every 288 time steps
+    #análise minima e básica do intervalo de atualização
+    update_interval = 288 #max(MIN_UPDATE_INTERVAL, int(days / 10))
+
+    #análise complexa e mais fiável
+    #update_interval = 28800  # Update SOC every 28800 time steps (equivalent to 20 days if each step is 5 minutes)
 
     #print(f"Solving for the period from {datetime_sim[0]} to {datetime_sim[-1]}...")
 
@@ -440,8 +458,8 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
 
 
     # Convert results to a DataFrame and save to Excel
-    #detailed_results_path = r"detailed_results.xlsx"
-    #detailed_results_df.to_excel(detailed_results_path, index=False)
+    detailed_results_path = r"detailed_results.xlsx"
+    detailed_results_df.to_excel(detailed_results_path, index=False)
 
     #send data do backen using lib requests
     # Dados a enviar
@@ -472,7 +490,7 @@ async def optimize_excel(file: UploadFile = File(...)):
     return JSONResponse(content=result)
 
 
-app = FastAPI()
+#app = FastAPI()
 
 @app.post("/run-optimization")
 async def start_optimization(

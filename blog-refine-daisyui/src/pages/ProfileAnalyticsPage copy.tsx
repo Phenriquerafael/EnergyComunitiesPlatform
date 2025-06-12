@@ -285,8 +285,7 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
           const value = profile[f.key as keyof ProfileDTO];
           return sum + (value ? Number(value) : 0);
         }, 0);
-        return { type: f.label, value: parseFloat(total.toFixed(2)),
- };
+        return { type: f.label, value: Number(total.toFixed(2)) };
       });
   };
 
@@ -311,25 +310,36 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
 
   return (
     
- <Card title="Profile Analytics">
-      <div className="mb-6">
-        <label className="block text-md font-medium mb-2">Select Simulation</label>
-        <Select
-          className="w-full md:w-1/2"
-          placeholder="Choose a simulation"
-          options={simulations.map((sim, i) => ({
-            label: sim.description,
-            value: i,
-          }))}
-          value={simulations.indexOf(selectedSimulation)}
-          onChange={(value) => setSelectedSimulation(simulations[value])}
-        />
-        <p className="text-sm text-gray-500 mt-2">
-          Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
-        </p>
-      </div>
+    <Card title="Profile Analytics">
+        <div className="mb-6">
+            <div>
+              <label className="block text-md font-medium mb-2">Select Simulation</label>
+              <Select
+              className="w-full md:w-1/2"
+              placeholder="Choose a simulation"
+              options={simulationOptions.map((option, idx) => ({
+                ...option,
+                label:
+                selectedSimulation === simulations[idx]
+                  ? simulations[idx].description
+                  : (
+                  <div>
+                    <div>{simulations[idx].description}</div>
+                    <div style={{ fontSize: 12, color: "#888" }}>
+                    {simulations[idx].startDate} - {simulations[idx].endDate}
+                    </div>
+                  </div>
+                  ),
+              }))}
+              value={simulations.indexOf(selectedSimulation)}
+              onChange={(value) => setSelectedSimulation(simulations[value])}
+              />
+            </div>
 
-
+          <p className="text-sm text-gray-500 mt-2">
+            Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
+          </p>
+        </div>
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={8}>
           <Select
@@ -337,34 +347,50 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
             style={{ width: "100%" }}
             loading={isProsumersLoading}
             onChange={(id) => setSelectedProsumer(prosumers.find((p) => p.id === id))}
-            options={prosumers.map((prosumer) => ({
-              label: prosumer.userName,
-              value: prosumer.id,
+            optionLabelProp="label"
+            options={prosumers.map((p) => ({
+              value: p.id,
+              label: `${p.userName ?? `Prosumer ${p.id}`}${p.email ? ` - Email: ${p.email}` : ''}${p.batteryName ? ` - Battery: ${p.batteryName}` : ''}${p.communityName ? ` - Community: ${p.communityName}` : ''}`,
+              render: () => (
+                <div style={{ display: "flex", flexDirection: "column", fontSize: 12 }}>
+                  <strong>{p.userName ?? `Prosumer ${p.id}`}</strong>
+                  <div style={{ color: "#666", fontSize: 12 }}>
+                    {p.email && <span>Email: {p.email}</span>}
+                    {p.batteryName && <span> | Battery: {p.batteryName}</span>}
+                    {p.communityName && <span> | Community: {p.communityName}</span>}
+                  </div>
+                </div>
+              ),
             }))}
           />
         </Col>
-        <Col span={8}>
-          <RangePicker
-            style={{ width: "100%" }}
-            value={dateRange}
-            onChange={setDateRange}
-            disabledDate={disabledDate}
-          />
-        </Col>
+
         <Col span={8}>
           <Select
             value={timeResolution}
-            onChange={(val) => setTimeResolution(val)}
-            style={{ width: "100%" }}
+            onChange={(value) => setTimeResolution(value)}
             options={[
               { label: "15 Minutes", value: "15min" },
               { label: "1 Hour", value: "1h" },
               { label: "1 Day", value: "1d" },
             ]}
+            style={{ width: "100%" }}
+          />
+        </Col>
+
+        <Col span={8}>
+          <RangePicker
+            style={{ width: "100%" }}
+            onChange={(dates) => setDateRange(dates)}
+            format="YYYY-MM-DD"
+            disabledDate={disabledDate}
+            placeholder={["Start Date", "End Date"]}
+            value={dateRange}
           />
         </Col>
       </Row>
-{isProfilesLoading ? (
+
+      {isProfilesLoading ? (
         <p>Loading profiles...</p>
       ) : filteredProfiles.length === 0 ? (
         <p>No profiles available for this prosumer or date range.</p>
@@ -372,43 +398,55 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
         <>
           <Row gutter={16}>
             <Col span={24}>
-              <Card title="Average Profile Values">
-                <Descriptions column={3} bordered size="small">
-                  {averageFields.map(({ label, key }) => (
-                    <Descriptions.Item label={label} key={key}>
-                      {calculateAverage(key as keyof ProfileDTO)} kWh
-                    </Descriptions.Item>
-                  ))}
-                </Descriptions>
-              </Card>
-            </Col>
-          </Row>
-
-          <Row gutter={16} style={{ marginTop: 20 }}>
-            <Col span={24}>
-              <Card title="Profile Evolution (Averages)">
-                <Line
-                  data={generateChartData()}
-                  xField="time"
-                  yField="value"
-                  seriesField="type"
-                  height={400}
-                />
-              </Card>
-            </Col>
-          </Row>
-
-          <Row gutter={16} style={{ marginTop: 20 }}>
-            <Col span={24}>
-              <Card title="Energy Distribution (Total kWh)">
-                {generatePieChartData().length === 0 ? (
-                  <p>No data available for the selected fields.</p>
+              <Card title={`Time Series (${timeResolution})`}>
+                {chartData.length === 0 ? (
+                  <p>No data available for the selected time resolution.</p>
                 ) : (
-                  <Pie {...pieConfig} height={400} />
+                  <Line {...chartConfig} height={400} />
                 )}
               </Card>
             </Col>
           </Row>
+
+          <Row gutter={16} style={{ marginTop: 20 }}>
+            
+          <Col span={24}>
+            <Card title="Energy Distribution (Total kWh)">
+              <Checkbox.Group
+                options={averageFields.map((f) => ({
+                  label: f.label,
+                  value: f.key,
+                }))}
+                value={selectedPieFields}
+                onChange={handlePieFieldChange}
+                style={{ marginBottom: 16 }}
+              />
+              {generatePieChartData().length === 0 ? (
+                <p>No data available for the selected fields.</p>
+              ) : (
+                <Pie {...pieConfig} height={400} />
+              )}
+            </Card>
+          </Col>
+        </Row>
+
+
+          {prosumerProfile && (
+            <Row gutter={16} style={{ marginTop: 20 }}>
+              <Col span={24}>
+                <Card title={`Prosumer ${selectedProsumer?.userName ?? selectedProsumer?.id} – Profile Average Details`}>
+                  <Descriptions column={2}>
+                    <Descriptions.Item label="Prosumer ID">{prosumerProfile.prosumerId}</Descriptions.Item>
+                    {averageFields.map((field) => (
+                      <Descriptions.Item key={field.key} label={field.label}>
+                        {calculateAverage(field.key as keyof ProfileDTO)} kWh
+                      </Descriptions.Item>
+                    ))}
+                  </Descriptions>
+                </Card>
+              </Col>
+            </Row>
+          )}
         </>
       )}
     </Card>

@@ -1,0 +1,139 @@
+@startuml
+
+skinparam backgroundColor #fcf9ea
+skinparam roundcorner 15
+skinparam classAttributeIconSize 0
+skinparam class {
+  ArrowColor ffc5a1
+  BorderColor White
+  BackgroundColor #badfdb
+}
+
+title Modelo de Domínio (Compactado)
+
+class Administrator {
+  +id: string
+
+}
+
+class CommunityManager {
+  +id: string
+}
+
+class Prosumer {
+  +id: ProsumerId
+  +description: string
+  +user: User
+  +battery: Battery
+  +panel: PhotovoltaicPanel
+}
+
+class Profile {
+  +id: ProfileId
+  +date: Date
+  +timestamp: ProfileTimeStamp
+  +profileLoad: float
+  +stateOfCharge: float
+  +photovoltaicEnergyLoad: float
+  +boughtEnergy: float
+  +soldEnergy: float
+  +peerIn: float
+  +peerOut: float
+  +prosumer: Prosumer
+}
+
+class GridExchange {
+  +id: string
+  +timestamp: string
+  +buy: float
+  +sell: float
+  +priceBuy: float
+  +priceSell: float
+  +prosumer: Prosumer
+  +grid: Grid
+}
+
+class CommunityExchange {
+  +id: string
+  +timestamp: string
+  +peerIn: float
+  +peerOut: float
+  +prosumer: Prosumer
+  +community: Community
+}
+
+class Community {
+  +id: string
+  +name: string
+  +prosumers: List<Prosumer>
+}
+
+class User {
+  +id: string
+  +name: string
+  +email: string
+  +phone: string
+  +password: string
+  +role: string
+}
+
+class Administrator
+Administrator --|> User
+
+class CommunityManager
+CommunityManager --|> User
+
+class PhotovoltaicPanel {
+  +id: string
+  +name: string
+  +prosumer: Prosumer
+}
+
+class PhotovoltaicEnergy {
+  +id: string
+  +timestamp: string
+  +energyLoad: float
+  +batteryEnergy: float
+  +panel: PhotovoltaicPanel
+}
+
+class Battery {
+  +id: string
+  +name: string
+  +maxCapacity: float
+  +efficiency: float
+  +maxChargeDischarge: float
+  +initialCapacity: float
+  +timestamp: string
+}
+
+class BatteryEnergy {
+  +id: string
+  +timestamp: string
+  +stateOfCharge: float
+  +charge: float
+  +discharge: float
+  +isCharging: boolean
+  +isDischarging: boolean
+  +battery: Battery
+}
+
+class Grid {
+  +id: string
+  +name: string
+}
+
+' Relacionamentos principais
+Prosumer --> User
+Prosumer --> Battery
+Prosumer --> PhotovoltaicPanel
+Profile --> Prosumer
+GridExchange --> Prosumer
+GridExchange --> Grid
+CommunityExchange --> Prosumer
+CommunityExchange --> Community
+Community --> Prosumer
+PhotovoltaicEnergy --> PhotovoltaicPanel
+BatteryEnergy --> Battery
+
+@enduml

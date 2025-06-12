@@ -1,0 +1,63 @@
+@startuml
+skinparam monochrome true
+skinparam PackageStyle rectangle
+skinparam Shadowing false
+skinparam linetype ortho
+
+title C4 Component Diagram: Backend (Node.js)
+
+
+
+
+package "Backend API (Node.js)" as backend {
+    
+  
+  package "Presentation Layer" {
+    component "Routing"
+    component "Controllers"
+  }
+
+  package "Application Layer" {
+    component "Services"
+    component "Authorizer"
+    component "Logs"
+    component "Mapper"
+    component "DTOs"
+  }
+
+  package "Domain Layer" {
+    component "Domain Models"
+  }
+
+  package "Infrastructure Layer" {
+    component "Repositories"
+    component "Data Models"
+    component "Persistence"
+  }
+
+  "Routing" --> "Controllers"
+  "Controllers" --> "Services"
+  "Services" --> "Authorizer"
+  "Services" --> "Logs"
+  "Services" --> "Mapper"
+  "Services" --> "DTOs"
+  "Services" --> "Repositories"
+  "Services" --> "Domain Models"
+  "Repositories" --> "Data Models"
+  "Repositories" --> "Persistence"
+
+  "Mapper" --> "DTOs"
+  "Repositories" --> "Domain Models"
+}
+
+' External Interfaces
+
+backend -- "Backend API (REST)" : Data & Auth
+
+backend --( "Frontend Client"  
+
+backend --( "Optimization API" : Optimization results
+  
+backend --( "Database" 
+
+@enduml

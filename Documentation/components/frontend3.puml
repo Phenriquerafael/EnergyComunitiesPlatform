@@ -1,0 +1,66 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+title Frontend Architecture - React + Refine
+
+package "Frontend App" {
+
+    package "UI Components" {
+        component Layout
+        component Dashboard
+        component "Community Manager CRUD"
+        component "Prosumer CRUD"
+        component "Battery CRUD"
+        component "Profile Analytics"
+        component "File Upload Page"
+        component "Auth Pages"
+    }
+
+    package "Core Framework (Refine)" {
+        component "Refine Resource Manager"
+        component "Refine Routing"
+        component "Refine Auth"
+    }
+
+    package "Data & Auth Providers" {
+        component "REST Client (DataProvider)"
+        component "OAuth2 Provider (AuthProvider)"
+    }
+
+    package "Routing" {
+        component "React Router"
+    }
+
+    ' UI Layer dependencies
+    Layout --> "Refine Resource Manager"
+    Dashboard --> "Refine Resource Manager"
+    "Community Manager CRUD" --> "Refine Resource Manager"
+    "Prosumer CRUD" --> "Refine Resource Manager"
+    "Battery CRUD" --> "Refine Resource Manager"     
+    "Profile Analytics" --> "Refine Resource Manager"
+    "File Upload Page" --> "Refine Resource Manager"
+    "Auth Pages" --> "Refine Auth"
+
+    ' Refine Core dependencies
+    "Refine Resource Manager" --> "REST Client (DataProvider)"
+    "Refine Resource Manager" --> "React Router"
+    "Refine Auth" --> "OAuth2 Provider (AuthProvider)"
+    "Refine Routing" --> "React Router"
+
+    ' Router dependency
+    Layout --> "React Router"
+
+}
+
+' External APIs
+interface "Backend API (REST)" 
+interface "Optimization API"
+
+"REST Client (DataProvider)" --( "Backend API (REST)" : Data & Auth
+"REST Client (DataProvider)" -- "Optimization API" : Optimization iput data 
+
+
+
+
+
+@enduml

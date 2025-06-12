@@ -14,6 +14,7 @@ export default class ProfileService implements IProfileService {
   constructor(
     @Inject(config.repos.profile.name) private profileRepoInstance: IProfileRepo,
     @Inject(config.repos.prosumer.name) private prosumerRepoInstance: IProsumerRepo,
+    @Inject('logger') private logger
   ) {
     /* console.log('ProfileService instantiated'); // Debug */
   }
@@ -58,37 +59,32 @@ export default class ProfileService implements IProfileService {
 
   public async createFromOptimizationResults(results: IOptimizationResults): Promise<Result<IProfileDTO>> {
     try {
+      console.log('Creating profile from optimization results:', results.detailed_results.length, 'results found');
       if (results.total_objective_value === undefined) {
         return Result.fail<IProfileDTO>('Total objective value not found in optimization results');
       }
-      if (results.detailed_results===undefined || results.detailed_results.length === 0) {
+      if (results.detailed_results === undefined || results.detailed_results.length === 0) {
         return Result.fail<IProfileDTO>('Detailed results not found in optimization results');
       }
       let finalResult;
-/*       for (const result of results.detailed_results) { */
+      const prosumerProfileCount: Record<string, number> = {};
+
       for (let i = 0; i < results.detailed_results.length; i++) {
         let result = results.detailed_results[i];
-        //POR CORRIGIR
         const profileDTO: IProfileDTO = {
-          /* prosumerId: prosumers[Number(result.Prosumer) - 1].id.toString(), // Anexing profile to the prosumers bootstraped in the database */
-          prosumerId: result.Prosumer, // Anexing profile to the prosumers bootstraped in the database
+          prosumerId: result.Prosumer,
           date: result.DateTime,
-          intervalOfTime: "15", //To be corrected: the interval is assumed to be 15 minutes
+          intervalOfTime: "15",
           numberOfIntervals: Number(result.Time_Step),
           stateOfCharge: result.SOC,
           energyCharge: result.P_ESS_ch,
           energyDischarge: result.P_ESS_dch,
           peerOutputEnergyLoad: result.P_Peer_out,
-          //peerOutPrice: "0",
           peerInputEnergyLoad: result.P_Peer_in,
-          //peerInPrice: "0",
           photovoltaicEnergyLoad: result.P_PV_load,
           boughtEnergyAmount: result.P_buy,
-          //boughtEnergyPrice: "0",
           soldEnergyAmount: result.P_sell,
-          //soldEnergyPrice: "0",
           profileLoad: result.P_Load,
-
         };
 
         const createResult = await this.createProfile(profileDTO);
@@ -96,17 +92,27 @@ export default class ProfileService implements IProfileService {
           return Result.fail<IProfileDTO>(`Failed to create profile from optimization results: ${createResult.error}`);
         }
 
+        // Count profiles per prosumer
+        if (prosumerProfileCount[profileDTO.prosumerId]) {
+          prosumerProfileCount[profileDTO.prosumerId]++;
+        } else {
+          prosumerProfileCount[profileDTO.prosumerId] = 1;
+        }
+
         finalResult = createResult;
-        
       }
 
+      // Log the number of profiles loaded for each prosumer
+      Object.entries(prosumerProfileCount).forEach(([prosumerId, count]) => {
+        this.logger.info(`Loaded ${count} profiles for prosumer ${prosumerId}`);
+      });
+
       // Return the last profile created as a representative result
-      return Result.ok<IProfileDTO>(finalResult);    
- 
-      } catch (error) {
-      console.log('Error creating profile from optimization results: ', error);
+      return Result.ok<IProfileDTO>(finalResult);
+
+    } catch (error) {
+      this.logger.error('Error creating profile from optimization results: ', error);
       return Result.fail<IProfileDTO>('Error creating profile from optimization results');
-      
     }
   }
 

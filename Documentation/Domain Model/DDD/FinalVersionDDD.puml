@@ -29,11 +29,17 @@ package "<<agr Simulation>>" {
   class SimulationId <<vo>> {}
   class StartDate <<vo>> extends Date {}
   class EndDate <<vo>> extends Date {}
+  class Load <<vo>> {}
+  class BatteryLoad <<vo>> {}
+    class PhotovoltaicLoad <<vo>> {}
   class Date <<vo>> {}
 
   Simulation --> "1" SimulationId
   Simulation --> "1" StartDate
   Simulation --> "1" EndDate
+    Simulation --> "1" Load
+    Simulation --> "1" BatteryLoad
+    Simulation --> "1" PhotovoltaicLoad
 
 }
 
