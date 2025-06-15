@@ -2016,3 +2016,28 @@ Backend_API -- db : SQL Queries
 
 ```
 
+
+
+Para gerar um componente funcional como esse usando um snippet na biblioteca de snippets do React (por exemplo, usando VS Code com o plugin ES7+ React/Redux/React-Native snippets), você pode usar o snippet **rafce**.
+
+Exemplo de uso:
+
+1. Digite **rafce** e pressione Tab.
+2. Isso gera:
+  ```tsx
+  import React from 'react';
+
+  const ComponentName = () => {
+     return (
+        <div>
+          
+        </div>
+     )
+  }
+
+  export default ComponentName;
+  ```
+
+Depois, basta adaptar o nome do componente, adicionar as props e o conteúdo conforme necessário.
+
+Se quiser um snippet com props tipadas (TypeScript), use **rafc** ou **rafce** e adicione manualmente a tipagem das props, como no seu exemplo.

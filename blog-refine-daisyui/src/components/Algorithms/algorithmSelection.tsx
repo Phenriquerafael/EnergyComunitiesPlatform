@@ -11,8 +11,19 @@ interface Algorithm {
   communityId?: string;
 }
 
+export interface IProsumerDataDTO {
+  id?: string;
+  batteryId?: string;
+  batteryName?: string;
+  userId?: string;
+  userName?: string;
+  email?: string;
+  communityId?: string;
+  communityName?: string;
+}
+
 interface AlgorithmUploadSectionProps {
-  prosumerIds: string[];
+  prosumers: IProsumerDataDTO[];
 }
 
 const mockAlgorithms: Algorithm[] = [
@@ -21,19 +32,27 @@ const mockAlgorithms: Algorithm[] = [
   { id: "alg3", name: "Demand Predictor", description: "Predicts energy demand using historical data." },
 ];
 
-const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosumerIds }) => {
+const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosumers }) => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [features, setFeatures] = useState({
-    battery: false,
-    load: false,
-    photovoltaicLoad: false,
-  });
+  const [features, setFeatures] = useState<Record<string, { battery: boolean; load: boolean; photovoltaicLoad: boolean }>>({});
 
-  const handleFeatureChange = (feature: keyof typeof features, value: boolean) => {
-    setFeatures((prev) => ({ ...prev, [feature]: value }));
+  const prosumerIds = (prosumers ?? []).map((p) => p.id).filter((id): id is string => typeof id === "string");
+
+  const handleFeatureChange = (
+    prosumerId: string,
+    featureKey: keyof (typeof features)[string],
+    value: boolean
+  ) => {
+    setFeatures((prev) => ({
+      ...prev,
+      [prosumerId]: {
+        ...prev[prosumerId],
+        [featureKey]: value,
+      },
+    }));
   };
 
   const handleSubmit = async () => {
@@ -55,28 +74,39 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
     formData.append("prosumers", JSON.stringify(prosumerIds));
     formData.append("start_date_str", startDate.format("YYYY-MM-DD"));
     formData.append("end_date_str", endDate.format("YYYY-MM-DD"));
+    formData.append("algorithm_id", selectedAlgorithm);
 
-    console.log("Submitting data:", formData);  
+    const featuresPerProsumer = prosumerIds.reduce((acc, id) => {
+      acc[id] = features[id] || { battery: false, load: false, photovoltaicLoad: false };
+      return acc;
+    }, {} as Record<string, { battery: boolean; load: boolean; photovoltaicLoad: boolean }>);
+
+    formData.append("features", JSON.stringify(featuresPerProsumer));
+
+    console.log("Submitting data:", {
+      prosumers: prosumerIds,
+      features: featuresPerProsumer,
+    });
 
     try {
       const response = await fetch("http://localhost:8000/run-optimization", {
         method: "POST",
         body: formData,
-        //credentials: "include", // Handle CORS with credentials if needed
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Try text first to handle non-JSON
+        const errorText = await response.text();
         const errorData = errorText ? JSON.parse(errorText) : { detail: "Unknown error" };
         throw new Error(errorData.detail || "Upload failed");
       }
 
-      const result = await response.json();
       message.success("Optimization started successfully!");
     } catch (error: any) {
       message.error(`Failed to start optimization: ${error.message}`);
     }
   };
+
+  const [defineProsumerFeatures, setDefineProsumerFeatures] = useState<boolean>(false);
 
   return (
     <Card
@@ -116,43 +146,61 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
           </Form.Item>
         </div>
 
-        <Form.Item label="Features">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {([
-              { key: "battery", label: "Battery" },
-              { key: "load", label: "Load" },
-              { key: "photovoltaicLoad", label: "Photovoltaic Load" },
-            ] as const).map(({ key, label }) => (
+        <Form.Item >
+          <div className="flex flex-col gap-4">
+            <Button
+              className="btn btn-neutral"
+              onClick={() => setDefineProsumerFeatures((prev) => !prev)}
+              style={{ marginBottom: 12, width: "fit-content" }}
+            >
+              {defineProsumerFeatures ? "Minimize" : "Define"} Prosumer Features
+            </Button>
+            {defineProsumerFeatures && (
+              <>
+          {prosumerIds.map((id) => {
+            const prosumer = prosumers.find((p) => p.id === id);
+            return (
               <fieldset
-                key={key}
+                key={id}   
                 className="border border-base-300 rounded-lg p-4 shadow-sm bg-base-100"
               >
-                <legend className="font-semibold text-sm mb-2">{label}</legend>
+                <legend className="font-semibold text-sm mb-2">
+            Prosumer: {prosumer?.userName || id} - ID: {id}
+                </legend>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {(["battery", "load", "photovoltaicLoad"] as const).map((featureKey) => (
+              <div key={featureKey}>
+                <div className="text-sm font-medium mb-1">{featureKey}</div>
                 <div className="flex items-center gap-4">
                   <label className="label cursor-pointer">
-                    <input
-                      type="radio"
-                      name={key}
-                      className="radio radio-success"
-                      checked={features[key]}
-                      onChange={() => handleFeatureChange(key, true)}
-                    />
-                    <span className="label-text ml-2">On</span>
+              <input
+                type="radio"
+                name={`${id}-${featureKey}`}
+                className="radio radio-success"
+                checked={features[id]?.[featureKey] === true}
+                onChange={() => handleFeatureChange(id, featureKey, true)}
+              />
+              <span className="label-text ml-2">On</span>
                   </label>
-
                   <label className="label cursor-pointer">
-                    <input
-                      type="radio"
-                      name={key}
-                      className="radio radio-error"
-                      checked={!features[key]}
-                      onChange={() => handleFeatureChange(key, false)}
-                    />
-                    <span className="label-text ml-2">Off</span>
+              <input
+                type="radio"
+                name={`${id}-${featureKey}`}
+                className="radio radio-error"
+                checked={features[id]?.[featureKey] === false}
+                onChange={() => handleFeatureChange(id, featureKey, false)}
+              />
+              <span className="label-text ml-2">Off</span>
                   </label>
                 </div>
-              </fieldset>
+              </div>
             ))}
+                </div>
+              </fieldset>
+            );
+          })}
+              </>
+            )}
           </div>
         </Form.Item>
 

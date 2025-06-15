@@ -1,32 +1,26 @@
-import React, { useMemo, useRef } from "react";
-import { getDefaultFilter } from "@refinedev/core";
+/* import React, { useMemo, useRef } from "react";
+import { getDefaultFilter, useList, useNavigation, useDelete } from "@refinedev/core";
 import { useTable } from "@refinedev/react-table";
-import { type ColumnDef, flexRender } from "@tanstack/react-table";
+import { ColumnDef, flexRender } from "@tanstack/react-table";
 import {
-  PencilSquareIcon,
-  EyeIcon,
-  TrashIcon,
   FunnelIcon,
   BarsArrowDownIcon,
   BarsArrowUpIcon,
-  PlusIcon
+  PlusIcon,
+  PencilSquareIcon,
+  EyeIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { IProsumerDataDTO } from "../../interfaces";
-import { useNavigation, BaseKey } from "@refinedev/core";
+import ProsumerTableBody from "../../components/prosumers/prosumerTableBody";
 
-
-type ProsumerTableBodyProps = {
-  prosumers: IProsumerDataDTO[];
-  handleDelete?: (id: BaseKey) => void;
-};
-
-export const ProsumerTableBody: React.FC<ProsumerTableBodyProps> = ({
-  prosumers,
-  handleDelete,
-}) => {
+const ProsumerTable: React.FC = () => {
   const filterForm = useRef<HTMLFormElement>(null);
-  const { create,edit, show } = useNavigation();
-
+  const { create, edit, show } = useNavigation();
+  const { mutate: deleteProsumer } = useDelete();
+  const { data: prosumerData, refetch } = useList<IProsumerDataDTO>({
+    resource: "prosumers/all2",
+  });
 
   const columns = useMemo<ColumnDef<IProsumerDataDTO>[]>(
     () => [
@@ -53,7 +47,7 @@ export const ProsumerTableBody: React.FC<ProsumerTableBodyProps> = ({
         accessorKey: "communityName",
         header: "Community Name",
         cell: ({ getValue }) => (
-          <div className="text-center">{getValue() !== undefined && getValue() !== null ? String(getValue()) : "none"}</div>
+          <div className="text-center">{String(getValue() ?? "none")}</div>
         ),
       },
       {
@@ -75,29 +69,34 @@ export const ProsumerTableBody: React.FC<ProsumerTableBodyProps> = ({
           <div className="flex justify-center items-center gap-2">
             <button
               className="btn btn-xs btn-circle btn-ghost"
-              onClick={() => edit("prosumers", row.original.id!)}
+              onClick={() => row.original.id !== undefined && edit("prosumers", row.original.id)}
             >
               <PencilSquareIcon className="h-4 w-4" />
             </button>
             <button
               className="btn btn-xs btn-circle btn-ghost"
-              onClick={() => show("prosumers", row.original.id!)}
+              onClick={() => row.original.id !== undefined && show("prosumers", row.original.id)}
             >
               <EyeIcon className="h-4 w-4" />
             </button>
-            {handleDelete && (
-              <button
-                className="btn btn-xs btn-circle btn-ghost"
-                onClick={() => handleDelete(row.original.id!)}
-              >
-                <TrashIcon className="h-4 w-4 text-error" />
-              </button>
-            )}
+            <button
+              className="btn btn-xs btn-circle btn-ghost"
+              onClick={() => {
+                if (row.original.id !== undefined) {
+                  deleteProsumer(
+                    { resource: "prosumers", id: row.original.id },
+                    { onSuccess: () => refetch() }
+                  );
+                }
+              }}
+            >
+              <TrashIcon className="h-4 w-4 text-error" />
+            </button>
           </div>
         ),
       },
     ],
-    [edit, show, handleDelete]
+    [edit, show]
   );
 
   const {
@@ -105,10 +104,10 @@ export const ProsumerTableBody: React.FC<ProsumerTableBodyProps> = ({
     getHeaderGroups,
     getRowModel,
   } = useTable({
-    data: prosumers,
     columns,
+    data: prosumerData?.data ?? [],
     refineCoreProps: {
-      resource: "prosumers",
+      resource: "prosumers/all2",
       pagination: {
         pageSize: 10,
       },
@@ -117,8 +116,7 @@ export const ProsumerTableBody: React.FC<ProsumerTableBodyProps> = ({
 
   const header = (
     <div className="w-full mx-auto">
-
-     {/*  <div className="page-header">
+      <div className="page-header">
         <h1 className="page-title text-gray-700">Prosumers</h1>
         <button
           className="btn btn-sm btn-primary normal-case font-normal text-zinc-50"
@@ -135,7 +133,7 @@ export const ProsumerTableBody: React.FC<ProsumerTableBodyProps> = ({
             onClick={() => {
               setCurrent(1);
               setFilters([], "replace");
-              filterForm?.current?.reset();
+              filterForm.current?.reset();
             }}
           >
             <FunnelIcon className="h-4 w-4" />
@@ -162,58 +160,48 @@ export const ProsumerTableBody: React.FC<ProsumerTableBodyProps> = ({
             </form>
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 
   return (
-    <div className="w-full mx-auto">
+    <div className="w-full mx-auto my-8 drop-shadow-md">
       {header}
-      <div className=" overflow-x-auto bg-slate-50 ">
-        <table className="table table-zebra border-t">
-          <thead className="bg-slate-200">
-            {getHeaderGroups()?.map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    className="hover:bg-slate-300"
-                    key={header.id}
-                    onClick={header.column.getToggleSortingHandler?.()}
-                  >
-                    <div className="flex justify-center items-center">
-                      {!header.isPlaceholder &&
-                        flexRender(
+      <div className="p-4 overflow-x-auto bg-slate-50 border rounded-b-lg">
+        {getRowModel().rows.length === 0 ? (
+          <div className="text-center mt-4 text-gray-500">No Prosumers found.</div>
+        ) : (
+          <table className="table table-zebra border-t w-full">
+            <thead className="bg-slate-200">
+              {getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      className="hover:bg-slate-300"
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      <div className="flex justify-center items-center">
+                        {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
-                      {{
-                        asc: <BarsArrowUpIcon className="h-4 w-4" />,
-                        desc: <BarsArrowDownIcon className="h-4 w-4" />,
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                        {{
+                          asc: <BarsArrowUpIcon className="h-4 w-4" />,
+                          desc: <BarsArrowDownIcon className="h-4 w-4" />,
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <ProsumerTableBody rows={getRowModel().rows} />
+          </table>
+        )}
       </div>
     </div>
   );
 };
 
-export default ProsumerTableBody;
+export default ProsumerTable; */

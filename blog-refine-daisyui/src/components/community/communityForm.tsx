@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Form, Input, Select, Button, message, Spin } from "antd";
 import { useList, useCreate, useUpdate } from "@refinedev/core";
+import Flag from 'react-world-flags';
+
 
 interface CommunityFormProps {
   userId: string;
@@ -86,6 +88,28 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
 
   return (
     <Form form={form} layout="vertical" onFinish={onFinish}>
+
+      <Form.Item
+        label="Country"
+        name="country"
+        initialValue="pt"
+        rules={[{ required: true, message: "Please select a country." }]}
+      >
+        <Select
+          placeholder="Select a country"
+          options={[
+            { value: "pt", label: <span className="flex items-center gap-2"><Flag code="pt" style={{ width: 24, height: 16 }} /> Portugal</span> },
+            { value: "es", label: <span className="flex items-center gap-2"><Flag code="es" style={{ width: 24, height: 16 }} /> Spain</span> },
+            { value: "fr", label: <span className="flex items-center gap-2"><Flag code="fr" style={{ width: 24, height: 16 }} /> France</span> },
+            { value: "de", label: <span className="flex items-center gap-2"><Flag code="de" style={{ width: 24, height: 16 }} /> Germany</span> },
+            { value: "it", label: <span className="flex items-center gap-2"><Flag code="it" style={{ width: 24, height: 16 }} /> Italy</span> },
+            { value: "uk", label: <span className="flex items-center gap-2"><Flag code="gb" style={{ width: 24, height: 16 }} /> United Kingdom</span> },
+            // Adicione mais países conforme necessário
+          ]}
+
+          />
+      </Form.Item>
+      
       <Form.Item
         label="Community Name"
         name="name"

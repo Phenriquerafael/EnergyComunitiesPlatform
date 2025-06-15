@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Descriptions, Select, DatePicker, Form } from "antd";
+import { Card, Row, Col, Descriptions, Select, DatePicker } from "antd";
 import { Line } from "@ant-design/plots";
 import { useList } from "@refinedev/core";
 import { IProsumerDataDTO, ProfileDTO } from "../interfaces";
@@ -8,7 +8,6 @@ import type { RangePickerProps } from "antd/es/date-picker";
 import { simulations } from "../components/dashboard/mockEnergyData";
 import { Pie } from "@ant-design/plots";
 import { Checkbox } from "antd";
-import PieChart from "../components/prosumers/pieChart";
 const { RangePicker } = DatePicker;
 
 export const ProfileAnalyticsPage = () => {
@@ -278,133 +277,103 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
     averageFields.map((f) => f.key) // default: todos selecionados
   );
 
+  const generatePieChartData = () => {
+    return averageFields
+      .filter((f) => selectedPieFields.includes(f.key))
+      .map((f) => {
+        const total = filteredProfiles.reduce((sum, profile) => {
+          const value = profile[f.key as keyof ProfileDTO];
+          return sum + (value ? Number(value) : 0);
+        }, 0);
+        return { type: f.label, value: parseFloat(total.toFixed(2)),
+ };
+      });
+  };
+
+  const pieConfig = {
+    data: generatePieChartData(),
+    angleField: "value",
+    colorField: "type",
+    radius: 1,
+    innerRadius: 0.4,
+    label: {
+      type: "spider",
+      labelHeight: 28,
+      content: "{name}\n{value} kWh",
+    },
+    interactions: [{ type: "element-active" }],
+  };
+
+  const handlePieFieldChange = (checkedValues: any) => {
+  setSelectedPieFields(checkedValues);
+};
+
+
   return (
     
-    <Card title="Profile Analytics">
+ <Card title="Profile Analytics">
       <div className="mb-6">
-        <div>
-          <label className="block text-md font-medium mb-2">Select Simulation</label>
-          <Select
-            className="w-full"
-            placeholder="Choose a simulation"
-            options={simulationOptions.map((option, idx) => ({
-              ...option,
-              label:
-                selectedSimulation === simulations[idx]
-                  ? simulations[idx].description
-                  : (
-                    <div>
-                      <div>{simulations[idx].description}</div>
-                      <div style={{ fontSize: 12, color: "#888" }}>
-                        {simulations[idx].startDate} - {simulations[idx].endDate}
-                      </div>
-                    </div>
-                  ),
-            }))}
-            value={simulations.indexOf(selectedSimulation)}
-            onChange={(value) => setSelectedSimulation(simulations[value])}
-          />
-        </div>
-
+        <label className="block text-md font-medium mb-2">Select Simulation</label>
+        <Select
+          className="w-full md:w-1/2"
+          placeholder="Choose a simulation"
+          options={simulations.map((sim, i) => ({
+            label: sim.description,
+            value: i,
+          }))}
+          value={simulations.indexOf(selectedSimulation)}
+          onChange={(value) => setSelectedSimulation(simulations[value])}
+        />
         <p className="text-sm text-gray-500 mt-2">
           Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
         </p>
       </div>
 
 
-      <Row gutter={[8, 8]} style={{ marginBottom: 24 }} wrap >
-        <Col xs={24} sm={24} md={8}>
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={8}>
           <Select
-        placeholder="Select a prosumer"
-        style={{ width: "100%" }}
-        loading={isProsumersLoading}
-        onChange={(id) => setSelectedProsumer(prosumers.find((p) => p.id === id))}
-        optionLabelProp="label"
-        options={prosumers.map((p) => ({
-          value: p.id,
-          label: `${p.userName ?? `Prosumer ${p.id}`}${p.email ? ` - Email: ${p.email}` : ''}${p.batteryName ? ` - Battery: ${p.batteryName}` : ''}${p.communityName ? ` - Community: ${p.communityName}` : ''}`,
-          render: () => (
-            <div style={{ display: "flex", flexDirection: "column", fontSize: 12 }}>
-          <strong>{p.userName ?? `Prosumer ${p.id}`}</strong>
-          <div style={{ color: "#666", fontSize: 12 }}>
-            {p.email && <span>Email: {p.email}</span>}
-            {p.batteryName && <span> | Battery: {p.batteryName}</span>}
-            {p.communityName && <span> | Community: {p.communityName}</span>}
-          </div>
-            </div>
-          ),
-        }))}
-          />
-        </Col>
-
-        <Col xs={24} sm={12} md={8}>
-          <Select
-        value={timeResolution}
-        onChange={(value) => setTimeResolution(value)}
-        options={[
-          { label: "15 Minutes", value: "15min" },
-          { label: "1 Hour", value: "1h" },
-          { label: "1 Day", value: "1d" },
-        ]}
-        style={{ width: "100%" }}
-          />
-        </Col>
-
-        <Col xs={24} sm={12} md={8}>
-          <div className="flex gap-4">
-        <Form.Item label="Start Date" required className="flex-1" style={{ marginBottom: 0 }}>
-          <DatePicker
-            value={dateRange?.[0]}
-            onChange={(date) => {
-          // Se a data final for anterior à nova data inicial, limpa a data final
-          if (dateRange?.[1] && date && date.isAfter(dateRange[1], "day")) {
-            setDateRange([date, null]);
-          } else {
-            setDateRange([date, dateRange?.[1]]);
-          }
-            }}
+            placeholder="Select a prosumer"
             style={{ width: "100%" }}
-            format="YYYY-MM-DD"
+            loading={isProsumersLoading}
+            onChange={(id) => setSelectedProsumer(prosumers.find((p) => p.id === id))}
+            options={prosumers.map((prosumer) => ({
+              label: prosumer.userName,
+              value: prosumer.id,
+            }))}
+          />
+        </Col>
+        <Col span={8}>
+          <RangePicker
+            style={{ width: "100%" }}
+            value={dateRange}
+            onChange={setDateRange}
             disabledDate={disabledDate}
-            placeholder="Start Date"
           />
-        </Form.Item>
-        <Form.Item label="End Date" required className="flex-1" style={{ marginBottom: 0 }}>
-          <DatePicker
-            value={dateRange?.[1]}
-            onChange={(date) => {
-          // Não permite selecionar uma data final antes da data inicial
-          if (dateRange?.[0] && date && date.isBefore(dateRange[0], "day")) {
-            setDateRange([dateRange?.[0], null]);
-          } else {
-            setDateRange([dateRange?.[0], date]);
-          }
-            }}
+        </Col>
+        <Col span={8}>
+          <Select
+            value={timeResolution}
+            onChange={(val) => setTimeResolution(val)}
             style={{ width: "100%" }}
-            format="YYYY-MM-DD"
-            disabledDate={(current) => {
-          // Desabilita datas fora do range permitido e antes da data inicial
-          if (disabledDate(current, { type: "date" })) return true;
-          if (dateRange?.[0] && current && current.isBefore(dateRange[0], "day")) return true;
-          return false;
-            }}
-            placeholder="End Date"
+            options={[
+              { label: "15 Minutes", value: "15min" },
+              { label: "1 Hour", value: "1h" },
+              { label: "1 Day", value: "1d" },
+            ]}
           />
-        </Form.Item>
-          </div>
         </Col>
       </Row>
-
-      {isProfilesLoading ? (
+{isProfilesLoading ? (
         <p>Loading profiles...</p>
       ) : filteredProfiles.length === 0 ? (
         <p>No profiles available for this prosumer or date range.</p>
       ) : (
         <>
-          <Row gutter={[8, 8]} style={{ marginBottom: 24 }}>
-            <Col xs={24}>
+          <Row gutter={16}>
+            <Col span={24}>
               <Card title="Average Profile Values">
-                <Descriptions column={1} bordered size="small">
+                <Descriptions column={3} bordered size="small">
                   {averageFields.map(({ label, key }) => (
                     <Descriptions.Item label={label} key={key}>
                       {calculateAverage(key as keyof ProfileDTO)} kWh
@@ -415,29 +384,33 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
             </Col>
           </Row>
 
-            <Row gutter={[8, 8]} style={{ marginBottom: 24 }}>
-              <Col xs={24}>
-              <Card title={`Time Series (${timeResolution})`}>
-                <div className="w-full overflow-x-auto">
-                <div style={{ minWidth: 800 }}>
-                  {chartData.length === 0 ? (
-                  <p>No data available for the selected time resolution.</p>
-                  ) : (
-                  <Line {...chartConfig} height={500} />
-                  )}
-                </div>
-                </div>
+          <Row gutter={16} style={{ marginTop: 20 }}>
+            <Col span={24}>
+              <Card title="Profile Evolution (Averages)">
+                <Line
+                  data={generateChartData()}
+                  xField="time"
+                  yField="value"
+                  seriesField="type"
+                  height={400}
+                />
               </Card>
-              </Col>
-            </Row>
-            
+            </Col>
+          </Row>
 
-          <div className="w-full">
-            <PieChart filteredProfiles={filteredProfiles} />
-          </div>
+          <Row gutter={16} style={{ marginTop: 20 }}>
+            <Col span={24}>
+              <Card title="Energy Distribution (Total kWh)">
+                {generatePieChartData().length === 0 ? (
+                  <p>No data available for the selected fields.</p>
+                ) : (
+                  <Pie {...pieConfig} height={400} />
+                )}
+              </Card>
+            </Col>
+          </Row>
         </>
       )}
-
     </Card>
   );
 };

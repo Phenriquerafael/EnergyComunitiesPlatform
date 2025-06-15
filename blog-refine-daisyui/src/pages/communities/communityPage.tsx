@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Spin, Button } from "antd";
+import { Card, Spin, Button, Select } from "antd";
 import { useList } from "@refinedev/core";
 import CommunityDetails from "../../components/community/communityDetails";
 import CommunityForm from "../../components/community/communityForm";
@@ -41,26 +41,29 @@ export const CommunityManagerPage = () => {
   }
 
   return (
-    <Card title="Community Management">
+    <Card title="Community Management" >
       {/* Seletor de comunidade */}
-      <div style={{ marginBottom: 16 }}>
-        <strong>Select a community:</strong>{" "}
-        <select
+      <div style={{ marginBottom: 16 }} >
+        <label style={{ fontWeight: "bold", marginRight: 8 }}>
+          Choose a community:
+        </label>
+
+        <Select
           value={selectedCommunityId ?? ""}
-          onChange={(e) => setSelectedCommunityId(e.target.value)}
-          style={{ marginLeft: 8 }}
+          onChange={(value) => setSelectedCommunityId(value)}
+          style={{ width: 200,marginBottom: 16 , marginRight: 8 }}
+          placeholder="-- Select --"
         >
-          <option value="">-- Select --</option>
           {communitiesData?.data.map((community) => (
-            <option key={community.id} value={community.id}>
+            <Select.Option key={community.id} value={community.id}>
               {community.name}
-            </option>
+            </Select.Option>
           ))}
-        </select>
+        </Select>
         <Button
-          type="default"
+          className="btn btn-neutral btn-sm"
           onClick={() => setShowCommunityForm((prev) => !prev)}
-          style={{ marginLeft: 16 }}
+   
         >
           {showCommunityForm ? "Hide Create Form"  : "Create New Community"}
         </Button>

@@ -37,6 +37,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router": "^7.0.2",
+    "react-world-flags": "^1.6.0",
     "recharts": "^2.1.9"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "@types/node": "^18.19.110",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@types/react-world-flags": "^1.6.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.1",
     "cypress": "^14.4.0",

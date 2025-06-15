@@ -4,6 +4,9 @@ import { useOne, useList, useCustomMutation } from "@refinedev/core";
 import ProsumerTableBody from "../prosumers/prosumerTableBody";
 import AlgorithmUploadSection from "../Algorithms/algorithmSelection";
 import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
+import Flag from 'react-world-flags';
+import { IProsumerDataDTO } from "../../interfaces";
+
 
 const { Title } = Typography;
 
@@ -96,12 +99,19 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
   }
 
   const community = data?.data;
-  const prosumersInCommunity = communityProsumersData?.data.filter((p) => p.communityId === communityId);
+  const prosumersInCommunity = communityProsumersData?.data.filter((p) => p.communityId === communityId) as IProsumerDataDTO[];
   const prosumersNotInCommunity = prosumerData?.data.filter((p) => p.communityId !== communityId);
 
   return (
     <>
-      <Descriptions title="Community Details" bordered column={1}>
+      
+      <Descriptions  bordered column={1}>
+      <Descriptions.Item label="Country">
+        <span className="flex items-center gap-2">
+          <Flag code={community?.country ?? "pt"} style={{ width: 24, height: 16 }} />
+          {community?.country ?? "Portugal"}
+        </span>
+      </Descriptions.Item>
       <Descriptions.Item label="Name">{community?.name}</Descriptions.Item>
       <Descriptions.Item label="Description">{community?.description}</Descriptions.Item>
       </Descriptions>
@@ -110,7 +120,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
 
       <Title level={4}>Prosumers in this Community</Title>
 
-      <ProsumerTableBody 
+      <ProsumerTableBody
       prosumers={(communityProsumersData?.data ?? []).map((p) => ({
         ...p,
         id: p.id?.toString(),
@@ -120,51 +130,65 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       <br />
       <br />
 
-
-      <div className="flex flex-col  gap-5">
+      <div
+        className="flex flex-col gap-5 md:flex-row"
+        style={{ flexWrap: "wrap" }}
+      >
         <Card
-        title={
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          title={
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <UserMinusIcon style={{ width: 24, height: 24 }} />
-          Remove Prosumers from Community
-          </span>
-        }
-        style={{ minWidth: 350, marginRight: 24 }}
+          Remove from Community
+        </span>
+          }
+          style={{
+        minWidth: 250,
+        flex: 1,
+        marginRight: 0,
+        maxWidth: "100%",
+          }}
+          bodyStyle={{ padding: 16 }}
         >
-        <Select
-          mode="multiple"
-          placeholder="Select prosumers to remove"
-          style={{ width: "100%", marginBottom: 16 }}
-          loading={isProsumersLoading}
-          onChange={(values) => setSelectedProsumersToRemove(values)}
-          value={selectedProsumersToRemove}
-          optionLabelProp="label"
-          options={prosumersInCommunity?.map((p) => ({
+          <Select
+        mode="multiple"
+        placeholder="Select prosumers to remove"
+        style={{ width: "100%", marginBottom: 16 }}
+        loading={isProsumersLoading}
+        onChange={(values) => setSelectedProsumersToRemove(values)}
+        value={selectedProsumersToRemove}
+        optionLabelProp="label"
+        options={prosumersInCommunity?.map((p) => ({
           value: p.id,
           label: p.userName ?? `Prosumer ${p.id}`,
-          }))}
-        />
+        }))}
+          />
 
-        <Button
-          danger
-          onClick={onRemoveProsumers}
-          loading={isRemoving}
-          disabled={selectedProsumersToRemove.length === 0}
-          style={{ marginBottom: 24 }}
-        >
-          Remove Selected Prosumers
-        </Button>
+          <Button
+        danger
+        onClick={onRemoveProsumers}
+        loading={isRemoving}
+        disabled={selectedProsumersToRemove.length === 0}
+        style={{ marginBottom: 24, width: "100%" }}
+          >
+        Remove Selected Prosumers
+          </Button>
         </Card>
-      
-      <Card
-        title={
+
+        <Card
+          title={
         <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <UserPlusIcon style={{ width: 24, height: 24 }} />
-          Add Prosumers to Community
+          Add to Community
         </span>
-        }
-        style={{ minWidth: 350 }}
-      >
+          }
+          style={{
+        minWidth: 250,
+        flex: 1,
+        maxWidth: "100%",
+          }}
+          bodyStyle={{ padding: 16 }}
+        >
+
         <Select
         mode="multiple"
         placeholder="Select prosumers to add"
@@ -177,23 +201,23 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
           value: p.id,
           label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ''}`,
         }))}
-        />
+          />
 
-        <Button
+          <Button
         type="primary"
         onClick={onAddProsumers}
         loading={isAdding}
         disabled={selectedProsumersToAdd.length === 0}
-        >
+        style={{ width: "100%" }}
+          >
         Add Selected Prosumers
-        </Button>
-      </Card>
+          </Button>
+        </Card>
       </div>
 
-      
       <Divider />
 
-      <AlgorithmUploadSection prosumerIds={(prosumersInCommunity ?? []).map((p) => p.id).filter((id): id is string => typeof id === "string")} />
+      <AlgorithmUploadSection prosumers={prosumersInCommunity ?? []} />
     </>
   );
 };

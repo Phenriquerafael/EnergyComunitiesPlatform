@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
-import { TTab } from '../../interfaces';
+import React, { useState } from 'react';
+import { Select } from 'antd';
+import { TTab, ProfileDTO } from '../../interfaces';
 
 import { TabView } from '../../components/dashboard/TabView';
 import {
@@ -12,7 +13,6 @@ import {
   simulations,
 } from '../../components/dashboard/mockEnergyData';
 
-import { useState } from 'react';
 import { ResponsiveAreaChart } from '../../components/dashboard/ResponsiveAreaChart';
 import { GroupedBarChart } from '../../components/dashboard/GroupedBarChart';
 import { StorageEfficiencyRadarChart } from '../../components/dashboard/StorageEfficiencyChart';
@@ -24,16 +24,30 @@ import { ScatterPlot } from '../../components/dashboard/ScatterPlot';
 import { SankeyDiagram } from '../../components/dashboard/SankeyDiagram';
 import { Stats } from '../../components/dashboard/Stats';
 import { RecentSimulations } from '../../components/dashboard/RecentSimulations';
-import { Select } from "antd";
+import PieChart from '../../components/prosumers/pieChart';
+
 
 export const Dashboard: React.FC = () => {
   const [selectedSimulation, setSelectedSimulation] = useState(simulations[0]);
 
-const simulationOptions = simulations.map((sim, index) => ({
-  label: sim.description,
-  value: index,
-}));
+  // Simulação de filtragem de perfis com base na simulação escolhida
+  const [filteredProfiles, setFilteredProfiles] = useState<ProfileDTO[]>(profileData); // podes ajustar isto conforme necessário
 
+  const simulationOptions = simulations.map((sim, index) => ({
+    label: sim.description,
+    value: index,
+  }));
+
+  // Estado para o prosumer selecionado (single)
+  const [selectedProsumerIndex, setSelectedProsumerIndex] = useState<number | null>(null);
+  // Estado para os prosumers selecionados (multiple)
+  const [selectedProsumerIndices, setSelectedProsumerIndices] = useState<number[]>([]);
+
+  // Opções para o Select de prosumers
+  const prosumerOptions = filteredProfiles.map((prosumer, index) => ({
+    label: prosumer.prosumerId || `Prosumer #${index + 1}`,
+    value: index,
+  }));
 
   const specificCommunityTabs: TTab[] = [
     {
@@ -126,6 +140,40 @@ const simulationOptions = simulations.map((sim, index) => ({
         />
       ),
     },
+    {
+      id: 9,
+      label: 'Energy Breakdown (Per Prosumer)',
+      content: (
+        <div>
+          <div className="mb-4 w-full ">
+            <Select
+              mode="multiple"
+              className="ml-5 w-64 "
+              placeholder="Choose prosumers"
+              options={prosumerOptions}
+              value={selectedProsumerIndices}
+              onChange={setSelectedProsumerIndices}
+              allowClear
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {(
+              selectedProsumerIndices.length > 0
+              ? selectedProsumerIndices.map(idx => filteredProfiles[idx])
+              : filteredProfiles
+            ).map((prosumer, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-sm p-4">
+              <h4 className="font-medium mb-2">
+                {prosumer.prosumerId || `Prosumer #${selectedProsumerIndices.length > 0 ? selectedProsumerIndices[index] + 1 : index + 1}`}
+              </h4>
+              <PieChart filteredProfiles={[prosumer]} />
+              </div>
+            ))}
+            </div>
+            </div>
+        </div>
+      ),
+    },
   ];
 
   const allCommunitiesTabs: TTab[] = [
@@ -175,31 +223,50 @@ const simulationOptions = simulations.map((sim, index) => ({
         />
       ),
     },
+    //Buscar profiles por comunidade
+/*     {
+      id: 5,
+      label: 'Community Breakdown (Pie)',
+      content: (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {communityEnergyData.map((community, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-sm p-4">
+              <h4 className="font-medium mb-2">Community #{index + 1}</h4>
+              <PieChart filteredProfiles={[community]} />
+            </div>
+          ))}
+        </div>
+      ),
+    }, */
   ];
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Energy Community Dashboard</h1>
       <Stats profileData={profileData} />
-        <div className="mb-6">
-          <label className="block text-md font-medium mb-2">Select Simulation</label>
-          <Select
-            className="w-full md:w-1/2"
-            placeholder="Choose a simulation"
-            options={simulationOptions}
-            value={simulations.indexOf(selectedSimulation)}
-            onChange={(value) => setSelectedSimulation(simulations[value])}
-          />
-          <p className="text-sm text-gray-500 mt-2">
-            Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
-          </p>
-        </div>
+      <div className="mb-6">
+        <label className="block text-md font-medium mb-2">Select Simulation</label>
+        <Select
+          className="w-full md:w-1/2"
+          placeholder="Choose a simulation"
+          options={simulationOptions}
+          value={simulations.indexOf(selectedSimulation)}
+          onChange={(value) => {
+            setSelectedSimulation(simulations[value]);
+            // Atualizar os perfis com base na simulação selecionada
+            setFilteredProfiles(profileData); // você pode aplicar filtros reais aqui
+          }}
+        />
+        <p className="text-sm text-gray-500 mt-2">
+          Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
+        </p>
+      </div>
 
       <h2 className="text-xl font-semibold mb-2">Specific Community</h2>
       <TabView tabs={specificCommunityTabs} />
       <h2 className="text-xl font-semibold mb-2 mt-8">All Communities</h2>
       <TabView tabs={allCommunitiesTabs} />
-      <RecentSimulations data= {simulations}/>
+      <RecentSimulations data={simulations} />
     </div>
   );
 };
