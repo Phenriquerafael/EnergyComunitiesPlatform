@@ -77,6 +77,7 @@ export const ProsumerList = () => {
               setSearch("");
               filterForm?.current?.reset();
               setFiltered(prosumers);
+              refetch();
             }}
           >
             <FunnelIcon className="h-4 w-4" />

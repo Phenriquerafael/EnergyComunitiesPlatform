@@ -27,7 +27,7 @@ interface AlgorithmUploadSectionProps {
 }
 
 const mockAlgorithms: Algorithm[] = [
-  { id: "alg1", name: "Battery Optimizer", description: "Optimizes battery for energy consumption." },
+  { id: "alg1", name: "Basic Optimizer", description: "Sets optimal energy transactions." },
   { id: "alg2", name: "Load Balancer", description: "Distributes loads across network nodes." },
   { id: "alg3", name: "Demand Predictor", description: "Predicts energy demand using historical data." },
 ];
@@ -39,7 +39,10 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [features, setFeatures] = useState<Record<string, { battery: boolean; load: boolean; photovoltaicLoad: boolean }>>({});
 
-  const prosumerIds = (prosumers ?? []).map((p) => p.id).filter((id): id is string => typeof id === "string");
+  const prosumerIds = (prosumers ?? [])
+  .filter((p): p is IProsumerDataDTO => p?.id != null)
+  .map((p) => p.id!);
+
 
   const handleFeatureChange = (
     prosumerId: string,
@@ -89,7 +92,7 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
     });
 
     try {
-      const response = await fetch("http://localhost:8000/run-optimization", {
+/*       const response = await fetch("http://localhost:8000/run-optimization", {
         method: "POST",
         body: formData,
       });
@@ -98,8 +101,9 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
         const errorText = await response.text();
         const errorData = errorText ? JSON.parse(errorText) : { detail: "Unknown error" };
         throw new Error(errorData.detail || "Upload failed");
-      }
+      } */
 
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       message.success("Optimization started successfully!");
     } catch (error: any) {
       message.error(`Failed to start optimization: ${error.message}`);

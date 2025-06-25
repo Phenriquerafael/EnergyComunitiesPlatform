@@ -12,8 +12,9 @@ import {
   useDelete,
   BaseKey,
 } from "@refinedev/core";
-import {IBatteryDTO} from "../../interfaces";
+import { IBatteryDTO } from "../../interfaces";
 import { BatteryTableBody } from "../../components/batteries/batteryTableBody";
+import { message } from "antd"; // Importe o message do Ant Design
 
 export const BatteryList = () => {
   const { data, refetch } = useList<IBatteryDTO>({
@@ -40,7 +41,15 @@ export const BatteryList = () => {
         id,
       },
       {
-        onSuccess: () => refetch(),
+        onSuccess: () => {
+          message.success("Battery deleted successfully!"); // Mensagem de sucesso
+          refetch(); // Recarrega a lista após sucesso
+        },
+        onError: (error) => {
+          message.error(
+            `Failed to delete battery: ${error.message || "Unknown error"}`
+          ); // Mensagem de erro
+        },
       }
     );
   };

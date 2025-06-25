@@ -7,7 +7,6 @@ import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
 import Flag from 'react-world-flags';
 import { IProsumerDataDTO } from "../../interfaces";
 
-
 const { Title } = Typography;
 
 interface CommunityDetailsProps {
@@ -23,7 +22,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
     id: communityId,
   });
 
-  const { data: prosumerData, isLoading: isProsumersLoading,refetch } = useList({
+  const { data: prosumerData, isLoading: isProsumersLoading, refetch: refetchProsumers } = useList({
     resource: "prosumers/all2",
   });
 
@@ -53,12 +52,13 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       },
       {
         onSuccess: () => {
-          message.success("Prosumers added successfully!");
           setSelectedProsumersToAdd([]);
-          refetch(); // Refresh the prosumer list after adding
+          refetchProsumers(); // Atualiza a lista de todos os prosumers
+          refetchCommunityProsumers(); // Atualiza a lista de prosumers na comunidade
+          message.success("Prosumers added successfully!");
         },
-        onError: () => {
-          message.error("Failed to add prosumers.");
+        onError: (error) => {
+          message.error(`Failed to add prosumers: ${error.message || "Unknown error"}`);
         },
       }
     );
@@ -85,132 +85,116 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         onSuccess: () => {
           message.success("Prosumers removed successfully!");
           setSelectedProsumersToRemove([]);
-          refetch(); // Refresh the prosumer list after removing
+          refetchProsumers(); // Atualiza a lista de todos os prosumers
+          refetchCommunityProsumers(); // Atualiza a lista de prosumers na comunidade
         },
-        onError: () => {
-          message.error("Failed to remove prosumers.");
+        onError: (error) => {
+          message.error(`Failed to remove prosumers: ${error.message || "Unknown error"}`);
         },
       }
     );
   };
 
-  if (isLoading || isProsumersLoading) {
+  if (isLoading || isProsumersLoading || isCommunityProsumersLoading) {
     return <Spin />;
   }
 
   const community = data?.data;
-  const prosumersInCommunity = communityProsumersData?.data.filter((p) => p.communityId === communityId) as IProsumerDataDTO[];
-  const prosumersNotInCommunity = prosumerData?.data.filter((p) => p.communityId !== communityId);
+  const prosumersInCommunity = communityProsumersData?.data as IProsumerDataDTO[];
+  const prosumersNotInCommunity = prosumerData?.data.filter((p) => !prosumersInCommunity?.some((cp) => cp.id === p.id));
 
   return (
     <>
-      
-      <Descriptions  bordered column={1}>
-      <Descriptions.Item label="Country">
-        <span className="flex items-center gap-2">
-          <Flag code={community?.country ?? "pt"} style={{ width: 24, height: 16 }} />
-          {community?.country ?? "Portugal"}
-        </span>
-      </Descriptions.Item>
-      <Descriptions.Item label="Name">{community?.name}</Descriptions.Item>
-      <Descriptions.Item label="Description">{community?.description}</Descriptions.Item>
+      <Descriptions bordered column={1}>
+        <Descriptions.Item label="Country">
+          <span className="flex items-center gap-2">
+            <Flag code={community?.country ?? "pt"} style={{ width: 24, height: 16 }} />
+            {community?.country ?? "Portugal"}
+          </span>
+        </Descriptions.Item>
+        <Descriptions.Item label="Name">{community?.name}</Descriptions.Item>
+        <Descriptions.Item label="Description">{community?.description}</Descriptions.Item>
       </Descriptions>
 
       <Divider />
 
       <Title level={4}>Prosumers in this Community</Title>
-
       <ProsumerTableBody
-      prosumers={(communityProsumersData?.data ?? []).map((p) => ({
-        ...p,
-        id: p.id?.toString(),
-      }))}
-      ></ProsumerTableBody>
+        prosumers={prosumersInCommunity?.map((p) => ({
+          ...p,
+          id: p.id?.toString(),
+        })) || []}
+      />
 
       <br />
       <br />
 
-      <div
-        className="flex flex-col gap-5 md:flex-row"
-        style={{ flexWrap: "wrap" }}
-      >
+      <div className="flex flex-col gap-5 md:flex-row" style={{ flexWrap: "wrap" }}>
         <Card
           title={
-        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <UserMinusIcon style={{ width: 24, height: 24 }} />
-          Remove from Community
-        </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <UserMinusIcon style={{ width: 24, height: 24 }} />
+              Remove from Community
+            </span>
           }
-          style={{
-        minWidth: 250,
-        flex: 1,
-        marginRight: 0,
-        maxWidth: "100%",
-          }}
+          style={{ minWidth: 250, flex: 1, marginRight: 0, maxWidth: "100%" }}
           bodyStyle={{ padding: 16 }}
         >
           <Select
-        mode="multiple"
-        placeholder="Select prosumers to remove"
-        style={{ width: "100%", marginBottom: 16 }}
-        loading={isProsumersLoading}
-        onChange={(values) => setSelectedProsumersToRemove(values)}
-        value={selectedProsumersToRemove}
-        optionLabelProp="label"
-        options={prosumersInCommunity?.map((p) => ({
-          value: p.id,
-          label: p.userName ?? `Prosumer ${p.id}`,
-        }))}
+            mode="multiple"
+            placeholder="Select prosumers to remove"
+            style={{ width: "100%", marginBottom: 16 }}
+            loading={isProsumersLoading || isCommunityProsumersLoading}
+            onChange={(values) => setSelectedProsumersToRemove(values)}
+            value={selectedProsumersToRemove}
+            optionLabelProp="label"
+            options={prosumersInCommunity?.map((p) => ({
+              value: p.id,
+              label: p.userName ?? `Prosumer ${p.id}`,
+            }))}
           />
-
           <Button
-        danger
-        onClick={onRemoveProsumers}
-        loading={isRemoving}
-        disabled={selectedProsumersToRemove.length === 0}
-        style={{ marginBottom: 24, width: "100%" }}
+            danger
+            onClick={onRemoveProsumers}
+            loading={isRemoving}
+            disabled={selectedProsumersToRemove.length === 0}
+            style={{ marginBottom: 24, width: "100%" }}
           >
-        Remove Selected Prosumers
+            Remove Selected Prosumers
           </Button>
         </Card>
 
         <Card
           title={
-        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <UserPlusIcon style={{ width: 24, height: 24 }} />
-          Add to Community
-        </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <UserPlusIcon style={{ width: 24, height: 24 }} />
+              Add to Community
+            </span>
           }
-          style={{
-        minWidth: 250,
-        flex: 1,
-        maxWidth: "100%",
-          }}
+          style={{ minWidth: 250, flex: 1, maxWidth: "100%" }}
           bodyStyle={{ padding: 16 }}
         >
-
-        <Select
-        mode="multiple"
-        placeholder="Select prosumers to add"
-        style={{ width: "100%", marginBottom: 16 }}
-        loading={isProsumersLoading}
-        onChange={(values) => setSelectedProsumersToAdd(values)}
-        value={selectedProsumersToAdd}
-        optionLabelProp="label"
-        options={prosumersNotInCommunity?.map((p) => ({
-          value: p.id,
-          label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ''}`,
-        }))}
+          <Select
+            mode="multiple"
+            placeholder="Select prosumers to add"
+            style={{ width: "100%", marginBottom: 16 }}
+            loading={isProsumersLoading || isCommunityProsumersLoading}
+            onChange={(values) => setSelectedProsumersToAdd(values)}
+            value={selectedProsumersToAdd}
+            optionLabelProp="label"
+            options={prosumersNotInCommunity?.map((p) => ({
+              value: p.id,
+              label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ""}`,
+            }))}
           />
-
           <Button
-        type="primary"
-        onClick={onAddProsumers}
-        loading={isAdding}
-        disabled={selectedProsumersToAdd.length === 0}
-        style={{ width: "100%" }}
+            type="primary"
+            onClick={onAddProsumers}
+            loading={isAdding}
+            disabled={selectedProsumersToAdd.length === 0}
+            style={{ width: "100%" }}
           >
-        Add Selected Prosumers
+            Add Selected Prosumers
           </Button>
         </Card>
       </div>
