@@ -13,7 +13,7 @@ type UserProfile = {
     lastName?: string;
     email?: string;
     phoneNumber?: string;
-    avatar?: string;
+    //avatar?: string;
     role?: string;
 };
 
@@ -35,6 +35,15 @@ export const UserEdit: React.FC<IUserEditProps> = ({ onClose }) => {
     }, [user, reset]);
 
     const handleUpdate = async (formData: UserProfile) => {
+        formData = {
+            id: formData.id,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+            //role: formData.role
+        };
+
         if (!user?.id) {
             console.error("User ID missing");
             return;
@@ -43,12 +52,18 @@ export const UserEdit: React.FC<IUserEditProps> = ({ onClose }) => {
         formData.id = user.id; // Ensure the ID is set for the update
 
         console.log("Updating user with data:", formData);
+        const token = localStorage.getItem("token");
 
         update(
             {
                 resource: "users/update",
                 id: user.id, // necessário só para Refine, não será enviado no corpo se sua API não usa params
                 values: formData, // isso vai com `id` incluso no body
+                meta: {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
             },
             {
                 onSuccess: () => onClose(),
