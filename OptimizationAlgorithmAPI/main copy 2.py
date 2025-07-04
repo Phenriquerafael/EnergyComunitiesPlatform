@@ -114,8 +114,6 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
     #end_date_str = '10.02.2024 23:45:00'
 
 
-
-
     # print(f"Default Start Date: {start_date_str}")
     # print(f"Default End Date: {end_date_str}")
 
@@ -178,7 +176,12 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
     SOC_end_of_previous_period = {pl: ESSparam[3, pl - 1] for pl in range(1, nPlayers + 1)}
     detailed_results = []
     total_objective_value = 0
-    update_interval = 288 # Update SOC every 288 time steps
+
+    #análise minima e básica do intervalo de atualização
+    update_interval = 288 #max(MIN_UPDATE_INTERVAL, int(days / 10))
+
+    #análise complexa e mais fiável
+    #update_interval = 28800  # Update SOC every 28800 time steps (equivalent to 20 days if each step is 5 minutes)
 
     #print(f"Solving for the period from {datetime_sim[0]} to {datetime_sim[-1]}...")
 
@@ -408,7 +411,7 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
         total_objective_value += value(instance.Objective)
         
         # Prepare results for DataFrame 
-        chunk_results_list = []
+        #chunk_results_list = []
         # for t_index, t in enumerate(model.T):
         #     for pl_index, pl in enumerate(model.PL):
         #         chunk_results_list.append({
@@ -425,10 +428,11 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
         #             "P_Peer_in": sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl),
         #             "P_Load": value(instance.PLs[t, pl])
         #         })
+        
+        chunk_results_list = []  # fora do loop
 
-
-        for t_index, t in enumerate(model.T): 
-            dt = pd.to_datetime(datetime_chunk[t_index])  # Convert to pandas Timestamp
+        for t_index, t in enumerate(model.T):
+            dt = pd.to_datetime(datetime_chunk[t_index])
 
             for pl in model.PL:
                 chunk_row = {
@@ -445,22 +449,12 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
                     "P_Peer_in": str(sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl)),
                     "P_Load": str(value(instance.PLs[t, pl]))
                 }
-                chunk_results_list.append(chunk_row)
-        
-        # Convert chunk results to DataFrame and append
-        chunk_results_df = pd.DataFrame(chunk_results_list)
-        detailed_results.append(chunk_results_df)
-    #%%
-        # Update SOC_end_of_previous_period 
-        #SOC_end_of_day.update({(PL, day): value(instance.P_ESS_s[PL, Thorizon]) for PL in model.PL})
-        SOC_end_of_previous_period.update( {pl: value(instance.P_ESS_s[pl, model.T.last()]) for pl in model.PL})
-        print(f"SOC updated at time step: {chunk_end_time}")
-        print(SOC_end_of_previous_period)
 
-        
-    # Concatenate all chunk results
-    detailed_results_df = pd.concat(detailed_results, ignore_index=True)
-    detailed_results = detailed_results_df.to_dict(orient="records")
+                chunk_results_list.append(chunk_row)
+
+        # Agora só um DataFrame final
+        detailed_results_df = pd.DataFrame(chunk_results_list)
+        detailed_results = detailed_results_df.to_dict(orient="records")
 
 
     # Convert results to a DataFrame and save to Excel

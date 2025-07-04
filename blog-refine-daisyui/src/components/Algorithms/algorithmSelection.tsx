@@ -9,6 +9,7 @@ interface Algorithm {
   name: string;
   description: string;
   communityId?: string;
+  available?: boolean;
 }
 
 export interface IProsumerDataDTO {
@@ -27,9 +28,9 @@ interface AlgorithmUploadSectionProps {
 }
 
 const mockAlgorithms: Algorithm[] = [
-  { id: "alg1", name: "Basic Optimizer", description: "Sets optimal energy transactions." },
-  { id: "alg2", name: "Load Balancer", description: "Distributes loads across network nodes." },
-  { id: "alg3", name: "Demand Predictor", description: "Predicts energy demand using historical data." },
+  { id: "alg1", name: "Basic Optimizer", description: "Sets optimal energy transactions.",available: true },
+  { id: "alg2", name: "Load Balancer", description: "Distributes loads across network nodes.", available: false },
+  { id: "alg3", name: "Demand Predictor", description: "Predicts energy demand using historical data.",available: false },
 ];
 
 const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosumers }) => {
@@ -92,7 +93,7 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
     });
 
     try {
-/*       const response = await fetch("http://localhost:8000/run-optimization", {
+      const response = await fetch("http://localhost:8000/run-optimization", {
         method: "POST",
         body: formData,
       });
@@ -101,12 +102,12 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
         const errorText = await response.text();
         const errorData = errorText ? JSON.parse(errorText) : { detail: "Unknown error" };
         throw new Error(errorData.detail || "Upload failed");
-      } */
+      }
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      message.success("Optimization started successfully!");
+      message.success("Optimization data loaded successfully!");
     } catch (error: any) {
-      message.error(`Failed to start optimization: ${error.message}`);
+      message.error(`Failed to load optimization data: ${error.message}`);
     }
   };
 
@@ -129,6 +130,7 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
             options={mockAlgorithms.map((alg) => ({
               value: alg.id,
               label: `${alg.name} - ${alg.description}`,
+              disabled: alg.available === false,
             }))}
           />
         </Form.Item>
@@ -165,40 +167,45 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
             const prosumer = prosumers.find((p) => p.id === id);
             return (
               <fieldset
-                key={id}   
+                key={id}
                 className="border border-base-300 rounded-lg p-4 shadow-sm bg-base-100"
               >
                 <legend className="font-semibold text-sm mb-2">
             Prosumer: {prosumer?.userName || id} - ID: {id}
                 </legend>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {(["battery", "load", "photovoltaicLoad"] as const).map((featureKey) => (
-              <div key={featureKey}>
-                <div className="text-sm font-medium mb-1">{featureKey}</div>
-                <div className="flex items-center gap-4">
-                  <label className="label cursor-pointer">
-              <input
-                type="radio"
-                name={`${id}-${featureKey}`}
-                className="radio radio-success"
-                checked={features[id]?.[featureKey] === true}
-                onChange={() => handleFeatureChange(id, featureKey, true)}
-              />
-              <span className="label-text ml-2">On</span>
-                  </label>
-                  <label className="label cursor-pointer">
-              <input
-                type="radio"
-                name={`${id}-${featureKey}`}
-                className="radio radio-error"
-                checked={features[id]?.[featureKey] === false}
-                onChange={() => handleFeatureChange(id, featureKey, false)}
-              />
-              <span className="label-text ml-2">Off</span>
-                  </label>
+            {(["battery", "load", "photovoltaicLoad"] as const).map((featureKey) => {
+              // Default to true if not set
+              const checkedValue = features[id]?.[featureKey];
+              const isOn = checkedValue === undefined ? true : checkedValue === true;
+              return (
+                <div key={featureKey}>
+                  <div className="text-sm font-medium mb-1">{featureKey}</div>
+                  <div className="flex items-center gap-4">
+              <label className="label cursor-pointer">
+                <input
+                  type="radio"
+                  name={`${id}-${featureKey}`}
+                  className="radio radio-success"
+                  checked={isOn}
+                  onChange={() => handleFeatureChange(id, featureKey, true)}
+                />
+                <span className="label-text ml-2">On</span>
+              </label>
+              <label className="label cursor-pointer">
+                <input
+                  type="radio"
+                  name={`${id}-${featureKey}`}
+                  className="radio radio-error"
+                  checked={!isOn}
+                  onChange={() => handleFeatureChange(id, featureKey, false)}
+                />
+                <span className="label-text ml-2">Off</span>
+              </label>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
                 </div>
               </fieldset>
             );

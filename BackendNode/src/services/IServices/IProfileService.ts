@@ -11,4 +11,6 @@ export default interface IProfileService {
     findAll(): Promise<Result<IProfileDTO[]>>;
     deleteProfile(profileId: string): Promise<Result<void>>;
     findByCommunityId(communityId: string): Promise<Result<IProfileDTO[]>>;
+    deleteByCommunityId(communityId: string): Promise<Result<void>>;
+    deleteByProsumerId(prosumerId: string): Promise<Result<void>>;
 }

@@ -1,14 +1,11 @@
-@startuml DDD_compacto
+@startuml DDD_compact2
 
 hide circle
 
-skinparam backgroundColor #fcf9ea
 skinparam titleBorderRoundCorner 15
 skinparam titleFontSize 30
 skinparam classAttributeIconSize 0
-skinparam titleFontName Arial Black
-skinparam titleFontColor #f8a978
-skinparam roundcorner 15
+
 
 skinparam nodesep 10
 skinparam ranksep 15
@@ -26,7 +23,7 @@ skinparam class {
   BackgroundColor<<Service>> Moccasin
 }
 
-left to right direction
+top to bottom direction
 
 package "<<agr Simulation>>" {
   class Simulation <<entity>><<root>> {
@@ -36,6 +33,13 @@ package "<<agr Simulation>>" {
     +Load
     +BatteryLoad
     +PhotovoltaicLoad
+  }
+}
+
+package "<<agr Community>>" {
+  class Community <<entity>><<root>> {
+    +CommunityId
+    +CommunityName
   }
 }
 
@@ -68,6 +72,19 @@ package "<<agr User>>" {
   }
 }
 
+
+
+
+package "<<agr Prosumer>>" {
+  class Prosumer <<entity>><<root>> {
+    +ProsumerId
+  }
+ 
+  Prosumer --> Community
+   Prosumer --|> User
+  Profile --> Prosumer
+}
+
 package "<<agr Battery(ESS)>>" {
   class Battery <<entity>><<root>> {
     +BatteryId
@@ -76,24 +93,9 @@ package "<<agr Battery(ESS)>>" {
     +Efficiency
     +MaxChargeDischarge
   }
-}
-
-package "<<agr Community>>" {
-  class Community <<entity>><<root>> {
-    +CommunityId
-    +CommunityName
-  }
-}
-
-package "<<agr Prosumer>>" {
-  class Prosumer <<entity>><<root>> {
-    +ProsumerId
-  }
-  Prosumer --|> User
-  Prosumer --> Community
   Prosumer --> Battery
-  Profile --> Prosumer
 }
+
 
 package "<<agr CommunityManager>>" {
   class CommunityManager <<entity>><<root>> {

@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+import { useEffect } from "react";
 import { Breadcrumb } from "../breadcrumb";
 import { Menu } from "../menu";
 import { UserDrawer } from "../user/UserDrawer";
@@ -8,8 +9,14 @@ import { useNavigation } from "@refinedev/core";
 import Footer from "./footer";
 
 export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
-  const { data: user } = useGetIdentity();
+  const { data: user, isLoading } = useGetIdentity();
   const { push } = useNavigation();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      push("/login");
+    }
+  }, [user, isLoading, push]);
 
   return (
     <div className="flex flex-col min-h-screen bg-base-100">

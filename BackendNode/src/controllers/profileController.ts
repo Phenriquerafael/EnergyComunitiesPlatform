@@ -140,6 +140,38 @@ export default class ProfileController implements IProfileController {
         
       } 
     }
+  public async deleteByCommunityId(req: Request, res: Response, next: NextFunction) {
+      try {
+          const { id } = req.params;
+
+          const result = await this.profileServiceInstance.deleteByCommunityId(id);
+
+          if (result.isFailure) {
+              return res.status(404).json({ message: result.error });
+          }
+
+          return res.status(200).send();
+      } catch (error) {
+          return next(error);
+      }
+    }
+
+  public async deleteByProsumerId(req: Request, res: Response, next: NextFunction) {
+      try {
+          const { id } = req.params;
+
+          const result = await this.profileServiceInstance.deleteByProsumerId(id);
+
+          if (result.isFailure) {
+              return res.status(404).json({ message: result.error });
+          }
+
+          return res.status(200).send();
+      } catch (error) {
+          return next(error);
+      }
+    }
+
 
 
 

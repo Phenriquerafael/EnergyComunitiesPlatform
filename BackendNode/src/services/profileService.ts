@@ -273,5 +273,45 @@ export default class ProfileService implements IProfileService {
     }
   }
 
+  public async deleteByCommunityId(communityId: string): Promise<Result<void>> {
+    try {
+      const profilesOrError = await this.profileRepoInstance.findByCommunityId(communityId);
+      if (profilesOrError.isFailure) {
+        return Result.fail<void>('Profiles not found for community');
+      }
+      const profiles = profilesOrError.getValue();
+      for (const profile of profiles) {
+        const deleteResult = await this.profileRepoInstance.delete(profile);
+        if (deleteResult.isFailure) {
+          return Result.fail<void>('Error deleting profile');
+        }
+      }
+      return Result.ok<void>();
+    } catch (error) {
+      console.error('Error deleting profiles by community ID:', error);
+      return Result.fail<void>('Unexpected error deleting profiles by community ID');
+    }
+  }
+
+  public async deleteByProsumerId(prosumerId: string): Promise<Result<void>> {
+    try {
+      const profilesOrError = await this.profileRepoInstance.findByProsumerId(prosumerId);
+      if (profilesOrError.isFailure) {
+        return Result.fail<void>('Profiles not found for prosumer');
+      }
+      const profiles = profilesOrError.getValue();
+      for (const profile of profiles) {
+        const deleteResult = await this.profileRepoInstance.delete(profile);
+        if (deleteResult.isFailure) {
+          return Result.fail<void>('Error deleting profile');
+        }
+      }
+      return Result.ok<void>();
+    } catch (error) {
+      console.error('Error deleting profiles by prosumer ID:', error);
+      return Result.fail<void>('Unexpected error deleting profiles by prosumer ID');
+    }
+  }
+
 
 }

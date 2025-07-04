@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Descriptions, Spin, Select, Button, message, Typography, Divider, Card } from "antd";
-import { useOne, useList, useCustomMutation } from "@refinedev/core";
+import { useOne, useList, useCustomMutation, useDelete, BaseKey } from "@refinedev/core";
 import ProsumerTableBody from "../prosumers/prosumerTableBody";
 import AlgorithmUploadSection from "../Algorithms/algorithmSelection";
 import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
@@ -32,6 +32,8 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
 
   const { mutate: addProsumers, isLoading: isAdding } = useCustomMutation();
   const { mutate: removeProsumers, isLoading: isRemoving } = useCustomMutation();
+
+  const { mutate: deleteMany } = useDelete();
 
   const onAddProsumers = () => {
     if (selectedProsumersToAdd.length === 0) {
@@ -93,6 +95,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         },
       }
     );
+
   };
 
   if (isLoading || isProsumersLoading || isCommunityProsumersLoading) {
@@ -102,6 +105,28 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
   const community = data?.data;
   const prosumersInCommunity = communityProsumersData?.data as IProsumerDataDTO[];
   const prosumersNotInCommunity = prosumerData?.data.filter((p) => !prosumersInCommunity?.some((cp) => cp.id === p.id));
+
+  function handleDeleteProfiles(id: string) {
+
+    deleteMany(
+      {
+        resource: "profiles/community",
+        id,
+      },
+      {
+        onSuccess: () => {
+          message.success("Profiles deleted successfully!"); // Mensagem de sucesso
+          //refetch(); // Recarrega a lista após sucesso
+        },
+        onError: (error) => {
+          message.error(
+            `Failed to delete profiles: ${error.message || "Unknown error"}`
+          ); // Mensagem de erro
+        },
+      }
+    );
+
+  }
 
   return (
     <>
@@ -118,7 +143,9 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
 
       <Divider />
 
-      <Title level={4}>Prosumers in this Community</Title>
+
+        <Title level={4}>Prosumers in this Community</Title>
+
       <ProsumerTableBody
         prosumers={prosumersInCommunity?.map((p) => ({
           ...p,
@@ -199,6 +226,22 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         </Card>
       </div>
 
+            <br />
+      <button
+        className="btn btn-error btn-sm text-white"
+        onClick={async () => {
+          if (
+        window.confirm(
+          "Are you sure you want to remove all prosumers data from this community? This action cannot be undone."
+        )
+          ) {
+        handleDeleteProfiles(communityId);
+          }
+        }}
+        disabled={!prosumersInCommunity || prosumersInCommunity.length === 0}
+      >
+        Remove All Prosumers Data
+      </button>
       <Divider />
 
       <AlgorithmUploadSection prosumers={prosumersInCommunity ?? []} />

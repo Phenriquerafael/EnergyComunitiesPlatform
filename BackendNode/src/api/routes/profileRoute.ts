@@ -122,6 +122,26 @@ export default (app: Router) => {
         (req, res, next) => ctrl.deleteProfile(req, res, next)
     );
 
+    route.delete(
+        '/community/:id',
+        celebrate({
+            params: Joi.object({
+                id: Joi.string().required()
+            })
+        }),
+        (req, res, next) => ctrl.deleteByCommunityId(req, res, next)
+    );
+
+    route.delete(
+        '/prosumer/:id',
+        celebrate({
+            params: Joi.object({
+                id: Joi.string().required()
+            })
+        }),
+        (req, res, next) => ctrl.deleteByProsumerId(req, res, next)
+    );
+
         app.use('/profiles', route);
     // Middleware de erro do celebrate
     app.use(errors());

@@ -9,4 +9,6 @@ export default interface IProfileController {
     createFromOptimizationResults(req: Request, res: Response, next: NextFunction);
     deleteProfile(req: Request, res: Response, next: NextFunction);
     findByCommunityId(req: Request, res: Response, next: NextFunction);
+    deleteByCommunityId(req: Request, res: Response, next: NextFunction);
+    deleteByProsumerId(req: Request, res: Response, next: NextFunction);
 }

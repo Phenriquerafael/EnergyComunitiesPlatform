@@ -14,7 +14,7 @@ login: async ({ email, password }) => {
     /* console.log("Token received:", token); */
 
     localStorage.setItem("token", token);
-    return { success: true, redirectTo: "/batteries" };
+    return { success: true, redirectTo: "/dashboard" };
   } catch (error) {
     return { success: false, error: { name: "LoginError", message: "Login failed" } };
   }

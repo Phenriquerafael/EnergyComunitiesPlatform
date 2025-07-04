@@ -248,6 +248,40 @@ export default class ProfileRepo implements IProfileRepo {
         }
     }
 
+    public async deleteByCommunityId(communityId: string): Promise<Result<void>> {
+      try {
+        await prisma.profile.deleteMany({
+          where: {
+            prosumer: {
+              communityId: communityId
+            }
+          }
+        });
+        return Result.ok<void>();
+      } catch (error) {
+        console.error("Error deleting profiles by communityId:", error);
+        return Result.fail<void>(
+          error instanceof Error ? error.message : "Unexpected error deleting profiles by communityId"
+        );
+      }
+    }
+
+    public async deleteByProsumerId(prosumerId: string): Promise<Result<void>> {
+      try {
+        await prisma.profile.deleteMany({
+          where: {
+            prosumerId: prosumerId
+          }
+        });
+        return Result.ok<void>();
+      } catch (error) {
+        console.error("Error deleting profiles by prosumerId:", error);
+        return Result.fail<void>(
+          error instanceof Error ? error.message : "Unexpected error deleting profiles by prosumerId"
+        );
+      }
+    }
+
 
 
 }
