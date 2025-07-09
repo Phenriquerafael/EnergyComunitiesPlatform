@@ -1,4 +1,4 @@
-import { Prosumer as PrismaProsumer } from "@prisma/client";
+import { Community, Prosumer as PrismaProsumer, Simulation } from "@prisma/client";
 import { User as PrismaUser } from "@prisma/client";
 import { Battery as PrismaBattery } from "@prisma/client";
 
@@ -7,6 +7,7 @@ export default interface IProfilePersistence {
   date: string;
   prosumerId: string;
   prosumer?: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery }; // Include user and battery
+  simulation: Simulation;
   intervalOfTime: string;
   numberOfIntervals: number;
   stateOfCharge: string;
@@ -24,3 +25,16 @@ export default interface IProfilePersistence {
   profileLoad: string;
   
 }
+
+export interface ISimulationPersistence {
+  id: string;
+  startDate: string;
+  endDate: string;
+  description?: string;
+  communityId: string;
+  community: Community;
+  profileLoad: boolean;
+  stateOfCharge: boolean;
+  photovoltaicEnergyLoad: boolean;
+}
+

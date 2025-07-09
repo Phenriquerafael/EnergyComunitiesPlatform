@@ -28,7 +28,8 @@ export class Community extends AggregateRoot<CommunityProps> {
 
     static create(props: CommunityProps, id?: UniqueEntityID): Result<Community> {
         const guardedProps = [
-            { argument: props.communityInformation, argumentName: 'communityDescription' },
+            { argument: props.communityInformation.name, argumentName: 'name' },
+            { argument: props.communityInformation.description, argumentName: 'description' },
         ];
         
         const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);

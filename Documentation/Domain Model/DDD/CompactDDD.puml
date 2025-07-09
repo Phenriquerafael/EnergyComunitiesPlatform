@@ -25,6 +25,14 @@ skinparam class {
 
 top to bottom direction
 
+package "<<agr Community>>" {
+  class Community <<entity>><<root>> {
+    +CommunityId
+    +CommunityName
+  }
+}
+
+
 package "<<agr Simulation>>" {
   class Simulation <<entity>><<root>> {
     +SimulationId
@@ -34,14 +42,9 @@ package "<<agr Simulation>>" {
     +BatteryLoad
     +PhotovoltaicLoad
   }
+    Simulation --> Community
 }
 
-package "<<agr Community>>" {
-  class Community <<entity>><<root>> {
-    +CommunityId
-    +CommunityName
-  }
-}
 
 package "<<agr Profile>>" {
   class Profile <<entity>><<root>> {

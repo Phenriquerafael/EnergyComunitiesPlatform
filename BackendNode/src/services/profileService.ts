@@ -7,6 +7,8 @@ import IProfileDTO from '../dto/IProfileDTO';
 import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
 import IOptimizationResults from '../dto/IOptimizationResults';
+import { Simulation } from '../domain/Simulation/Simulation';
+import ISimulationRepo from '../repos/IRepos/ISimulationRepo';
 
 
 @Service()
@@ -14,6 +16,7 @@ export default class ProfileService implements IProfileService {
   constructor(
     @Inject(config.repos.profile.name) private profileRepoInstance: IProfileRepo,
     @Inject(config.repos.prosumer.name) private prosumerRepoInstance: IProsumerRepo,
+    @Inject(config.repos.simulation.name) private simulationRepoInstance: ISimulationRepo, // Assuming you have a simulation repo
     @Inject('logger') private logger
   ) {
     /* console.log('ProfileService instantiated'); // Debug */
@@ -33,6 +36,30 @@ export default class ProfileService implements IProfileService {
       }
       const prosumer = prosumerResult.getValue();
 
+      // Validate and create Simulation
+      if (!profileDTO.simulation) {
+        return Result.fail<IProfileDTO>("Simulation data is required");
+      }
+      const simulationDTO = profileDTO.simulation;
+      if (!simulationDTO.startDate || !simulationDTO.endDate) {
+        return Result.fail<IProfileDTO>("Simulation start and end dates are required");
+      }
+      const simulation = Simulation.create({
+        startDate: simulationDTO.startDate,
+        endDate: simulationDTO.endDate,
+        description: simulationDTO.description || '',
+        community: prosumer.community, // Assuming prosumer has a community
+        profileLoad: simulationDTO.profileLoad,
+        stateOfCharge: simulationDTO.stateOfCharge,
+        photovoltaicEnergyLoad: simulationDTO.photovoltaicEnergyLoad
+      });
+
+      if (simulation.isFailure) {
+        return Result.fail<IProfileDTO>(`Failed to create Simulation: ${simulation.error}`);
+      }else{
+        await this.simulationRepoInstance.save(simulation.getValue());
+      }
+    
       // Map DTO to Domain
       const profileResult = ProfileMap.toDomainFromDTO(profileDTO, prosumer);
       if (profileResult.isFailure) {
@@ -41,7 +68,7 @@ export default class ProfileService implements IProfileService {
       const profile = profileResult.getValue();
 
       // Save Profile
-      const savedProfileResult = await this.profileRepoInstance.save(profile, prosumer);
+      const savedProfileResult = await this.profileRepoInstance.save(profile/* , prosumer */, simulation.getValue());
       if (savedProfileResult.isFailure) {
         return Result.fail<IProfileDTO>(`Failed to save Profile: ${savedProfileResult.error}`);
       }
@@ -66,6 +93,16 @@ export default class ProfileService implements IProfileService {
       if (results.detailed_results === undefined || results.detailed_results.length === 0) {
         return Result.fail<IProfileDTO>('Detailed results not found in optimization results');
       }
+      const simulationDTO = 
+        {
+          startDate: results.start_date,
+          endDate: results.end_date,
+          description: results.description || '',
+          profileLoad: true, // Assuming profileLoad is always true for optimization results
+          stateOfCharge: true, // Assuming stateOfCharge is always true for optimization results
+          photovoltaicEnergyLoad: true // Assuming photovoltaicEnergyLoad is always true for optimization results
+        };
+
       let finalResult;
       const prosumerProfileCount: Record<string, number> = {};
 
@@ -73,6 +110,7 @@ export default class ProfileService implements IProfileService {
         let result = results.detailed_results[i];
         const profileDTO: IProfileDTO = {
           prosumerId: result.Prosumer,
+          simulation: simulationDTO, // Simulation will be set later
           date: result.DateTime,
           intervalOfTime: "15",
           numberOfIntervals: Number(result.Time_Step),
@@ -137,6 +175,7 @@ export default class ProfileService implements IProfileService {
 
       const existingProfile = existingProfileOrError.getValue();
 
+
       // Update the prosumer if applicable
       if (prosumer) {
         existingProfile.prosumer = prosumer;
@@ -180,7 +219,7 @@ export default class ProfileService implements IProfileService {
       }
 
       // Save the updated profile
-      const updatedProfileOrError = await this.profileRepoInstance.save(existingProfile, existingProfile.prosumer);
+      const updatedProfileOrError = await this.profileRepoInstance.save(existingProfile/* , existingProfile.prosumer */, existingProfile.simulation);
       if (updatedProfileOrError.isFailure) {
         return Result.fail<IProfileDTO>('Error updating profile');
       }

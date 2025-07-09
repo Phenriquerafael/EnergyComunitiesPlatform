@@ -46,6 +46,9 @@ export default (app: Router) => {
       celebrate({
         body: Joi.object({
         total_objective_value: Joi.string().optional(),
+        start_date: Joi.string().required(),
+        end_date: Joi.string().required(),
+        description: Joi.string().optional(),
         detailed_results: Joi.array().items(
           Joi.object({
             DateTime: Joi.string().required(),

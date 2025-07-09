@@ -17,10 +17,10 @@ export class CommunityMap extends Mapper<Community> {
   }
 
   public static toDomainFromDTO (communityDTO:ICommunityDTO ): Result<Community> {
-const communityInformation = CommunityDescription.create({
-        name: communityDTO.name,
-        description: communityDTO.description,
-      });
+  const communityInformation = CommunityDescription.create({
+          name: communityDTO.name,
+          description: communityDTO.description? communityDTO.description : '',
+        });
 
       const communityProps = {
         communityInformation: communityInformation,
@@ -51,7 +51,8 @@ const communityInformation = CommunityDescription.create({
     return {
       id: community.id.toString(),
       name: community.communityInformation.name,
-        description: community.communityInformation.description,
+      description: community.communityInformation.description,
+      
     }
   }
 }

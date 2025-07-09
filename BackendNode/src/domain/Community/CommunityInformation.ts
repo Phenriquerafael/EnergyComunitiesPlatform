@@ -2,7 +2,7 @@ import { AggregateRoot } from "../../core/domain/AggregateRoot";
 
 interface CommunityInformationsProps {
     name: string;
-    description: string;
+    description?: string;
 }
 
 export class CommunityDescription extends AggregateRoot<CommunityInformationsProps> {

@@ -95,6 +95,11 @@ export default async ({ expressApp }) => {
     path: config.services.community.path
   };
 
+  const simulationRepo = {
+    name: config.repos.simulation.name,
+    path: config.repos.simulation.path
+  };
+
   await dependencyInjectorLoader({
     prismaClient: prisma,
     controllers: [
@@ -113,7 +118,8 @@ export default async ({ expressApp }) => {
       prosumerRepo,
       profileRepo,
       communityManagerRepo,
-      communityRepo
+      communityRepo,
+      simulationRepo
     ],
     services: [
       roleService,

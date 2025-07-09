@@ -1,8 +1,10 @@
 
+
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 import { Guard } from "../../../core/logic/Guard";
 import { Result } from "../../../core/logic/Result";
+import { Simulation } from "../../Simulation/Simulation";
 import { Prosumer } from "../Prosumer";
 import { BoughtEnergy } from "./BoughtEnergy";
 import { PhotovoltaicEnergyLoad } from "./PhotovoltaicEnergyLoad";
@@ -13,6 +15,7 @@ import { TimeStamp } from "./TimeStamp";
 
 interface ProfileProps {
     prosumer: Prosumer;
+    simulation: Simulation
     date: String;
     timestamp:TimeStamp;
     profileLoad: Load;
@@ -22,7 +25,6 @@ interface ProfileProps {
     photovoltaicEnergyLoad: PhotovoltaicEnergyLoad;
     boughtEnergy: BoughtEnergy;
     soldEnergy: SoldEnergy;
-    // Prosumer ids of the peers that sold/bought the energy to add
     peerOutputEnergyLoad: SoldEnergy; 
     peerInputEnergyLoad: BoughtEnergy;
 }
@@ -35,6 +37,9 @@ export class Profile extends AggregateRoot<ProfileProps> {
 
     get prosumer(): Prosumer {
         return this.props.prosumer;
+    }
+    get simulation(): Simulation {
+        return this.props.simulation;
     }
     get date(): String {
         return this.props.date;
@@ -111,6 +116,7 @@ export class Profile extends AggregateRoot<ProfileProps> {
     public static create(props: ProfileProps, id?: UniqueEntityID): Result<Profile> {
         const guardedProps = [
             { argument: props.prosumer, argumentName: 'prosumer' },
+            { argument: props.simulation, argumentName: 'simulation' },
             { argument: props.date, argumentName: 'date' },
             { argument: props.energyCharge, argumentName: 'energyCharge' },
             { argument: props.energyDischarge, argumentName: 'energyDischarge' },
@@ -139,6 +145,7 @@ export class Profile extends AggregateRoot<ProfileProps> {
     public toString(): string {
         return `Profile: { id: ${this._id.toString()},\n
         prosumer: ${this.props.prosumer.id.toString()},\n
+        simulation: ${this.props.simulation.id.toString()},\n
         date: ${this.props.date.toString()},\n
         timestamp: ${this.props.timestamp.toString()},\n
         profileLoad: ${this.props.profileLoad.toString()},\n

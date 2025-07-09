@@ -471,6 +471,8 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
     # Dados a enviar
     data = {
         "total_objective_value":  str(total_objective_value),
+        "start_date": start_date_str,
+        "end_date": end_date_str,
         "detailed_results": detailed_results
     }
 

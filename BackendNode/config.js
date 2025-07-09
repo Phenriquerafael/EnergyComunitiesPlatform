@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -89,6 +90,10 @@ export default {
       path: "../repos/communityRepo.ts"
     },
 
+    simulation: {
+      name: "SimulationRepo",
+      path: "../repos/simulationRepo.ts"
+    }
 
     // Add other repos here
   },

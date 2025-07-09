@@ -5,10 +5,13 @@ import { Profile } from "../domain/Prosumer/Profile/Profile";
 import prisma from "../../prisma/prismaClient";
 import { ProfileMap } from "../mappers/ProfileMap";
 import { Prosumer } from "../domain/Prosumer/Prosumer";
+import { Simulation } from "../domain/Simulation/Simulation";
 
 @Service()
 export default class ProfileRepo implements IProfileRepo {
-  public async save(profile: Profile, prosumer:Prosumer): Promise<Result<Profile>> {
+
+  //por corrigir
+  public async save(profile: Profile, simulation: Simulation): Promise<Result<Profile>> {
     try {
       const prosumerId = profile.prosumer.id.toString();
 
@@ -19,21 +22,24 @@ export default class ProfileRepo implements IProfileRepo {
       const existingProfile = await prisma.profile.findUnique({
         where: { id: profile.id.toString() },
       });
-      let savedProfile;
+      let savedProfile: any;
       if (!existingProfile) {
         // Criar novo Profile
         savedProfile = await prisma.profile.create({
           data: {
             ...rawProfile,
             prosumerId: prosumerId,
+            simulationId: simulation.id.toString(), // Corrigido para simulationId
           },
           include: {
             prosumer: {
               include: {
                 user: true, // Include the full User object
                 battery: true, // Include the full Battery object
+                community: true, // Include the full Community object
               },
             },
+            simulation: true, // Include the full Simulation object
           },
         });
       }
@@ -44,14 +50,17 @@ export default class ProfileRepo implements IProfileRepo {
           data: {
             ...rawProfile,
             prosumerId: prosumerId,
+            simulationId: simulation.id.toString(), // Corrigido para simulationId
           },
           include: {
             prosumer: {
               include: {
                 user: true, // Include the full User object
                 battery: true, // Include the full Battery object
+                community: true, // Include the full Community object
               },
             },
+            simulation: true, // Include the full Simulation object
           },
         });
       }
@@ -63,7 +72,7 @@ export default class ProfileRepo implements IProfileRepo {
       return Result.ok<Profile>(profileOrError.getValue());
     } catch (error) {
       console.error("Error saving profile:", error);
-      return Result.fail<Profile>(error.message);
+      return Result.fail<Profile>(error instanceof Error ? error.message : "Unexpected error saving profile");
     }
   }
 
@@ -72,34 +81,31 @@ export default class ProfileRepo implements IProfileRepo {
         try {
           const profile = await prisma.profile.findUnique({
             where: { id: String(id) },
-            
             include: {
               prosumer: {
                 include: {
                   user: true, // Include the full User object
                   battery: true, // Include the full Battery object
+                  community: true, // Include the full Community object
                 },
               },
+              simulation: true, // Include the full Simulation object
             },
           });
-    
+
           if (!profile) {
             return Result.fail<Profile>("Profile not found");
           }
-    
-          const profileOrError = await ProfileMap.toDomain({
-              ...profile,
-              prosumer: profile.prosumer, // Ensure the prosumer property is included
-              batteryCharge: profile.batteryCharge, // Add missing property
-              batteryDischarge: profile.batteryDischarge, // Add missing property
-          });
+
+          // Pass the profile object directly to the mapper
+          const profileOrError = await ProfileMap.toDomain(profile);
           if (profileOrError.isFailure) {
             return Result.fail<Profile>(profileOrError.error);
           }
           return Result.ok<Profile>(profileOrError.getValue());
         } catch (error) {
           console.error("Error finding profile by ID:", error);
-          return Result.fail<Profile>(error.message);
+          return Result.fail<Profile>(error instanceof Error ? error.message : "Unexpected error finding profile by ID");
         }
       }
 
@@ -113,8 +119,11 @@ export default class ProfileRepo implements IProfileRepo {
                         include: {
                             user: true, // Include the full User object
                             battery: true, // Include the full Battery object
+                            community: true, // Include the full Community object
                         },
                     },
+
+                    simulation: true, // Include the full Simulation object
                 },
             });
 
@@ -149,8 +158,10 @@ export default class ProfileRepo implements IProfileRepo {
               include: {
                 user: true,
                 battery: true,
+                community: true, // Include the full Community object
               },
             },
+            simulation: true, // Include the full Simulation object
           },
         });
   
@@ -221,8 +232,10 @@ export default class ProfileRepo implements IProfileRepo {
                         include: {
                             user: true, // Include the full User object
                             battery: true, // Include the full Battery object
+                            community: true, // Include the full Community object
                         },
                     },
+                    simulation: true, // Include the full Simulation object
                 },
             });
 

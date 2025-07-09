@@ -1,5 +1,8 @@
 export default interface IOptimizationResults {
     total_objective_value: string;
+    start_date: string;
+    end_date: string;
+    description?: string;
     detailed_results:
         {
             DateTime: string;

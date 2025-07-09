@@ -54,8 +54,8 @@ model Profile {
   peerInputEnergyLoad    String
   peerInPrice            String?
   profileLoad            String
-/*   SimulationId         String  @default("")
-  Simulation           Simulation @relation(fields: [SimulationId], references: [id], onDelete: Cascade) */
+  simulationId         String  @default("")
+  simulation           Simulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,6 +66,8 @@ model Simulation {
   startDate        String
   endDate          String
   description String?
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   profileLoad            Boolean @default(false)
   stateOfCharge          Boolean @default(false)
@@ -74,7 +76,7 @@ model Simulation {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-/*   profiles Profile[] // One-to-many relation with Profile */
+  profiles Profile[] // One-to-many relation with Profile
 }
 
 model Battery {
@@ -108,10 +110,12 @@ model Community {
   id               String            @id @default(uuid())
   name             String            @unique
   description      String?
+  prosumers        Prosumer[] // One-to-many relation with Prosumer
+  communityManager CommunityManager?
+  simulations      Simulation[] // One-to-many relation with Simulation
+
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  prosumers        Prosumer[] // One-to-many relation with Prosumer
-  CommunityManager CommunityManager?
 }
 
 model CommunityManager {
@@ -120,6 +124,7 @@ model CommunityManager {
   community   Community @relation(fields: [communityId], references: [id])
   userId      String    @unique
   user        User      @relation(fields: [userId], references: [id])
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

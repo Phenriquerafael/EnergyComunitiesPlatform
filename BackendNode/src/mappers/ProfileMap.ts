@@ -11,16 +11,30 @@ import { Prosumer } from '../domain/Prosumer/Prosumer';
 import { Prosumer as PrismaProsumer } from "@prisma/client";
 import { Community as PrismaCommunity } from "@prisma/client";
 import { User as PrismaUser } from "@prisma/client";
+import { Simulation as PrismaSimulation } from "@prisma/client";
 import { Battery as PrismaBattery } from "@prisma/client";
 import { Result } from '../core/logic/Result';
 import { UniqueEntityID } from '../core/domain/UniqueEntityID';
 import { ProsumerMap } from './ProsumerMap';
+import { Simulation } from '../domain/Simulation/Simulation';
+import { SimulationMap } from './SimulationMap';
+import { CommunityMap } from './CommunityMap';
 
 export class ProfileMap {
   public static toDTO(profile: Profile): IProfileDTO {
+   
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
+      simulation: {
+        id: profile.simulation.id.toString(),
+        startDate: profile.simulation.startDate,
+        endDate: profile.simulation.endDate,
+        description: profile.simulation.description,
+        profileLoad: profile.simulation.profileLoad,
+        stateOfCharge: profile.simulation.stateOfCharge,
+        photovoltaicEnergyLoad: profile.simulation.photovoltaicEnergyLoad,
+      },
       date: profile.date,
       intervalOfTime: profile.timestamp.intervalOfTime,
       numberOfIntervals: profile.timestamp.numberOfIntervals,
@@ -40,7 +54,7 @@ export class ProfileMap {
     } as IProfileDTO;
   }
 
-  public static async toDomain(rawProfile: IProfilePersistence & { prosumer: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery;community?: PrismaCommunity } }): Promise<Result<Profile>> {
+  public static async toDomain(rawProfile: IProfilePersistence & { prosumer: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery; community?: PrismaCommunity; }; simulation: PrismaSimulation }): Promise<Result<Profile>> {
     try {
       // Create value objects
       const timeStamp = TimeStamp.create({
@@ -111,14 +125,29 @@ export class ProfileMap {
         community: rawProfile.prosumer.community,
       };
 
+
       const prosumerOrError = await ProsumerMap.toDomain(prosumerProps);
       if (prosumerOrError.isFailure) {
         return Result.fail<Profile>(prosumerOrError.error);
       }
 
+      const simulationProps = {
+        id: rawProfile.simulation.id,
+        startDate: rawProfile.simulation.startDate,
+        endDate: rawProfile.simulation.endDate,
+        description: rawProfile.simulation.description,
+        communityId: rawProfile.simulation.communityId,
+        community: rawProfile.prosumer.community,
+        profileLoad: rawProfile.simulation.profileLoad,
+        stateOfCharge: rawProfile.simulation.stateOfCharge,
+        photovoltaicEnergyLoad: rawProfile.simulation.photovoltaicEnergyLoad,
+      };
+
+
       // Create Profile
       const profileProps = {
         prosumer: prosumerOrError.getValue(),
+        simulation: SimulationMap.toDomainFromDTO(simulationProps),
         date: rawProfile.date,
         timestamp: timeStamp/*.getValue()*/,
         profileLoad: profileLoad/*.getValue()*/,
@@ -189,8 +218,25 @@ export class ProfileMap {
       amount: profileDTO.soldEnergyAmount,
     });
 
+    const simulationProps = {
+        id: profileDTO.simulation.id,
+        startDate: profileDTO.simulation.startDate,
+        endDate: profileDTO.simulation.endDate,
+        description: profileDTO.simulation.description,
+        community: {
+          id: prosumer.community.id.toString(),
+          name: prosumer.community.communityInformation.name || '',
+          description: prosumer.community.communityInformation.description || '',
+        },
+        profileLoad: profileDTO.simulation.profileLoad,
+        stateOfCharge: profileDTO.simulation.stateOfCharge,
+        photovoltaicEnergyLoad: profileDTO.simulation.photovoltaicEnergyLoad,
+    };
+   
+
     const profileProps = {
       prosumer: prosumer,
+      simulation: SimulationMap.toDomainFromDTO(simulationProps),
       date: profileDTO.date,
       timestamp: timeStamp,
       profileLoad: profileLoad,
@@ -213,6 +259,15 @@ export class ProfileMap {
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
+      simulationId: {
+        id: profile.simulation.id,
+        startDate: profile.simulation.startDate,
+        endDate: profile.simulation.endDate,
+        description: profile.simulation.description,
+        profileLoad: profile.simulation.profileLoad,
+        stateOfCharge: profile.simulation.stateOfCharge,
+        photovoltaicEnergyLoad: profile.simulation.photovoltaicEnergyLoad,
+      },
       date: profile.date,
       intervalOfTime: profile.timestamp.intervalOfTime,
       numberOfIntervals: profile.timestamp.numberOfIntervals,
