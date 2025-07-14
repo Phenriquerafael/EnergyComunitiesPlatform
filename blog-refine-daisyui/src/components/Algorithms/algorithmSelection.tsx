@@ -27,6 +27,13 @@ interface AlgorithmUploadSectionProps {
   prosumers: IProsumerDataDTO[];
 }
 
+interface ActiveAttributes {
+  prosumerId: string;
+  profileLoad?: boolean;
+  stateOfCharge?: boolean;
+  photovoltaicEnergyLoad?: boolean;
+}
+
 const mockAlgorithms: Algorithm[] = [
   { id: "alg1", name: "Basic Optimizer", description: "Sets optimal energy transactions.",available: true },
   { id: "alg2", name: "Load Balancer", description: "Distributes loads across network nodes.", available: false },
@@ -39,10 +46,23 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [features, setFeatures] = useState<Record<string, { battery: boolean; load: boolean; photovoltaicLoad: boolean }>>({});
+  const [activeAttributes, setActiveAttributes] = useState<ActiveAttributes[]>([]);
 
-  const prosumerIds = (prosumers ?? [])
-  .filter((p): p is IProsumerDataDTO => p?.id != null)
-  .map((p) => p.id!);
+  // Ensure all prosumers are present in activeAttributes
+React.useEffect(() => {
+  if (!prosumers) return;
+
+  const newAttributes: ActiveAttributes[] = prosumers
+    .filter((p): p is IProsumerDataDTO => !!p.id)
+    .map((p) => ({
+      prosumerId: p.id!,
+      profileLoad: true,
+      stateOfCharge: true,
+      photovoltaicEnergyLoad: true,
+    }));
+
+  setActiveAttributes(newAttributes);
+}, [prosumers]);
 
 
   const handleFeatureChange = (
@@ -75,12 +95,13 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    formData.append("prosumers", JSON.stringify(prosumerIds));
+    formData.append("active_attributes", JSON.stringify(activeAttributes));
     formData.append("start_date_str", startDate.format("YYYY-MM-DD"));
     formData.append("end_date_str", endDate.format("YYYY-MM-DD"));
+    formData.append("communityId", prosumers[0]?.communityId || "");
     formData.append("algorithm_id", selectedAlgorithm);
 
-    const featuresPerProsumer = prosumerIds.reduce((acc, id) => {
+/*     const featuresPerProsumer = prosumerIds.reduce((acc, id) => {
       acc[id] = features[id] || { battery: false, load: false, photovoltaicLoad: false };
       return acc;
     }, {} as Record<string, { battery: boolean; load: boolean; photovoltaicLoad: boolean }>);
@@ -90,7 +111,7 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
     console.log("Submitting data:", {
       prosumers: prosumerIds,
       features: featuresPerProsumer,
-    });
+    }); */
 
     try {
       const response = await fetch("http://localhost:8000/run-optimization", {
@@ -152,7 +173,7 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
           </Form.Item>
         </div>
 
-        <Form.Item >
+        <Form.Item>
           <div className="flex flex-col gap-4">
             <Button
               className="btn btn-neutral"
@@ -163,42 +184,60 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosume
             </Button>
             {defineProsumerFeatures && (
               <>
-          {prosumerIds.map((id) => {
-            const prosumer = prosumers.find((p) => p.id === id);
+          {activeAttributes.map((attr) => {
+            const prosumer = prosumers.find((p) => p.id === attr.prosumerId);
+            const currentAttributes = attr;
+
+            const handleRadioChange = (
+              prosumerId: string,
+              key: keyof Omit<ActiveAttributes, "prosumerId">,
+              value: boolean
+            ) => {
+              setActiveAttributes(prev => {
+                return prev.map(a =>
+            a.prosumerId === prosumerId
+              ? { ...a, [key]: value }
+              : a
+                );
+              });
+            };
+
             return (
               <fieldset
-                key={id}
+                key={attr.prosumerId}
                 className="border border-base-300 rounded-lg p-4 shadow-sm bg-base-100"
               >
                 <legend className="font-semibold text-sm mb-2">
-            Prosumer: {prosumer?.userName || id} - ID: {id}
+            Prosumer: {prosumer?.userName || attr.prosumerId} - ID: {attr.prosumerId}
                 </legend>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {(["battery", "load", "photovoltaicLoad"] as const).map((featureKey) => {
-              // Default to true if not set
-              const checkedValue = features[id]?.[featureKey];
-              const isOn = checkedValue === undefined ? true : checkedValue === true;
+            {([
+              { key: "profileLoad", label: "Profile Load" },
+              { key: "stateOfCharge", label: "State Of Charge" },
+              { key: "photovoltaicEnergyLoad", label: "Photovoltaic Energy Load" },
+            ] as const).map(({ key, label }) => {
+              const isOn = currentAttributes[key];
               return (
-                <div key={featureKey}>
-                  <div className="text-sm font-medium mb-1">{featureKey}</div>
+                <div key={key}>
+                  <div className="text-sm font-medium mb-1">{label}</div>
                   <div className="flex items-center gap-4">
               <label className="label cursor-pointer">
                 <input
                   type="radio"
-                  name={`${id}-${featureKey}`}
+                  name={`${attr.prosumerId}-${key}`}
                   className="radio radio-success"
                   checked={isOn}
-                  onChange={() => handleFeatureChange(id, featureKey, true)}
+                  onChange={() => handleRadioChange(attr.prosumerId, key, true)}
                 />
                 <span className="label-text ml-2">On</span>
               </label>
               <label className="label cursor-pointer">
                 <input
                   type="radio"
-                  name={`${id}-${featureKey}`}
+                  name={`${attr.prosumerId}-${key}`}
                   className="radio radio-error"
                   checked={!isOn}
-                  onChange={() => handleFeatureChange(id, featureKey, false)}
+                  onChange={() => handleRadioChange(attr.prosumerId, key, false)}
                 />
                 <span className="label-text ml-2">Off</span>
               </label>

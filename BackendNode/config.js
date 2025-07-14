@@ -54,6 +54,10 @@ export default {
       name: "CommunityController",
       path: "../controllers/communityController.ts"
     },
+    simulation: {
+      name: "SimulationController",
+      path: "../controllers/simulationController.ts"
+    }
 
     
     // Add other controllers here
@@ -95,6 +99,7 @@ export default {
       path: "../repos/simulationRepo.ts"
     }
 
+
     // Add other repos here
   },
 
@@ -128,6 +133,10 @@ export default {
     community: {
       name: "CommunityService",
       path: "../services/communityService.ts"
+    },
+    simulation: {
+      name: "SimulationService",
+      path: "../services/simulationService.ts"
     },
     // Add other services here
   },

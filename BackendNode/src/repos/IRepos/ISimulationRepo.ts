@@ -1,12 +1,13 @@
 
-import { Repo } from "../../core/infra/Repo";
+import { Result } from '../../core/logic/Result';
 import { Simulation } from "../../domain/Simulation/Simulation";
 
-export default interface ISimulationRepo extends Repo<Simulation> {
-    save(simulation: Simulation): Promise<Simulation>;
-    findById(id: string): Promise<Simulation>;
-    findAll(): Promise<Simulation[]>;
-    delete(simulation: Simulation): Promise<void>;
-    findByCommunityId(communityId: string): Promise<Simulation[]>;
-    deleteByCommunityId(communityId: string): Promise<void>;
+export default interface ISimulationRepo  {
+    save(simulation: Simulation): Promise<Result<Simulation>>;
+    findById(id: string): Promise<Result<Simulation>>;
+    findAll(): Promise<Result<Simulation[]>>;
+    delete(simulationId: string): Promise<Result<void>>;
+/*     findByCommunityId(communityId: string): Promise<Result<Simulation[]>>;
+    deleteByCommunityId(communityId: string): Promise<Result<void>>; */
+    deleteAll(): Promise<Result<void>>;
 }

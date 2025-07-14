@@ -6,6 +6,7 @@ import { CommunityDescription } from "../domain/Community/CommunityInformation";
 import { Simulation } from "../domain/Simulation/Simulation";
 import { Community as PrismaCommunity } from "@prisma/client";
 import { ISimulationDTO } from "../dto/IProfileDTO";
+import { ActiveAttributes } from "../domain/Simulation/ActiveAtributes";
 
 export class SimulationMap {
 
@@ -15,13 +16,13 @@ export class SimulationMap {
             startDate: simulation.props.startDate,
             endDate: simulation.props.endDate,
             description: simulation.props.description || '',
-            community: {
-                id: simulation.props.community.id.toString(),
-                name: simulation.props.community.props.communityInformation.name || ''
-            },
-            profileLoad: simulation.props.profileLoad,
-            stateOfCharge: simulation.props.stateOfCharge,
-            photovoltaicEnergyLoad: simulation.props.photovoltaicEnergyLoad
+            communityId: simulation.props.community.id.toString(),
+            activeAttributes: simulation.props.activeAttributes?.map(attr => ({
+                prosumerId: attr.prosumerId,
+                profileLoad: attr.profileLoad,
+                stateOfCharge: attr.stateOfCharge,
+                photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad
+            })) || [],
         };
     }
 
@@ -45,38 +46,43 @@ export class SimulationMap {
             endDate: rawSimulation.endDate,
             description: rawSimulation.description || '',
             community: community.getValue(),
-            profileLoad: rawSimulation.profileLoad,
-            stateOfCharge: rawSimulation.stateOfCharge,
-            photovoltaicEnergyLoad: rawSimulation.photovoltaicEnergyLoad
-        });
+            activeAttributes: rawSimulation.activeAttributes?.map(attr =>
+                ActiveAttributes.create({
+                    prosumerId: attr.prosumerId,
+                    profileLoad: attr.profileLoad,
+                    stateOfCharge: attr.stateOfCharge,
+                    photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad
+                })
+            ) || [],
+
+        },
+            new UniqueEntityID(rawSimulation.id)
+            );
 
         simulationOrError.isFailure ? console.log(simulationOrError.error) : '';
         return simulationOrError.getValue();
     }
 
 
-    public static toDomainFromDTO(simulationDTO: ISimulationDTO): Simulation {
-        const community = Community.create({
-            communityInformation: CommunityDescription.create({
-                name: simulationDTO.community?.name || '',
-                description: simulationDTO.description || ''
-            })
-        });
+    public static toDomainFromDTO(simulationDTO: ISimulationDTO, community: Community): Simulation {
 
-        if (community.isFailure) {
-            console.log(community.error);
-            throw new Error(String(community.error));
-        }
 
         const simulationOrError = Simulation.create({
             startDate: simulationDTO.startDate,
             endDate: simulationDTO.endDate,
             description: simulationDTO.description || '',
-            community: community.getValue(),
-            profileLoad: simulationDTO.profileLoad,
-            stateOfCharge: simulationDTO.stateOfCharge,
-            photovoltaicEnergyLoad: simulationDTO.photovoltaicEnergyLoad
-        });
+            community: community,
+            activeAttributes: simulationDTO.activeAttributes?.map(attr =>
+                ActiveAttributes.create({
+                    prosumerId: attr.prosumerId,
+                    profileLoad: attr.profileLoad,
+                    stateOfCharge: attr.stateOfCharge,
+                    photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad
+                })
+            ) || [],
+        },
+            new UniqueEntityID(simulationDTO.id)
+            );
 
         if (simulationOrError.isFailure) {
             console.log(simulationOrError.error);
@@ -98,9 +104,12 @@ export class SimulationMap {
                 name: simulation.props.community.props.communityInformation.name || '',
                 description: simulation.props.community.props.communityInformation.description || ''
             } as PrismaCommunity,
-            profileLoad: simulation.props.profileLoad,
-            stateOfCharge: simulation.props.stateOfCharge,
-            photovoltaicEnergyLoad: simulation.props.photovoltaicEnergyLoad
+            activeAttributes: simulation.props.activeAttributes?.map(attr => ({
+                prosumerId: attr.prosumerId,
+                profileLoad: attr.profileLoad,
+                stateOfCharge: attr.stateOfCharge,
+                photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad
+            })) || []
         };
     }
 

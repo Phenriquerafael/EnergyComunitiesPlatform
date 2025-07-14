@@ -15,7 +15,7 @@ export default class ProfileController implements IProfileController {
   
   public async createProfile(req: Request, res: Response, next: NextFunction) {
       try {
-        const profileOrError = await this.profileServiceInstance.createProfile(req.body);
+        const profileOrError = await this.profileServiceInstance.createProfile(req.body,null, null);
         
         if (profileOrError.isFailure) {
           return res.status(400).json({ message: profileOrError.error });

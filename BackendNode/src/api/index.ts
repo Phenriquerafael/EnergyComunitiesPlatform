@@ -7,6 +7,7 @@ import prosumer from './routes/prosumerRoute';
 import profile from './routes/profileRoute';
 import communityManager from './routes/communityManagerRoute';
 import community from './routes/communityRoute';
+import simulation from './routes/simulationRoute';
 
 
 export default () => {
@@ -20,5 +21,6 @@ export default () => {
 	profile(app);
 	communityManager(app);
 	community(app);
+	simulation(app);
 	return app
 }

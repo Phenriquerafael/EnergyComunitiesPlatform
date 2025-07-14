@@ -3,6 +3,14 @@ export default interface IOptimizationResults {
     start_date: string;
     end_date: string;
     description?: string;
+    communityId?: string;
+    active_attributes?: {
+        prosumerId: string;
+        profileLoad: boolean;
+        stateOfCharge: boolean;
+        photovoltaicEnergyLoad: boolean;
+    }[];
+
     detailed_results:
         {
             DateTime: string;

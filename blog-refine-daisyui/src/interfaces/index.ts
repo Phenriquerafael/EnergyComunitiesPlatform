@@ -201,3 +201,18 @@ export interface ICommunityManagerDTO {
 }
 
     
+export interface ISimulationDTO {
+  id?: string;
+  startDate: string;
+  endDate: string;
+  description?: string;
+  communityId?: string;
+  activeAttributes?: IActiveAtributesDTO[];
+}
+
+export interface IActiveAtributesDTO {
+  prosumerId: string;
+  profileLoad: boolean;
+  stateOfCharge: boolean;
+  photovoltaicEnergyLoad: boolean;
+}

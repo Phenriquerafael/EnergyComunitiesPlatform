@@ -1,7 +1,7 @@
 export default interface IProfileDTO {
     id?: string;
     prosumerId?: string;
-    simulation?: ISimulationDTO;
+    simulationId?: string;
     date?: string;
     intervalOfTime?: string;
     numberOfIntervals?: number;
@@ -26,10 +26,12 @@ export interface ISimulationDTO {
     startDate: string;
     endDate: string;
     description?: string;
-    community?: {
-        id: string;
-        name?: string;
-    };
+    communityId?: string;
+    activeAttributes?: IActiveAtributesDTO[];
+}
+
+export interface IActiveAtributesDTO{
+    prosumerId: string;
     profileLoad: boolean;
     stateOfCharge: boolean;
     photovoltaicEnergyLoad: boolean;

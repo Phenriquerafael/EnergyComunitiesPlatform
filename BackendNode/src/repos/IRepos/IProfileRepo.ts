@@ -5,7 +5,7 @@ import { Simulation } from "../../domain/Simulation/Simulation";
 
 
 export default interface IProfileRepo {
-  save(profile: Profile/* , prosumer: Prosumer */, simulation:Simulation): Promise<Result<Profile>>;
+  save(profile: Profile): Promise<Result<Profile>>;
   findById(id: string): Promise<Result<Profile>>;
   findByProsumerId(prosumerId: string): Promise<Result<Profile[]>>;
   findAll(): Promise<Result<Profile[]>>;

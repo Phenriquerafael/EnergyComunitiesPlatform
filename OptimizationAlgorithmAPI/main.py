@@ -17,7 +17,8 @@ from fastapi import FastAPI, Form, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 import pandas as pd
 from io import BytesIO
-from typing import List
+from typing import List, Optional
+from pydantic import BaseModel
 
 import requests
 
@@ -59,7 +60,7 @@ optimization_status = {
 }
 
 
-def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date_str) -> BytesIO:
+def run_optimization(file_path: BytesIO, start_date_str, end_date_str, communityId, active_attributes) -> BytesIO:
 #print("\n\n\ndates: "+start_date_str, end_date_str)
     
     all_data = pd.read_excel(file_path, sheet_name=None)
@@ -434,7 +435,7 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
                 chunk_row = {
                     "DateTime": dt.isoformat(),
                     "Time_Step": str(chunk_start_time + t_index + 1),
-                    "Prosumer": str(prosumersList[pl]),
+                    "Prosumer": str(active_attributes[pl].prosumerId),
                     "P_buy": str(value(instance.P_buy[pl, t])),
                     "P_sell": str(value(instance.P_sell[pl, t])),
                     "SOC": str(value(instance.P_ESS_s[pl, t])),
@@ -473,20 +474,25 @@ def run_optimization(file_path: BytesIO, prosumersList, start_date_str, end_date
         "total_objective_value":  str(total_objective_value),
         "start_date": start_date_str,
         "end_date": end_date_str,
+        "communityId": communityId,
+        "active_attributes": [attr.dict() for attr in active_attributes],
         "detailed_results": detailed_results
     }
 
     url = "http://localhost:4000/api/profiles/optimize-results"  
 
     try:
-         response = requests.post(url, json=data) 
-         print(response.status_code, response.text) 
+        response = requests.post(url, json=data)
+        print(response.status_code, response.text)
+        if response.status_code != 200:
+            raise Exception(f"POST request failed with status {response.status_code}: {response.text}")
     except requests.exceptions.RequestException as e:
-        print('Erro ao enviar o pedido:', e)
-
+        raise Exception(f"POST request failed with status {response.status_code}: {response.text}")
+        
     return {
         "total_objective_value": total_objective_value,
-        "detailed_results": detailed_results
+        "detailed_results": detailed_results,
+        response: response.status_code,
     }
 
 @app.post("/loadData")
@@ -498,34 +504,49 @@ async def optimize_excel(file: UploadFile = File(...)):
     return JSONResponse(content=result)
 
 
-#app = FastAPI()
+# Modelo Pydantic para validação
+class ActiveAttribute(BaseModel):
+    prosumerId: str
+    profileLoad: bool
+    stateOfCharge: bool
+    photovoltaicEnergyLoad: bool
 
 @app.post("/run-optimization")
 async def start_optimization(
     file: UploadFile = File(...),
-    prosumers: str = Form(...),  # Receber a lista como string JSON via form field
-    start_date_str: str = Form(...),  # Receber a data de início como string
-    end_date_str: str = Form(...),  # Receber a data de fim como string
+    active_attributes: str = Form(...),
+    start_date_str: str = Form(...),
+    end_date_str: str = Form(...),
+    communityId: Optional[str] = Form(None),
 ):
-    # Ler conteúdo do arquivo
+    # Leitura do conteúdo do ficheiro
     file_content = await file.read()
-    file_path = BytesIO(file_content)
+    file_path = BytesIO(file_content)  # pode ser passado para uma função
+
+    # Parse do JSON enviado
+    try:
+        attributes_raw = json.loads(active_attributes)
+        active_attributes_list = [ActiveAttribute(**item) for item in attributes_raw]
+    except (json.JSONDecodeError, TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=f"Invalid active_attributes JSON: {str(e)}")
+
+    # Debug
+    print("🟢 active_attributes:")
+    for attr in active_attributes_list:
+        print(attr.dict())
+    print("📅 start:", start_date_str)
+    print("📅 end:", end_date_str)
+    print("🏘️ communityId:", communityId)
 
     try:
-        prosumers_list = json.loads(prosumers)
-    except json.JSONDecodeError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid prosumers JSON: {str(e)}")
+        result = run_optimization(file_path, start_date_str, end_date_str, communityId, active_attributes_list)
+    except Exception as e:
+        raise HTTPException(status_code=400 , detail=f"Optimization failed: {str(e)}")
+    
 
-    # Log for debugging
-    print("Received prosumers list:", prosumers_list)
-    print("Start date:", start_date_str)
-    print("End date:", end_date_str)
-
-    # Call run_optimization
-    result = run_optimization(file_path, prosumers_list, start_date_str, end_date_str)
-
-    return {"message": "Optimization started", "result": result}
-
+    return {
+        "message": "Optimization completed!", "result": result
+            }
 
 @app.get("/optimization-status")
 async def get_optimization_status():

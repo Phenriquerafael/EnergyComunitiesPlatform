@@ -4,15 +4,14 @@ import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 import { Guard } from "../../core/logic/Guard";
 import { Result } from "../../core/logic/Result";
 import { Community } from "../Community/Community";
+import { ActiveAttributes } from "./ActiveAtributes";
 
 interface SimulationProps {
 startDate: string;
 endDate: string;
 description?: string;
 community: Community;
-profileLoad: boolean;
-stateOfCharge: boolean;
-photovoltaicEnergyLoad: boolean;
+activeAttributes?: ActiveAttributes[];
 }
 
 export class Simulation extends AggregateRoot<SimulationProps> {
@@ -38,16 +37,8 @@ export class Simulation extends AggregateRoot<SimulationProps> {
         return this.props.community;
     }
 
-    get profileLoad(): boolean {
-        return this.props.profileLoad ?? false;
-    }
-
-    get stateOfCharge(): boolean {
-        return this.props.stateOfCharge ?? false;
-    }
-
-    get photovoltaicEnergyLoad(): boolean {
-        return this.props.photovoltaicEnergyLoad ?? false;
+    get activeAttributes(): ActiveAttributes[] | undefined {
+        return this.props.activeAttributes;
     }
 
     constructor(props: SimulationProps, id?: UniqueEntityID) {
@@ -58,10 +49,7 @@ export class Simulation extends AggregateRoot<SimulationProps> {
         const guardedProps = [
             { argument: props.startDate, argumentName: 'startDate' },
             { argument: props.endDate, argumentName: 'endDate' },
-            { argument: props.community, argumentName: 'community' },
-            { argument: props.profileLoad, argumentName: 'profileLoad' },
-            { argument: props.stateOfCharge, argumentName: 'stateOfCharge' },
-            { argument: props.photovoltaicEnergyLoad, argumentName: 'photovoltaicEnergyLoad' },
+            { argument: props.community, argumentName: 'community' }
 
         ];
 
@@ -75,14 +63,5 @@ export class Simulation extends AggregateRoot<SimulationProps> {
         }
     }
 
-    public toString(): string {
-        return `Simulation: { id: ${this._id.toString()},\n
-        startDate: ${this.props.startDate},\n
-        endDate: ${this.props.endDate},\n
-        ${this.props.description? `description: ${this.props.description},\n` : ''}
-        community: ${this.props.community.id},\n
-        profileLoad: ${this.props.profileLoad},\n
-        stateOfCharge: ${this.props.stateOfCharge},\n
-        photovoltaicEnergyLoad: ${this.props.photovoltaicEnergyLoad} }\n`;
-    }
+
 }

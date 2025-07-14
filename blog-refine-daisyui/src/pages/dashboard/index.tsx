@@ -23,8 +23,9 @@ import { Histogram } from '../../components/dashboard/Histogram';
 import { ScatterPlot } from '../../components/dashboard/ScatterPlot';
 import { SankeyDiagram } from '../../components/dashboard/SankeyDiagram';
 import { Stats } from '../../components/dashboard/Stats';
-import { RecentSimulations } from '../../components/dashboard/RecentSimulations';
+
 import PieChart from '../../components/prosumers/pieChart';
+import { RecentSimulations } from '../../components/dashboard/RecentSimulations';
 
 
 export const Dashboard: React.FC = () => {
@@ -266,7 +267,7 @@ export const Dashboard: React.FC = () => {
       <TabView tabs={specificCommunityTabs} />
       <h2 className="text-xl font-semibold mb-2 mt-8">All Communities</h2>
       <TabView tabs={allCommunitiesTabs} />
-      <RecentSimulations data={simulations} />
+      <RecentSimulations /* data={simulations} */ />
     </div>
   );
 };

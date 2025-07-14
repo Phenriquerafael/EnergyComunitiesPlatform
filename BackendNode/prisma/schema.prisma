@@ -62,21 +62,31 @@ model Profile {
 }
 
 model Simulation {
-  id          String   @id @default(uuid())
-  startDate        String
-  endDate          String
+  id          String             @id @default(uuid())
+  startDate   String
+  endDate     String
   description String?
   communityId String
-  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  community   Community          @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
-  profileLoad            Boolean @default(false)
-  stateOfCharge          Boolean @default(false)
+  activeAttributes ActiveAttributes[]
+
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  profiles    Profile[]
+}
+
+model ActiveAttributes {
+  simulationId          String
+  prosumerId            String
+  profileLoad           Boolean @default(false)
+  stateOfCharge         Boolean @default(false)
   photovoltaicEnergyLoad Boolean @default(false)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  simulation            Simulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
 
-  profiles Profile[] // One-to-many relation with Profile
+  @@id([simulationId, prosumerId]) // chave primária composta
 }
 
 model Battery {

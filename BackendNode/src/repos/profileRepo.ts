@@ -11,9 +11,10 @@ import { Simulation } from "../domain/Simulation/Simulation";
 export default class ProfileRepo implements IProfileRepo {
 
   //por corrigir
-  public async save(profile: Profile, simulation: Simulation): Promise<Result<Profile>> {
+  public async save(profile: Profile): Promise<Result<Profile>> {
     try {
       const prosumerId = profile.prosumer.id.toString();
+      const simulationId = profile.simulation.id.toString();
 
       // Mapear o Profile para o formato de persistência
       const rawProfile = ProfileMap.toPersistence(profile);
@@ -25,44 +26,54 @@ export default class ProfileRepo implements IProfileRepo {
       let savedProfile: any;
       if (!existingProfile) {
         // Criar novo Profile
-        savedProfile = await prisma.profile.create({
-          data: {
-            ...rawProfile,
-            prosumerId: prosumerId,
-            simulationId: simulation.id.toString(), // Corrigido para simulationId
-          },
-          include: {
-            prosumer: {
-              include: {
-                user: true, // Include the full User object
-                battery: true, // Include the full Battery object
-                community: true, // Include the full Community object
+          savedProfile = await prisma.profile.create({
+            data: {
+              ...rawProfile,
+              prosumerId: prosumerId,
+              simulationId: simulationId,
+            },
+            include: {
+              prosumer: {
+                include: {
+                  user: true,
+                  battery: true,
+                  community: true,
+                },
+              },
+              simulation: {
+                include: {
+                  activeAttributes: true, // ✅ Agora o campo estará disponível
+                },
               },
             },
-            simulation: true, // Include the full Simulation object
-          },
-        });
+          });
+
       }
       else {
         // Atualizar Profile existente
-        savedProfile = await prisma.profile.update({
-          where: { id: profile.id.toString() },
-          data: {
-            ...rawProfile,
-            prosumerId: prosumerId,
-            simulationId: simulation.id.toString(), // Corrigido para simulationId
-          },
-          include: {
-            prosumer: {
-              include: {
-                user: true, // Include the full User object
-                battery: true, // Include the full Battery object
-                community: true, // Include the full Community object
+          savedProfile = await prisma.profile.update({
+            where: { id: profile.id.toString() },
+            data: {
+              ...rawProfile,
+              prosumerId: prosumerId,
+              simulationId: simulationId,
+            },
+            include: {
+              prosumer: {
+                include: {
+                  user: true,
+                  battery: true,
+                  community: true,
+                },
+              },
+              simulation: {
+                include: {
+                  activeAttributes: true,
+                },
               },
             },
-            simulation: true, // Include the full Simulation object
-          },
-        });
+          });
+
       }
       // Mapear o Profile salvo de volta para o domínio
       const profileOrError = await ProfileMap.toDomain(savedProfile);

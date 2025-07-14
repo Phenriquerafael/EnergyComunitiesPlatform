@@ -8,10 +8,11 @@ import { PhotovoltaicEnergyLoad } from '../domain/Prosumer/Profile/PhotovoltaicE
 import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
 import { SoldEnergy } from '../domain/Prosumer/Profile/SoldEnergy';
 import { Prosumer } from '../domain/Prosumer/Prosumer';
-import { Prosumer as PrismaProsumer } from "@prisma/client";
+import {  Prosumer as PrismaProsumer } from "@prisma/client";
 import { Community as PrismaCommunity } from "@prisma/client";
 import { User as PrismaUser } from "@prisma/client";
 import { Simulation as PrismaSimulation } from "@prisma/client";
+import { ActiveAttributes as PrismaActiveAttributes } from "@prisma/client";
 import { Battery as PrismaBattery } from "@prisma/client";
 import { Result } from '../core/logic/Result';
 import { UniqueEntityID } from '../core/domain/UniqueEntityID';
@@ -19,6 +20,7 @@ import { ProsumerMap } from './ProsumerMap';
 import { Simulation } from '../domain/Simulation/Simulation';
 import { SimulationMap } from './SimulationMap';
 import { CommunityMap } from './CommunityMap';
+import { strict } from 'assert';
 
 export class ProfileMap {
   public static toDTO(profile: Profile): IProfileDTO {
@@ -26,15 +28,7 @@ export class ProfileMap {
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
-      simulation: {
-        id: profile.simulation.id.toString(),
-        startDate: profile.simulation.startDate,
-        endDate: profile.simulation.endDate,
-        description: profile.simulation.description,
-        profileLoad: profile.simulation.profileLoad,
-        stateOfCharge: profile.simulation.stateOfCharge,
-        photovoltaicEnergyLoad: profile.simulation.photovoltaicEnergyLoad,
-      },
+      simulationId: profile.simulation.id.toString(),
       date: profile.date,
       intervalOfTime: profile.timestamp.intervalOfTime,
       numberOfIntervals: profile.timestamp.numberOfIntervals,
@@ -54,7 +48,18 @@ export class ProfileMap {
     } as IProfileDTO;
   }
 
-  public static async toDomain(rawProfile: IProfilePersistence & { prosumer: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery; community?: PrismaCommunity; }; simulation: PrismaSimulation }): Promise<Result<Profile>> {
+  public static async toDomain(
+    rawProfile: IProfilePersistence & {
+      prosumer: PrismaProsumer & {
+        user?: PrismaUser;
+        battery?: PrismaBattery;
+        community?: PrismaCommunity;
+      };
+      simulation: PrismaSimulation & {
+        activeAttributes?: Array<PrismaActiveAttributes>;
+      };
+    }
+  ): Promise<Result<Profile>> {
     try {
       // Create value objects
       const timeStamp = TimeStamp.create({
@@ -138,16 +143,19 @@ export class ProfileMap {
         description: rawProfile.simulation.description,
         communityId: rawProfile.simulation.communityId,
         community: rawProfile.prosumer.community,
-        profileLoad: rawProfile.simulation.profileLoad,
-        stateOfCharge: rawProfile.simulation.stateOfCharge,
-        photovoltaicEnergyLoad: rawProfile.simulation.photovoltaicEnergyLoad,
+        activeAttributes: rawProfile.simulation.activeAttributes?.map(attr => ({
+          prosumerId: attr.prosumerId,
+          profileLoad: attr.profileLoad,
+          stateOfCharge: attr.stateOfCharge,
+          photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad,
+        })) || [],
       };
 
 
       // Create Profile
       const profileProps = {
         prosumer: prosumerOrError.getValue(),
-        simulation: SimulationMap.toDomainFromDTO(simulationProps),
+        simulation: SimulationMap.toDomainFromDTO(simulationProps, prosumerOrError.getValue().community),
         date: rawProfile.date,
         timestamp: timeStamp/*.getValue()*/,
         profileLoad: profileLoad/*.getValue()*/,
@@ -173,7 +181,7 @@ export class ProfileMap {
     }
   }
 
-  public static toDomainFromDTO(profileDTO: IProfileDTO, prosumer: Prosumer): Result<Profile> {
+  public static toDomainFromDTO(profileDTO: IProfileDTO, prosumer: Prosumer,simulation:Simulation): Result<Profile> {
     const timeStamp = TimeStamp.create({
       intervalOfTime: profileDTO.intervalOfTime,
       numberOfIntervals: profileDTO.numberOfIntervals,
@@ -219,24 +227,17 @@ export class ProfileMap {
     });
 
     const simulationProps = {
-        id: profileDTO.simulation.id,
-        startDate: profileDTO.simulation.startDate,
-        endDate: profileDTO.simulation.endDate,
-        description: profileDTO.simulation.description,
-        community: {
-          id: prosumer.community.id.toString(),
-          name: prosumer.community.communityInformation.name || '',
-          description: prosumer.community.communityInformation.description || '',
-        },
-        profileLoad: profileDTO.simulation.profileLoad,
-        stateOfCharge: profileDTO.simulation.stateOfCharge,
-        photovoltaicEnergyLoad: profileDTO.simulation.photovoltaicEnergyLoad,
+      id: simulation.id.toString(),
+      startDate: simulation.startDate,
+      endDate: simulation.endDate,
+      description: simulation.description,
+      communityId: simulation.community.id.toString(),
     };
    
 
     const profileProps = {
       prosumer: prosumer,
-      simulation: SimulationMap.toDomainFromDTO(simulationProps),
+      simulation: SimulationMap.toDomainFromDTO(simulationProps, prosumer.community),
       date: profileDTO.date,
       timestamp: timeStamp,
       profileLoad: profileLoad,
@@ -259,15 +260,7 @@ export class ProfileMap {
     return {
       id: profile.id.toString(),
       prosumerId: profile.prosumer.id.toString(),
-      simulationId: {
-        id: profile.simulation.id,
-        startDate: profile.simulation.startDate,
-        endDate: profile.simulation.endDate,
-        description: profile.simulation.description,
-        profileLoad: profile.simulation.profileLoad,
-        stateOfCharge: profile.simulation.stateOfCharge,
-        photovoltaicEnergyLoad: profile.simulation.photovoltaicEnergyLoad,
-      },
+      simulationId: profile.simulation.id.toString(),
       date: profile.date,
       intervalOfTime: profile.timestamp.intervalOfTime,
       numberOfIntervals: profile.timestamp.numberOfIntervals,

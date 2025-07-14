@@ -49,6 +49,15 @@ export default (app: Router) => {
         start_date: Joi.string().required(),
         end_date: Joi.string().required(),
         description: Joi.string().optional(),
+        communityId: Joi.string().optional(),
+        active_attributes: Joi.array().items(
+          Joi.object({
+            prosumerId: Joi.string().required(),
+            profileLoad: Joi.boolean().required(),
+            stateOfCharge: Joi.boolean().required(),
+            photovoltaicEnergyLoad: Joi.boolean().required()
+          })
+        ).optional(),
         detailed_results: Joi.array().items(
           Joi.object({
             DateTime: Joi.string().required(),

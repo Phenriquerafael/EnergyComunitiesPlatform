@@ -33,8 +33,11 @@ export interface ISimulationPersistence {
   description?: string;
   communityId: string;
   community: Community;
-  profileLoad: boolean;
-  stateOfCharge: boolean;
-  photovoltaicEnergyLoad: boolean;
+  activeAttributes?: {
+    prosumerId: string;
+    profileLoad: boolean;
+    stateOfCharge: boolean;
+    photovoltaicEnergyLoad: boolean;
+  }[];
 }
 

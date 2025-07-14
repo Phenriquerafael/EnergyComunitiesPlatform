@@ -1,10 +1,12 @@
 import IProfileDTO from "../../dto/IProfileDTO";
 import { Result } from "../../core/logic/Result";
 import IOptimizationResults from "../../dto/IOptimizationResults";
+import { Prosumer } from "../../domain/Prosumer/Prosumer";
+import { Simulation } from "../../domain/Simulation/Simulation";
 
 export default interface IProfileService {
-    createProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>>;
-    createFromOptimizationResults(results: IOptimizationResults): Promise<Result<IProfileDTO>>;
+    createProfile(profileDTO: IProfileDTO,prosumer:Prosumer,simulation:Simulation): Promise<Result<IProfileDTO>>;
+    createFromOptimizationResults(results: IOptimizationResults): Promise<Result<void>>;
     updateProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>>;
     getProfile(profileId: string): Promise<Result<IProfileDTO>>;
     findByProsumerId(userId: string): Promise<Result<IProfileDTO[]>>;
