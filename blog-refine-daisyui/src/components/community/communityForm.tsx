@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Input, Select, Button, message, Spin } from "antd";
-import { useList, useCreate, useUpdate } from "@refinedev/core";
+import { useList, useCreate, useUpdate, useNavigation } from "@refinedev/core";
 import Flag from 'react-world-flags';
 
 
@@ -21,6 +21,8 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
   const { mutate: createCommunityManager } = useCreate();
   const { mutate: updateProsumers, isLoading: isUpdating } = useUpdate();
 
+  const { push } = useNavigation();
+
   const onFinish = (values: any) => {
     console.log("Form Values:", values);
     createCommunity(
@@ -37,7 +39,8 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
       {
         onSuccess: (communityResponse) => {
           const newCommunity = communityResponse.data;
-
+          message.success("Community created successfully!");
+          push("/"); // Redireciona para a página de comunidades
 /*           createCommunityManager(
             {
               resource: "communityManager",

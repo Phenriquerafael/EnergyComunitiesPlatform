@@ -6,4 +6,5 @@ export default interface ICommunityService {
     updateCommunity(communityDTO: ICommunityDTO): Promise<Result<ICommunityDTO>>;
     getCommunity(communityId: string): Promise<Result<ICommunityDTO>>;
     findAll(): Promise<Result<ICommunityDTO[]>>;
+    deleteCommunity(communityId: string): Promise<Result<void>>;
 }

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Descriptions, Spin, Select, Button, message, Typography, Divider, Card } from "antd";
-import { useOne, useList, useCustomMutation, useDelete, BaseKey } from "@refinedev/core";
+import { useOne, useList, useCustomMutation, useDelete, BaseKey, useNavigation } from "@refinedev/core";
 import ProsumerTableBody from "../prosumers/prosumerTableBody";
 import AlgorithmUploadSection from "../Algorithms/algorithmSelection";
-import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
+import { CursorArrowRaysIcon, UserMinusIcon, UserPlusIcon, UsersIcon,ArchiveBoxXMarkIcon } from "@heroicons/react/20/solid";
 import Flag from 'react-world-flags';
 import { ICommunityDTO, IProsumerDataDTO } from "../../interfaces";
+
 
 const { Title } = Typography;
 
@@ -16,6 +17,7 @@ interface CommunityDetailsProps {
 const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
   const [selectedProsumersToAdd, setSelectedProsumersToAdd] = useState<string[]>([]);
   const [selectedProsumersToRemove, setSelectedProsumersToRemove] = useState<string[]>([]);
+  const { push } = useNavigation();
 
   const { data, isLoading } = useOne({
     resource: "communities/id",
@@ -117,6 +119,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       {
         onSuccess: () => {
           message.success("Profiles deleted successfully!"); // Mensagem de sucesso
+          push(""); // Redireciona para a página de comunidades
           //refetch(); // Recarrega a lista após sucesso
         },
         onError: (error) => {
@@ -127,6 +130,26 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       }
     );
 
+  }
+
+  function handleDeleteCommunity(id: string) {
+    deleteMany(
+      {
+        resource: "communities/id",
+        id,
+      },
+      {
+        onSuccess: () => {
+          message.success("Community deleted successfully!"); // Mensagem de sucesso
+          push("/"); // Redireciona para a página de comunidades
+        },
+        onError: (error) => {
+          message.error(
+            `Failed to delete community: ${error.message || "Unknown error"}`
+          ); // Mensagem de erro
+        },
+      }
+    );
   }
 
   return (
@@ -227,7 +250,24 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         </Card>
       </div>
 
-            <br />
+      <br />
+      <div className="flex flex-row justify-start gap-10 " >
+      <button
+        className="btn btn-error btn-sm text-white"
+        onClick={async () => {
+          if (
+        window.confirm(
+          "Are you sure you want to delete this community? This action cannot be undone."
+        )
+          ) {
+        handleDeleteCommunity(communityId);
+          }
+        }}
+      >
+        <UsersIcon style={{ width: 20, height: 20 }}/>
+        Delete Community
+      </button>
+
       <button
         className="btn btn-error btn-sm text-white"
         onClick={async () => {
@@ -241,8 +281,12 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
         }}
         disabled={!prosumersInCommunity || prosumersInCommunity.length === 0}
       >
+        <ArchiveBoxXMarkIcon style={{ width: 20, height: 20 }}/>
         Remove All Prosumers Data
       </button>
+
+      </div>
+
       <Divider />
 
       <AlgorithmUploadSection prosumers={prosumersInCommunity ?? []} />

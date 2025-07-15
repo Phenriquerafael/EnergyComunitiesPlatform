@@ -75,6 +75,21 @@ export default class CommunityController implements ICommunityController {
       }
   }
 
+  public async deleteCommunity(req: Request, res: Response, next: NextFunction) {
+      try {
+        const deleteResult = await this.communityServiceInstance.deleteCommunity(req.params.id);
+        
+        if (deleteResult.isFailure) {
+          return res.status(404).json({ message: deleteResult.error });
+        }
+  
+        return res.status(204).send(); // No content
+      } catch (error) {
+        return next(error); // Pass error to Express error handler
+        
+      }
+  }
+
   
 
 

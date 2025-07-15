@@ -6,4 +6,5 @@ export default interface ICommunityRepo {
   save(community: Community): Promise<Result<Community>>;
   findById(id: string): Promise<Result<Community>>;
   findAll(): Promise<Result<Community[]>>;
+  delete(community: string): Promise<Result<void>>;
 }

@@ -5,4 +5,5 @@ export default interface ICommunityController {
     updateCommunity(req: Request, res: Response, next: NextFunction);
     getCommunity(req: Request, res: Response, next: NextFunction);
     findAll(req: Request, res: Response, next: NextFunction);
+    deleteCommunity(req: Request, res: Response, next: NextFunction);
 }

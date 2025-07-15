@@ -68,4 +68,16 @@ export default class CommunityRepo implements ICommunityRepo {
         return Result.ok<Community[]>(validBatteries);
     }
 
+    public async delete(communityId: string): Promise<Result<void>> {
+        try {
+            await prisma.community.delete({
+                where: { id: communityId },
+            });
+            return Result.ok<void>();
+        } catch (error) {
+            console.error("Error deleting the community: ", error);
+            return Result.fail<void>("Error deleting the community");
+        }
+    }
+
 }

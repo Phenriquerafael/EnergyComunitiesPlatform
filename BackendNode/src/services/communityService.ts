@@ -93,4 +93,22 @@ export default class CommunityService implements ICommunityService {
       return Result.fail<ICommunityDTO[]>('Error getting all the communities');
     }
   }
+
+  public async deleteCommunity(communityId: string): Promise<Result<void>> {
+    try {
+      if (!communityId) {
+        return Result.fail<void>('Community ID is required to delete the community');
+      }
+      const existingCommunityOrError = await this.communityRepoInstance.findById(communityId);
+      if (existingCommunityOrError.isFailure) {
+        return Result.fail<void>('Community was not found');
+      }
+
+      await this.communityRepoInstance.delete(communityId);
+      return Result.ok<void>();
+    } catch (error) {
+      console.log('Error deleting the community: ', error);
+      return Result.fail<void>('Error deleting the community');
+    }
+  }
 }

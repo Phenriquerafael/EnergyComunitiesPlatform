@@ -48,9 +48,18 @@ export default (app: Router) => {
         (req, res, next) => ctrl.getCommunity(req, res, next)
     );
 
+    route.delete(
+        '/id/:id',
+        (req, res, next) => ctrl.deleteCommunity(req, res, next)
+    );
+
+    
+    
     route.get(
         '/all',
         (req, res, next) => ctrl.findAll(req, res, next)
     );
+
+
     
 }
