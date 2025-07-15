@@ -120,6 +120,8 @@ model Community {
   id               String            @id @default(uuid())
   name             String            @unique
   description      String?
+  country          String?
+  countryCode      String?
   prosumers        Prosumer[] // One-to-many relation with Prosumer
   communityManager CommunityManager?
   simulations      Simulation[] // One-to-many relation with Simulation

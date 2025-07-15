@@ -10,7 +10,7 @@ import {
     ChevronDownIcon,
     ChevronUpIcon,
 } from "@heroicons/react/24/outline";
-import { ISimulationDTO, IActiveAtributesDTO } from "../../interfaces";
+import { ISimulationDTO, IActiveAtributesDTO } from "../../../interfaces";
 
 interface SimulationTableBodyProps {
     filtered: ISimulationDTO[];

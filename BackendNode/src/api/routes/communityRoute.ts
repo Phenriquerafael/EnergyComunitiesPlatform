@@ -20,8 +20,10 @@ export default (app: Router) => {
         '/',
         celebrate({
             body: Joi.object({
-                name: Joi.string().optional(),
+                name: Joi.string().required(),
                 description: Joi.string().optional(),
+                country: Joi.string().required(), 
+                countryCode: Joi.string().required(), 
             }),
         }),
         (req, res, next) => ctrl.createCommunity(req, res, next)
@@ -34,6 +36,8 @@ export default (app: Router) => {
                 id: Joi.string().required(),
                 name: Joi.string().optional(),
                 description: Joi.string().optional(),
+                country: Joi.string().optional(),
+                countryCode: Joi.string().optional(),
             }),
         }),
         (req, res, next) => ctrl.updateCommunity(req, res, next)

@@ -22,19 +22,23 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
   const { mutate: updateProsumers, isLoading: isUpdating } = useUpdate();
 
   const onFinish = (values: any) => {
+    console.log("Form Values:", values);
     createCommunity(
       {
         resource: "communities",
         values: {
           name: values.name,
           description: values.description,
+          country: values.country,
+          countryCode: values.countryCode,
         },
       },
+
       {
         onSuccess: (communityResponse) => {
           const newCommunity = communityResponse.data;
 
-          createCommunityManager(
+/*           createCommunityManager(
             {
               resource: "communityManager",
               values: {
@@ -51,7 +55,7 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
                 message.error("Error assigning community manager.");
               },
             }
-          );
+          ); */
 
           if (selectedProsumers.length > 0) {
             const payload = {
@@ -87,60 +91,75 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
   if (isProsumersLoading) return <Spin />;
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form form={form} layout="vertical" onFinish={(values) => {
+      // Map country selection to countryCode and country name
+      const countryMap: Record<string, { code: string; name: string }> = {
+      pt: { code: "pt", name: "Portugal" },
+      es: { code: "es", name: "Spain" },
+      fr: { code: "fr", name: "France" },
+      de: { code: "de", name: "Germany" },
+      it: { code: "it", name: "Italy" },
+      uk: { code: "gb", name: "United Kingdom" },
+      };
+      const selectedCountry = countryMap[values.country];
+      const newValues = {
+      ...values,
+      countryCode: selectedCountry?.code,
+      country: selectedCountry?.name,
+      };
+      onFinish(newValues);
+    }}>
 
       <Form.Item
-        label="Country"
-        name="country"
-        initialValue="pt"
-        rules={[{ required: true, message: "Please select a country." }]}
+      label="Country"
+      name="country"
+      initialValue="pt"
+      rules={[{ required: true, message: "Please select a country." }]}
       >
-        <Select
-          placeholder="Select a country"
-          options={[
-            { value: "pt", label: <span className="flex items-center gap-2"><Flag code="pt" style={{ width: 24, height: 16 }} /> Portugal</span> },
-            { value: "es", label: <span className="flex items-center gap-2"><Flag code="es" style={{ width: 24, height: 16 }} /> Spain</span> },
-            { value: "fr", label: <span className="flex items-center gap-2"><Flag code="fr" style={{ width: 24, height: 16 }} /> France</span> },
-            { value: "de", label: <span className="flex items-center gap-2"><Flag code="de" style={{ width: 24, height: 16 }} /> Germany</span> },
-            { value: "it", label: <span className="flex items-center gap-2"><Flag code="it" style={{ width: 24, height: 16 }} /> Italy</span> },
-            { value: "uk", label: <span className="flex items-center gap-2"><Flag code="gb" style={{ width: 24, height: 16 }} /> United Kingdom</span> },
-            // Adicione mais países conforme necessário
-          ]}
-
-          />
+      <Select
+        placeholder="Select a country"
+        options={[
+        { value: "pt", label: <span className="flex items-center gap-2"><Flag code="pt" style={{ width: 24, height: 16 }} /> Portugal</span> },
+        { value: "es", label: <span className="flex items-center gap-2"><Flag code="es" style={{ width: 24, height: 16 }} /> Spain</span> },
+        { value: "fr", label: <span className="flex items-center gap-2"><Flag code="fr" style={{ width: 24, height: 16 }} /> France</span> },
+        { value: "de", label: <span className="flex items-center gap-2"><Flag code="de" style={{ width: 24, height: 16 }} /> Germany</span> },
+        { value: "it", label: <span className="flex items-center gap-2"><Flag code="it" style={{ width: 24, height: 16 }} /> Italy</span> },
+        { value: "uk", label: <span className="flex items-center gap-2"><Flag code="gb" style={{ width: 24, height: 16 }} /> United Kingdom</span> },
+        ]}
+      />
       </Form.Item>
       
       <Form.Item
-        label="Community Name"
-        name="name"
-        rules={[{ required: true, message: "Please enter the community name." }]}
+      label="Community Name"
+      name="name"
+      rules={[{ required: true, message: "Please enter the community name." }]}
       >
-        <Input />
+      <Input />
       </Form.Item>
 
       <Form.Item label="Description" name="description">
-        <Input.TextArea rows={4} />
+      <Input.TextArea rows={4} />
       </Form.Item>
 
       <Form.Item label="Assign Prosumers">
-        <Select
-          mode="multiple"
-          placeholder="Select prosumers"
-          style={{ width: "100%" }}
-          loading={isProsumersLoading}
-          onChange={(values) => setSelectedProsumers(values)}
-          value={selectedProsumers}
-          options={prosumerData?.data.map((p) => ({
-            value: p.id,
-            label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ''} ${p.batteryName ? ` - Battery: ${p.batteryName}` : ''} ${p.communityName ? ` - Community: ${p.communityName}` : ''}`,
-          }))}
-        />
+      <Select
+        mode="multiple"
+        placeholder="Select prosumers"
+        style={{ width: "100%" }}
+        loading={isProsumersLoading}
+        onChange={(values) => setSelectedProsumers(values)}
+        value={selectedProsumers}
+        options={prosumerData?.data.map((p) => ({
+        value: p.id,
+        label: `${p.userName ?? `Prosumer ${p.id}`} - ${p.email ?? ''} ${p.batteryName ? ` - Battery: ${p.batteryName}` : ''} ${p.communityName ? ` - Community: ${p.communityName}` : ''}`,
+        }))}
+      />
       </Form.Item>
 
       <Form.Item>
-        <Button type="primary" htmlType="submit" loading={isCreatingCommunity || isUpdating}>
-          Create Community
-        </Button>
+      <Button type="primary" htmlType="submit" loading={isCreatingCommunity || isUpdating}>
+        Create Community
+      </Button>
       </Form.Item>
     </Form>
   );

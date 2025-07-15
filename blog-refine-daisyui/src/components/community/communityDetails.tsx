@@ -5,7 +5,7 @@ import ProsumerTableBody from "../prosumers/prosumerTableBody";
 import AlgorithmUploadSection from "../Algorithms/algorithmSelection";
 import { UserMinusIcon, UserPlusIcon } from "@heroicons/react/20/solid";
 import Flag from 'react-world-flags';
-import { IProsumerDataDTO } from "../../interfaces";
+import { ICommunityDTO, IProsumerDataDTO } from "../../interfaces";
 
 const { Title } = Typography;
 
@@ -102,7 +102,8 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
     return <Spin />;
   }
 
-  const community = data?.data;
+  const community = data?.data as ICommunityDTO;
+  console.log("Community Data:", community);
   const prosumersInCommunity = communityProsumersData?.data as IProsumerDataDTO[];
   const prosumersNotInCommunity = prosumerData?.data.filter((p) => !prosumersInCommunity?.some((cp) => cp.id === p.id));
 
@@ -133,14 +134,14 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
       <Descriptions bordered column={1}>
         <Descriptions.Item label="Country">
           <span className="flex items-center gap-2">
-            <Flag code={community?.country ?? "pt"} style={{ width: 24, height: 16 }} />
+            <Flag code={community?.countryCode ?? "pt"} style={{ width: 24, height: 16 }} />
             {community?.country ?? "Portugal"}
           </span>
         </Descriptions.Item>
         <Descriptions.Item label="Name">{community?.name}</Descriptions.Item>
         <Descriptions.Item label="Description">{community?.description}</Descriptions.Item>
       </Descriptions>
-
+   
       <Divider />
 
 

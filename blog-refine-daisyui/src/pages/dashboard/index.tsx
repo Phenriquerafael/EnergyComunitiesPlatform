@@ -25,7 +25,7 @@ import { SankeyDiagram } from '../../components/dashboard/SankeyDiagram';
 import { Stats } from '../../components/dashboard/Stats';
 
 import PieChart from '../../components/prosumers/pieChart';
-import { RecentSimulations } from '../../components/dashboard/RecentSimulations';
+import { RecentSimulations } from '../../components/dashboard/simulations/RecentSimulations';
 
 
 export const Dashboard: React.FC = () => {

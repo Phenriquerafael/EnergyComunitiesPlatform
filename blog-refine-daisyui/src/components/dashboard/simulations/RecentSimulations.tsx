@@ -1,5 +1,5 @@
 import { useList } from "@refinedev/core";
-import { ISimulationDTO } from "../../interfaces";
+import { ISimulationDTO } from "../../../interfaces";
 import SimulationTableBody from "./SimulationsTableBody";
 
 

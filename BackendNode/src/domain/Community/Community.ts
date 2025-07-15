@@ -6,6 +6,8 @@ import { Result } from "../../core/logic/Result";
 
 interface CommunityProps {
     communityInformation: CommunityDescription;
+    country?: string; 
+    countryCode?: string; 
 }
 
 export class Community extends AggregateRoot<CommunityProps> {
@@ -20,6 +22,14 @@ export class Community extends AggregateRoot<CommunityProps> {
 
     set communityInformation(value: CommunityDescription) {
         this.props.communityInformation = value;
+    }
+
+    get country(): string | undefined {
+        return this.props.country;
+    }
+
+    get countryCode(): string | undefined {
+        return this.props.countryCode;
     }
 
     constructor(props: CommunityProps, id?: UniqueEntityID) {

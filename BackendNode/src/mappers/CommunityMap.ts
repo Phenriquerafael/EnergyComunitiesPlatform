@@ -5,6 +5,7 @@ import { UniqueEntityID } from "../core/domain/UniqueEntityID";
 import ICommunityDTO from "../dto/ICommunityDTO";
 import ICommunityPersistence from "../dataschema/ICommunityPersistence";
 import { Result } from "../core/logic/Result";
+import { count } from "console";
 
 export class CommunityMap extends Mapper<Community> {
   
@@ -13,6 +14,8 @@ export class CommunityMap extends Mapper<Community> {
       id: community.id.toString(),
         name: community.communityInformation.name,
         description: community.communityInformation.description,
+        country: community.country,
+        countryCode: community.countryCode,
     } as ICommunityDTO;
   }
 
@@ -24,6 +27,8 @@ export class CommunityMap extends Mapper<Community> {
 
       const communityProps = {
         communityInformation: communityInformation,
+        country: communityDTO.country, 
+        countryCode: communityDTO.countryCode,
       };
       return Community.create(communityProps,
       new UniqueEntityID(communityDTO.id)
@@ -38,6 +43,8 @@ export class CommunityMap extends Mapper<Community> {
 
     const prosumerCommunityProps = {
       communityInformation: communityInformation,
+      country: rawCommunity.country, 
+      countryCode: rawCommunity.countryCode, 
     };
 
     const communityOrError = Community.create(prosumerCommunityProps, new UniqueEntityID(rawCommunity.id));
@@ -52,7 +59,8 @@ export class CommunityMap extends Mapper<Community> {
       id: community.id.toString(),
       name: community.communityInformation.name,
       description: community.communityInformation.description,
-      
+      country: community.country, 
+      countryCode: community.countryCode, 
     }
   }
 }
