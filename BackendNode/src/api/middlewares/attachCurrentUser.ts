@@ -21,7 +21,7 @@ const attachCurrentUser = async (req, res, next) => {
 /*     if( !req.auth || req.auth == undefined )
       next( new Error("Token inexistente ou inválido ") ); */
 
-    console.log('🔍 Enviando token:', req.token);
+    /* console.log('🔍 Enviando token:', req.token); */
 
     const id = req.token.id;
 

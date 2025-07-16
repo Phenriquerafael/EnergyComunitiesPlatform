@@ -1,6 +1,8 @@
-import { useList } from "@refinedev/core";
+import { BaseKey, useList, useDelete } from "@refinedev/core";
 import { ISimulationDTO } from "../../../interfaces";
 import SimulationTableBody from "./SimulationsTableBody";
+import { message } from "antd";
+
 
 
 export const RecentSimulations: React.FC = () => {
@@ -20,8 +22,26 @@ export const RecentSimulations: React.FC = () => {
         // rota de detalhe
     };
 
-    const handleDelete = async (id: string | number) => {
-        // chamada de delete
+    const { mutate: deleteOne } = useDelete();
+
+    const handleDelete = async (id: BaseKey) => {
+        deleteOne(
+        {
+            resource: "simulations/id",
+            id,
+        },
+        {
+            onSuccess: () => {
+            message.success("Simulation deleted successfully!"); // Mensagem de sucesso
+            refetch(); // Recarrega a lista após sucesso
+            },
+            onError: (error) => {
+            message.error(
+                `Failed to delete simulation: ${error.message || "Unknown error"}`
+            ); // Mensagem de erro
+            },
+        }
+        );
     };
 
     return (
@@ -33,3 +53,5 @@ export const RecentSimulations: React.FC = () => {
         />
     );
 };
+
+

@@ -267,7 +267,11 @@ export const Dashboard: React.FC = () => {
       <TabView tabs={specificCommunityTabs} />
       <h2 className="text-xl font-semibold mb-2 mt-8">All Communities</h2>
       <TabView tabs={allCommunitiesTabs} />
+      <br />
+      <h2 className="text-xl font-semibold mb-2">Recent Simulations</h2>
       <RecentSimulations /* data={simulations} */ />
+      <br />
+
     </div>
   );
 };

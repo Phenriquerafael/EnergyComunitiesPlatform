@@ -7,15 +7,14 @@ import {
     TrashIcon,
     BarsArrowDownIcon,
     BarsArrowUpIcon,
-    ChevronDownIcon,
-    ChevronUpIcon,
 } from "@heroicons/react/24/outline";
-import { ISimulationDTO, IActiveAtributesDTO } from "../../../interfaces";
+import { ISimulationDTO } from "../../../interfaces";
+import SimulationShow from "./SimulationShow"; // importa o componente expandido
 
 interface SimulationTableBodyProps {
     filtered: ISimulationDTO[];
     edit: (resource: string, id: string | number) => void;
-    show: (resource: string, id: string | number) => void;
+    show: (resource: string, id: string | number) => void; // opcional agora
     handleDelete: (id: string | number) => void;
 }
 
@@ -53,52 +52,6 @@ export const SimulationTableBody: React.FC<SimulationTableBodyProps> = ({
             header: "Description",
         },
         {
-            id: "activeAttributes",
-            accessorKey: "activeAttributes",
-            header: "Active Attributes",
-            cell: ({ row, getValue }) => {
-                const id = row.original.id as string;
-                const isOpen = expandedRows[id] ?? false;
-                const attributes = getValue() as IActiveAtributesDTO[] | undefined;
-
-                if (!attributes?.length) {
-                    return <span className="text-xs italic text-gray-400">No prosumers</span>;
-                }
-
-                return (
-                    <div className="text-xs text-left">
-                        <button
-                            className="btn btn-xs btn-outline mb-1"
-                            onClick={() => toggleExpand(id)}
-                        >
-                            {isOpen ? (
-                                <>
-                                    <ChevronUpIcon className="w-4 h-4" /> Hide
-                                </>
-                            ) : (
-                                <>
-                                    <ChevronDownIcon className="w-4 h-4" /> Show
-                                </>
-                            )}
-                        </button>
-
-                        {isOpen && (
-                            <div className="flex flex-col gap-1 max-h-60 overflow-y-auto mt-1">
-                                {attributes.map((attr, i) => (
-                                    <div key={i} className="border rounded bg-slate-100 p-2">
-                                        <div><strong>ID:</strong> {attr.prosumerId}</div>
-                                        <div><strong>Profile:</strong> {attr.profileLoad ? "✔️" : "❌"}</div>
-                                        <div><strong>SOC:</strong> {attr.stateOfCharge ? "✔️" : "❌"}</div>
-                                        <div><strong>PV:</strong> {attr.photovoltaicEnergyLoad ? "✔️" : "❌"}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
             id: "actions",
             header: "Actions",
             cell: ({ row }) => (
@@ -111,7 +64,7 @@ export const SimulationTableBody: React.FC<SimulationTableBodyProps> = ({
                     </button>
                     <button
                         className="btn btn-xs btn-circle btn-ghost"
-                        onClick={() => show("simulations", row.original.id!)}
+                        onClick={() => toggleExpand(row.original.id!)}
                     >
                         <EyeIcon className="h-4 w-4" />
                     </button>
@@ -124,7 +77,7 @@ export const SimulationTableBody: React.FC<SimulationTableBodyProps> = ({
                 </div>
             ),
         },
-    ], [edit, show, handleDelete, expandedRows]);
+    ], [edit, handleDelete]);
 
     const {
         getHeaderGroups,
@@ -167,16 +120,27 @@ export const SimulationTableBody: React.FC<SimulationTableBodyProps> = ({
                     </thead>
                     <tbody>
                         {getRowModel().rows.map((row) => (
-                            <tr key={row.id}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <td key={cell.id} className="text-center align-top">
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </td>
-                                ))}
-                            </tr>
+                            <React.Fragment key={row.id}>
+                                <tr>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <td key={cell.id} className="text-center align-top">
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </td>
+                                    ))}
+                                </tr>
+                                {expandedRows[row.original.id!] && (
+                                    <tr>
+                                        <td colSpan={columns.length}>
+                                            <div className="p-4 bg-gray-100 rounded-lg">
+                                                <SimulationShow simulation={row.original} />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
                         ))}
                     </tbody>
                 </table>

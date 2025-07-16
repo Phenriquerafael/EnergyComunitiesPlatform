@@ -13,7 +13,7 @@ import config from '../../../config';
  */
 const getTokenFromHeader = (req: any) => {
   
-  console.log("🔍 Header recebido:", req.headers.authorization);
+/*   console.log("🔍 Header recebido:", req.headers.authorization); */
 
   if (
     (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Token') ||
