@@ -73,7 +73,7 @@ public async save(simulation: Simulation): Promise<Result<Simulation>> {
             });
         }
 
-        return Result.ok<Simulation>(SimulationMap.toDomain(savedSimulation));
+        return Result.ok<Simulation>(await SimulationMap.toDomain(savedSimulation));
     } catch (error) {
         console.error("Error saving the simulation: ", error);
         return Result.fail<Simulation>("Error saving the simulation");
@@ -92,7 +92,7 @@ public async save(simulation: Simulation): Promise<Result<Simulation>> {
             if (!simulation) {
                 return Result.fail<Simulation>("Simulation was not found");
             }
-            return Result.ok<Simulation>(SimulationMap.toDomain(simulation));
+            return Result.ok<Simulation>(await SimulationMap.toDomain(simulation));
         } catch (error) {
             console.error("Error finding simulation by ID: ", error);
             return Result.fail<Simulation>("Error finding simulation by ID");
@@ -107,7 +107,7 @@ public async save(simulation: Simulation): Promise<Result<Simulation>> {
             if (!simulations) {
                 return Result.fail<Simulation[]>("No simulations found");
             }
-            const simulationOrErrors = simulations.map((simulation) => SimulationMap.toDomain(simulation));
+            const simulationOrErrors = await Promise.all(simulations.map((simulation) => SimulationMap.toDomain(simulation)));
 /*             const failedSimulations = simulationOrErrors.filter((simulation) => simulation);
             if (failedSimulations.length > 0) {
                 return Result.fail<Simulation[]>(

@@ -29,6 +29,7 @@ export default class SimulationController implements ISimulationController {
     public async updateSimulation(req: Request, res: Response, next: NextFunction) {
         try {
             const simulationDTO = req.body;
+            simulationDTO.id = req.params.id; // Ensure the ID is set from the request parameters
             const result = await this.simulationServiceInstance.updateSimulation(simulationDTO);
             if (result.isFailure) {
                 return res.status(400).json({ message: result.error });

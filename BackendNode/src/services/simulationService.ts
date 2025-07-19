@@ -6,10 +6,14 @@ import { Result } from '../core/logic/Result';
 import { ISimulationDTO } from "../dto/IProfileDTO";
 import { SimulationMap } from "../mappers/SimulationMap";
 import { Community } from "../domain/Community/Community";
+import ICommunityRepo from "../repos/IRepos/ICommunityRepo";
 
 @Service()
 export default class SimulationService implements ISimulationService{
-  constructor(@Inject(config.repos.simulation.name) private simulationRepoInstance: ISimulationRepo) {
+  constructor(
+    @Inject(config.repos.simulation.name) private simulationRepoInstance: ISimulationRepo,
+    @Inject(config.repos.community.name) private communityRepoInstance: ICommunityRepo
+) {
     /* console.log('ProsumerBatteryService instantiated'); // Debug */
   }
 
@@ -36,8 +40,30 @@ export default class SimulationService implements ISimulationService{
             if (!simulationDTO) {
                 return Result.fail<ISimulationDTO>('Simulation data is required');
             }
-            const simulation = SimulationMap.toDomainFromDTO(simulationDTO,null);
-            const simulationOrError = await this.simulationRepoInstance.save(simulation);
+
+            const simulation = await this.simulationRepoInstance.findById(simulationDTO.id);
+            if (simulation.isFailure) {
+                return Result.fail<ISimulationDTO>(simulation.error);
+            }
+            
+            if (simulationDTO.startDate) {
+                simulation.getValue().props.startDate = simulationDTO.startDate;
+            }
+            if (simulationDTO.endDate) {
+                simulation.getValue().props.endDate = simulationDTO.endDate;
+            }
+            if (simulationDTO.description) {
+                simulation.getValue().props.description = simulationDTO.description;
+            }
+            if (simulationDTO.communityId) {
+                const community = await this.communityRepoInstance.findById(simulationDTO.communityId);
+                if (community.isFailure) {
+                    return Result.fail<ISimulationDTO>(community.error);
+                }
+                simulation.getValue().props.community = community.getValue();
+            }            
+           
+            const simulationOrError = await this.simulationRepoInstance.save(simulation.getValue());
             if (simulationOrError.isFailure) {
                 return Result.fail<ISimulationDTO>(simulationOrError.error);
             }

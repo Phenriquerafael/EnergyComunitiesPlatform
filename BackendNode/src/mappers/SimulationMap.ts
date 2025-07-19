@@ -7,6 +7,7 @@ import { Simulation } from "../domain/Simulation/Simulation";
 import { Community as PrismaCommunity } from "@prisma/client";
 import { ISimulationDTO } from "../dto/IProfileDTO";
 import { ActiveAttributes } from "../domain/Simulation/ActiveAtributes";
+import { CommunityMap } from "./CommunityMap";
 
 export class SimulationMap {
 
@@ -26,16 +27,11 @@ export class SimulationMap {
         };
     }
 
-    public static toDomain(rawSimulation: ISimulationPersistence & {community: PrismaCommunity}): Simulation {
+    public static async toDomain(rawSimulation: ISimulationPersistence & {community: PrismaCommunity}): Promise<Simulation> {
         // Import CommunityDescription if not already imported
 
-        const community = Community.create({
-            communityInformation: CommunityDescription.create({
-                name: rawSimulation.community.name || '',
-                description: rawSimulation.community.description || ''
-            })
-            }
-        );
+        const community = await CommunityMap.toDomain(rawSimulation.community);
+
         if (community.isFailure) {
             console.log(community.error);
             throw new Error(String(community.error));

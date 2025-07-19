@@ -8,9 +8,11 @@ corrigir o data do simulation
 uniformizar os pedidos nas routes
 
 frontend
+!! Adicionar uma comparação do load e consumo do prosumer antes e após pertencer à comunidade
 Corrigir refresh e navegações 
 corrigir erro das secure routes no login 
 corrigir barras de busca e botões de organização na tabelas
+corrigir as buscas dos prosumers a adicionar numa communidade
 
 adicionar opção de editar visulizar e eliminar simulation
 adicionar botões de info para os formatos dos ficheiros e para as datas disponíveis para cada ficheiro
@@ -23,6 +25,7 @@ parar a procura de entidades quando a lista é vazia.
 criar componente que gera o icon da bandeira recebendo o tamanho e o código do país
 
 repensar a lógica de visualização de dados analíticos dos prosumers (o manager tem acesso a todas as communidades?)
+criar ui para gestão de utilizadores (admin)
 
 
 

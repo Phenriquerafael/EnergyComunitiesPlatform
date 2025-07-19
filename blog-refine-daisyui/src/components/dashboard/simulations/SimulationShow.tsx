@@ -7,6 +7,7 @@ interface Props {
 }
 
 const SimulationShow: React.FC<Props> = ({ simulation }) => {
+    console.log("Simulation Data:", simulation.communityId);
     const { data: communityData, isLoading: isCommunityLoading } = useOne<ICommunityDTO>({
         resource: "communities/id",
         id: simulation.communityId ?? "",

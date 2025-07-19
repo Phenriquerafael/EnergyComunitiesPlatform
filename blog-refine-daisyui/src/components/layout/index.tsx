@@ -12,11 +12,11 @@ export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   const { data: user, isLoading } = useGetIdentity();
   const { push } = useNavigation();
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (!isLoading && !user) {
       push("/login");
     }
-  }, [user, isLoading, push]);
+  }, [user, isLoading, push]); */
 
   return (
     <div className="flex flex-col min-h-screen bg-base-100">
