@@ -20,7 +20,7 @@ export default class SimulationController implements ISimulationController {
             if (result.isFailure) {
                 return res.status(400).json({ message: result.error });
             }
-            return res.status(201).json({ data: result.getValue() });
+            return res.status(201).json(result.getValue());
         } catch (error) {
             return next(error);
         }
@@ -34,7 +34,7 @@ export default class SimulationController implements ISimulationController {
             if (result.isFailure) {
                 return res.status(400).json({ message: result.error });
             }
-            return res.status(200).json({ data: result.getValue() });
+            return res.status(200).json(result.getValue());
         } catch (error) {
             return next(error);
         }
@@ -47,7 +47,7 @@ export default class SimulationController implements ISimulationController {
             if (result.isFailure) {
                 return res.status(404).json({ message: result.error });
             }
-            return res.status(200).json({ data: result.getValue() });
+            return res.status(200).json(result.getValue());
         } catch (error) {
             return next(error);
         }
@@ -61,7 +61,7 @@ export default class SimulationController implements ISimulationController {
             if (result.isFailure) {
                 return res.status(404).json({ message: result.error });
             }
-            return res.status(200).json({ data: result.getValue() });
+            return res.status(200).json(result.getValue());
         } catch (error) {
             return next(error);
         }

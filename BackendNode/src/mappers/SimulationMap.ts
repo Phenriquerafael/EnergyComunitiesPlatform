@@ -24,7 +24,7 @@ export class SimulationMap {
                 stateOfCharge: attr.stateOfCharge,
                 photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad
             })) || [],
-        };
+        } as ISimulationDTO;
     }
 
     public static async toDomain(rawSimulation: ISimulationPersistence & {community: PrismaCommunity}): Promise<Simulation> {

@@ -10,7 +10,7 @@ export const RecentSimulations: React.FC = () => {
         resource: "simulations/all",
     });
 
-    const simulations = data?.data.data ?? [];
+    const simulations = data?.data ?? [];
 
     console.log("Recent Simulations Data:", simulations);
 
