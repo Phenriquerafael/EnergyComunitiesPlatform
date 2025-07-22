@@ -17,7 +17,8 @@ corrigir as buscas dos prosumers a adicionar numa communidade
 adicionar opção de editar visulizar e eliminar simulation
 adicionar botões de info para os formatos dos ficheiros e para as datas disponíveis para cada ficheiro
 adicionar alertas para a desconexão com o backend e vice versa
-*adicionar numeração dos profiles de uma simulation
+*adicionar numeração dos profiles de uma 
+adicionar scroll para aumentar ou diminuir os intervalos de datas
 parar a procura de entidades quando a lista é vazia.
 
 

@@ -181,49 +181,53 @@ export class ProfileMap {
     }
   }
 
-  public static toDomainFromDTO(profileDTO: IProfileDTO, prosumer: Prosumer,simulation:Simulation): Result<Profile> {
+  public static toDomainFromDTO(profileDTO: IProfileDTO, prosumer: Prosumer, simulation: Simulation): Result<Profile> {
+    // Helper to default null/undefined to "0.0"
+    const safe = (val: any) => (val == null || val == undefined) ? "0.0" : val;
+
     const timeStamp = TimeStamp.create({
-      intervalOfTime: profileDTO.intervalOfTime,
-      numberOfIntervals: profileDTO.numberOfIntervals,
+      intervalOfTime: safe(profileDTO.intervalOfTime),
+      numberOfIntervals: safe(profileDTO.numberOfIntervals),
     });
 
     const profileLoad = Load.create({
-      amount: profileDTO.profileLoad,
+      amount: safe(profileDTO.profileLoad),
     });
 
     const stateOfCharge = StateOfCharge.create({
-      amount: profileDTO.stateOfCharge,
+      amount: safe(profileDTO.stateOfCharge),
     });
 
     const energyCharge = Load.create({
-      amount: profileDTO.energyCharge,
+      amount: safe(profileDTO.energyCharge),
     });
 
     const energyDischarge = Load.create({
-      amount: profileDTO.energyDischarge,
+      amount: safe(profileDTO.energyDischarge),
     });
 
     const peerOutputEnergyLoad = SoldEnergy.create({
-      price: profileDTO.peerOutPrice,
-      amount: profileDTO.peerOutputEnergyLoad,
+      price: safe(profileDTO.peerOutPrice),
+      amount: safe(profileDTO.peerOutputEnergyLoad),
     });
 
     const peerInputEnergyLoad = BoughtEnergy.create({
-      price: profileDTO.peerInPrice,
-      amount: profileDTO.peerInputEnergyLoad,
+      price: safe(profileDTO.peerInPrice),
+      amount: safe(profileDTO.peerInputEnergyLoad),
     });
 
     const photovoltaicEnergyLoad = PhotovoltaicEnergyLoad.create({
-      amount: profileDTO.photovoltaicEnergyLoad,
+      amount: safe(profileDTO.photovoltaicEnergyLoad),
     });
+
     const boughtEnergy = BoughtEnergy.create({
-      price: profileDTO.boughtEnergyPrice,
-      amount: profileDTO.boughtEnergyAmount,
+      price: safe(profileDTO.boughtEnergyPrice),
+      amount: safe(profileDTO.boughtEnergyAmount),
     });
 
     const soldEnergy = SoldEnergy.create({
-      price: profileDTO.soldEnergyPrice,
-      amount: profileDTO.soldEnergyAmount,
+      price: safe(profileDTO.soldEnergyPrice),
+      amount: safe(profileDTO.soldEnergyAmount),
     });
 
     const simulationProps = {
@@ -233,7 +237,6 @@ export class ProfileMap {
       description: simulation.description,
       communityId: simulation.community.id.toString(),
     };
-   
 
     const profileProps = {
       prosumer: prosumer,
@@ -250,10 +253,9 @@ export class ProfileMap {
       boughtEnergy: boughtEnergy,
       soldEnergy: soldEnergy,
     };
-    
-    return Profile.create(profileProps,new UniqueEntityID(profileDTO.id!));
+
+    return Profile.create(profileProps, new UniqueEntityID(profileDTO.id!));
   }
-  
 
   public static toPersistence(profile: Profile): any {
 

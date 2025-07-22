@@ -159,6 +159,129 @@ export default class ProfileRepo implements IProfileRepo {
             return Result.fail<Profile[]>(error instanceof Error ? error.message : "Unexpected error fetching profiles by prosumerId");
         }
     }
+
+    public async findByProsumerIdAndSimulationId(prosumerId: string, simulationId: string): Promise<Result<Profile[]>> {
+        try {
+            const profiles = await prisma.profile.findMany({
+                where: {
+                    prosumerId: prosumerId,
+                    simulationId: simulationId
+                },
+                include: {
+                    prosumer: {
+                        include: {
+                            user: true, // Include the full User object
+                            battery: true, // Include the full Battery object
+                            community: true, // Include the full Community object
+                        },
+                    },
+                    simulation: true, // Include the full Simulation object
+                },
+            });
+
+            if (!profiles || profiles.length === 0) {
+                return Result.fail<Profile[]>("Profiles not found for prosumer and simulation");
+            }
+
+            const profileResults = await Promise.all(
+                profiles.map(profile => ProfileMap.toDomain(profile))
+            );
+
+            const failedProfiles = profileResults.filter(result => result.isFailure);
+            if (failedProfiles.length > 0) {
+                const errors = failedProfiles.map(result => result.error).join(", ");
+                return Result.fail<Profile[]>(`Error converting some profiles to domain objects: ${errors}`);
+            }
+
+            const validProfiles = profileResults.map(result => result.getValue());
+
+            return Result.ok<Profile[]>(validProfiles);
+        } catch (error) {
+            return Result.fail<Profile[]>(error instanceof Error ? error.message : "Unexpected error fetching profiles by prosumerId and simulationId");
+        }
+    }
+
+
+    public async findBySimulationId(simulationId: string): Promise<Result<Profile[]>> {
+        try {
+            const profiles = await prisma.profile.findMany({
+                where: { simulationId: simulationId },
+                include: {
+                    prosumer: {
+                        include: {
+                            user: true, // Include the full User object
+                            battery: true, // Include the full Battery object
+                            community: true, // Include the full Community object
+                        },
+                    },
+                    simulation: true, // Include the full Simulation object
+                },
+            });
+
+            if (!profiles || profiles.length === 0) {
+                return Result.fail<Profile[]>("Profiles not found for simulation");
+            }
+
+            const profileResults = await Promise.all(
+                profiles.map(profile => ProfileMap.toDomain(profile))
+            );
+
+            const failedProfiles = profileResults.filter(result => result.isFailure);
+            if (failedProfiles.length > 0) {
+                const errors = failedProfiles.map(result => result.error).join(", ");
+                return Result.fail<Profile[]>(`Error converting some profiles to domain objects: ${errors}`);
+            }
+
+            const validProfiles = profileResults.map(result => result.getValue());
+
+            return Result.ok<Profile[]>(validProfiles);
+        } catch (error) {
+            return Result.fail<Profile[]>(error instanceof Error ? error.message : "Unexpected error fetching profiles by simulationId");
+        }
+    }
+
+    public async findByCommunityIdAndSimulationId(communityId: string, simulationId: string): Promise<Result<Profile[]>> {
+        try {
+            const profiles = await prisma.profile.findMany({
+                where: {
+                    prosumer: {
+                        communityId: communityId
+                    },
+                    simulationId: simulationId
+                },
+                include: {
+                    prosumer: {
+                        include: {
+                            user: true, // Include the full User object
+                            battery: true, // Include the full Battery object
+                            community: true, // Include the full Community object
+                        },
+                    },
+                    simulation: true, // Include the full Simulation object
+                },
+            });
+
+            if (!profiles || profiles.length === 0) {
+                return Result.fail<Profile[]>("Profiles not found for community and simulation");
+            }
+
+            const profileResults = await Promise.all(
+                profiles.map(profile => ProfileMap.toDomain(profile))
+            );
+
+            const failedProfiles = profileResults.filter(result => result.isFailure);
+            if (failedProfiles.length > 0) {
+                const errors = failedProfiles.map(result => result.error).join(", ");
+                return Result.fail<Profile[]>(`Error converting some profiles to domain objects: ${errors}`);
+            }
+
+            const validProfiles = profileResults.map(result => result.getValue());
+
+            return Result.ok<Profile[]>(validProfiles);
+        } catch (error) {
+            return Result.fail<Profile[]>(error instanceof Error ? error.message : "Unexpected error fetching profiles by communityId and simulationId");
+        }
+    }
     
     public async findAll(): Promise<Result<Profile[]>> {
       try {

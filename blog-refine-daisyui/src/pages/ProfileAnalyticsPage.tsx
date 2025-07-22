@@ -2,17 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Card, Row, Col, Descriptions, Select, DatePicker, Form } from "antd";
 import { Line } from "@ant-design/plots";
 import { useList } from "@refinedev/core";
-import { IProsumerDataDTO, ProfileDTO } from "../interfaces";
+import { IProsumerDataDTO, ISimulationDTO, ProfileDTO } from "../interfaces";
 import { format, startOfHour, startOfDay, parse, isValid, isWithinInterval, } from "date-fns";
 import type { RangePickerProps } from "antd/es/date-picker";
-import { simulations } from "../components/dashboard/mockEnergyData";
+/* import { simulations } from "../components/dashboard/mockEnergyData"; */
 import { Pie } from "@ant-design/plots";
 import { Checkbox } from "antd";
 import PieChart from "../components/prosumers/pieChart";
 const { RangePicker } = DatePicker;
 
 export const ProfileAnalyticsPage = () => {
-  const [selectedProsumer, setSelectedProsumer] = useState<IProsumerDataDTO | undefined>(undefined);
+  const [selectedSimulation, setSelectedSimulation] = useState<ISimulationDTO | null>(null);
+  const [selectedProsumer, setSelectedProsumer] = useState<IProsumerDataDTO | null>(null);
+
   const [profiles, setProfiles] = useState<ProfileDTO[]>([]);
   const [filteredProfiles, setFilteredProfiles] = useState<ProfileDTO[]>([]);
   const [timeResolution, setTimeResolution] = useState<"15min" | "1h" | "1d">("15min");
@@ -21,28 +23,49 @@ export const ProfileAnalyticsPage = () => {
   const [maxDate, setMaxDate] = useState<Date | null>(null);
 
 
+ // 1. Buscar todas as simulações
+  const { data: simulationsData } = useList<ISimulationDTO>({
+    resource: "simulations/all",
+  });
 
+  const simulations = simulationsData?.data ?? [];
 
-  const [selectedSimulation, setSelectedSimulation] = useState(simulations[0]);
-  
   const simulationOptions = simulations.map((sim, index) => ({
     label: sim.description,
-    value: index,
+    value: sim.id,
+    startDate: sim.startDate,
+    endDate: sim.endDate,
+    description: sim.description,
+    communityId: sim.communityId,
+    key: index,
   }));
-  
 
+  // 2. Buscar prosumers com base no communityId da simulation selecionada
   const { data: prosumerData, isLoading: isProsumersLoading } = useList<IProsumerDataDTO>({
-    resource: "prosumers/all2",
+    resource: selectedSimulation?.communityId
+      ? `prosumers/community/${selectedSimulation.communityId}`
+      : "",
+    queryOptions: {
+      enabled: !!selectedSimulation?.communityId,
+    },
   });
 
   const prosumers = prosumerData?.data ?? [];
 
+  // 3. Buscar profiles do prosumer selecionado
   const { data: profileData, isLoading: isProfilesLoading } = useList<ProfileDTO>({
     resource: selectedProsumer?.id ? `profiles/prosumer/${selectedProsumer.id}` : "",
     queryOptions: {
       enabled: !!selectedProsumer?.id,
     },
   });
+
+  // 4. Manipular a mudança de simulação
+  const handleSimulationChange = (selectedValue: string) => {
+    const sim = simulations.find((s) => s.id === selectedValue);
+    setSelectedSimulation(sim || null);
+    setSelectedProsumer(null); // limpa prosumer ao trocar de simulation
+  };
 
   useEffect(() => {
     if (Array.isArray(profileData?.data)) {
@@ -298,16 +321,21 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
                       <div style={{ fontSize: 12, color: "#888" }}>
                         {simulations[idx].startDate} - {simulations[idx].endDate}
                       </div>
+                      <div style={{ fontSize: 12, color: "#888" }}>
+                        {simulations[idx].communityId}   
+                      </div>
                     </div>
                   ),
             }))}
-            value={simulations.indexOf(selectedSimulation)}
-            onChange={(value) => setSelectedSimulation(simulations[value])}
-          />
+            value={selectedSimulation ? simulations.indexOf(selectedSimulation) : undefined}
+            onChange={(value) =>  handleSimulationChange(String(value))} />
+       
         </div>
 
         <p className="text-sm text-gray-500 mt-2">
-          Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}
+          {selectedSimulation
+            ? <>Selected period: {selectedSimulation.startDate} to {selectedSimulation.endDate}</>
+            : "No simulation selected."}
         </p>
       </div>
 
@@ -318,7 +346,7 @@ const groupProfilesByTime = (profiles: ProfileDTO[]) => {
         placeholder="Select a prosumer"
         style={{ width: "100%" }}
         loading={isProsumersLoading}
-        onChange={(id) => setSelectedProsumer(prosumers.find((p) => p.id === id))}
+        onChange={(id) => setSelectedProsumer(prosumers.find((p) => p.id === id) || null)}
         optionLabelProp="label"
         options={prosumers.map((p) => ({
           value: p.id,

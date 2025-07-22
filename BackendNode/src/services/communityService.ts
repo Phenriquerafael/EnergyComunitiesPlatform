@@ -16,10 +16,10 @@ export default class CommunityService implements ICommunityService {
     try {
       const community = CommunityMap.toDomainFromDTO(communityDTO);
 
-        if (community.isFailure) {
-            return Result.fail<ICommunityDTO>('Error creating the community');
-        }
-      
+      if (community.isFailure) {
+        return Result.fail<ICommunityDTO>('Error creating the community');
+      }
+
       return this.communityRepoInstance.save(community.getValue()).then((community) => {
         return Result.ok<ICommunityDTO>(CommunityMap.toDTO(community.getValue()));
       });
@@ -104,7 +104,10 @@ export default class CommunityService implements ICommunityService {
         return Result.fail<void>('Community was not found');
       }
 
-      await this.communityRepoInstance.delete(communityId);
+      const result = await this.communityRepoInstance.delete(communityId);
+      if (result.isFailure) {
+        return Result.fail<void>(result.error);
+      }
       return Result.ok<void>();
     } catch (error) {
       console.log('Error deleting the community: ', error);

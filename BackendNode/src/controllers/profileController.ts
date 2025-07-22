@@ -91,6 +91,58 @@ export default class ProfileController implements IProfileController {
         
       }
   }
+  public async findByProsumerIdAndSimulationId(req: Request, res: Response, next: NextFunction) {
+      try {
+        const { prosumerId, simulationId } = req.params;
+        const profilesOrError = await this.profileServiceInstance.findByProsumerIdAndSimulationId(prosumerId, simulationId);
+
+        if (profilesOrError.isFailure) {
+          return res.status(404).json({ message: profilesOrError.error });
+        }
+
+        const profilesDTO = profilesOrError.getValue();
+        return res.status(200).json(profilesDTO);
+
+      } catch (error) {
+        return next(error); // Pass error to Express error handler
+        
+      }
+  }
+
+  public async findBySimulationId(req: Request, res: Response, next: NextFunction) {
+      try {
+        const profileOrError = await this.profileServiceInstance.findBySimulationId(req.params.id);
+
+        if (profileOrError.isFailure) {
+          return res.status(404).json({ message: profileOrError.error });
+        }
+
+        const profileDTO = profileOrError.getValue();
+        return res.status(200).json(profileDTO);
+
+      } catch (error) {
+        return next(error); // Pass error to Express error handler
+        
+      }
+  }
+
+  public async findByCommunityIdAndSimulationId(req: Request, res: Response, next: NextFunction) {
+      try {
+        const { communityId, simulationId } = req.params;
+        const profilesOrError = await this.profileServiceInstance.findByCommunityIdAndSimulationId(
+          communityId,
+          simulationId
+        );
+        if (profilesOrError.isFailure) {
+          return res.status(404).json({ message: profilesOrError.error });
+        }
+        const profilesDTO = profilesOrError.getValue();
+        return res.status(200).json(profilesDTO);
+      } catch (error) {
+        return next(error); // Pass error to Express error handler
+      }
+  }
+
   public async findAll(req: Request, res: Response, next: NextFunction) {
       try {
         const profilesOrError = await this.profileServiceInstance.findAll() as Result<IProfileDTO[]>;

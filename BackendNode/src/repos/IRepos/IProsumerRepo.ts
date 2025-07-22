@@ -9,5 +9,6 @@ export default interface IProsumerRepo {
   findByUserId(userId: string): Promise<Result<Prosumer>>;
   findByBatteryId(batteryId: string): Promise<Result<Prosumer>>;
   findByCommunityId(communityId: string): Promise<Result<Prosumer[]>>;
+  findProsumersWithoutCommunity(): Promise<Result<Prosumer[]>>;
   deleteProsumer(prosumerId: string): Promise<Result<void>>;
 }

@@ -49,6 +49,11 @@ export default (app: Router) => {
     );
 
     route.get(
+        '/withoutCommunity',
+        (req, res, next) => ctrl.findProsumersWithoutCommunity(req, res, next)
+    );
+
+    route.get(
         '/all2',
         (req, res, next) => ctrl.findAll2(req, res, next)
     );

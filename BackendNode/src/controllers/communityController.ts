@@ -82,8 +82,8 @@ export default class CommunityController implements ICommunityController {
         if (deleteResult.isFailure) {
           return res.status(404).json({ message: deleteResult.error });
         }
-  
-        return res.status(204).send(); // No content
+
+        return res.status(204).send("Community Deleted Successfully"); 
       } catch (error) {
         return next(error); // Pass error to Express error handler
         

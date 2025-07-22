@@ -11,4 +11,7 @@ export default interface IProfileController {
     findByCommunityId(req: Request, res: Response, next: NextFunction);
     deleteByCommunityId(req: Request, res: Response, next: NextFunction);
     deleteByProsumerId(req: Request, res: Response, next: NextFunction);
+    findByProsumerIdAndSimulationId(req: Request, res: Response, next: NextFunction);
+    findBySimulationId(req: Request, res: Response, next: NextFunction);
+    findByCommunityIdAndSimulationId(req: Request, res: Response, next: NextFunction);
 }

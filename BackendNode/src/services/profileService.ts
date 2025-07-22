@@ -275,6 +275,49 @@ export default class ProfileService implements IProfileService {
     }
   }
 
+  public async findByProsumerIdAndSimulationId(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const profilesOrError = await this.profileRepoInstance.findByProsumerIdAndSimulationId(prosumerId, simulationId);
+      if (profilesOrError.isFailure) {
+        return Result.fail<IProfileDTO[]>('Profiles not found for prosumer and simulation');
+      }
+      const profiles = profilesOrError.getValue();
+      return Result.ok<IProfileDTO[]>(profiles.map((profile) => ProfileMap.toDTO(profile)));
+    } catch (error) {
+      console.log('Error getting profiles by prosumer ID and simulation ID: ', error);
+      return Result.fail<IProfileDTO[]>('Error getting profiles by prosumer ID and simulation ID');
+    }
+  }
+
+  public async findBySimulationId(simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const profilesOrError = await this.profileRepoInstance.findBySimulationId(simulationId);
+      if (profilesOrError.isFailure) {
+        return Result.fail<IProfileDTO[]>('Profiles not found for simulation');
+      }
+      const profiles = profilesOrError.getValue();
+      return Result.ok<IProfileDTO[]>(profiles.map((profile) => ProfileMap.toDTO(profile)));
+    } catch (error) {
+      console.log('Error getting profiles by simulation ID: ', error);
+      return Result.fail<IProfileDTO[]>('Error getting profiles by simulation ID');
+    }
+  }
+
+  public async findByCommunityIdAndSimulationId(communityId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const profilesOrError = await this.profileRepoInstance.findByCommunityIdAndSimulationId(communityId, simulationId);
+      if (profilesOrError.isFailure) {
+        return Result.fail<IProfileDTO[]>('Profiles not found for community and simulation');
+      }
+      const profiles = profilesOrError.getValue();
+      return Result.ok<IProfileDTO[]>(profiles.map((profile) => ProfileMap.toDTO(profile)));
+    } catch (error) {
+      console.log('Error getting profiles by community ID and simulation ID: ', error);
+      return Result.fail<IProfileDTO[]>('Error getting profiles by community ID and simulation ID');
+    }
+  }
+
+
   public async deleteProfile(profileId: string): Promise<Result<void>> {
     try {
       const existingProfileOrError = await this.profileRepoInstance.findById(profileId);

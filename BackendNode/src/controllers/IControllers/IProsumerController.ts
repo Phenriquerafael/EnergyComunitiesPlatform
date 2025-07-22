@@ -8,6 +8,7 @@ export default interface IProsumerController {
     findByBatteryId(req: Request, res: Response, next: NextFunction);
     findAll(req: Request, res: Response, next: NextFunction);
     findByCommunityId(req: Request, res: Response, next: NextFunction);
+    findProsumersWithoutCommunity(req: Request, res: Response, next: NextFunction);
     findAll2(req: Request, res: Response, next: NextFunction);
     deleteProsumer(req: Request, res: Response, next: NextFunction);
     addToCommunity(req: Request, res: Response, next: NextFunction);

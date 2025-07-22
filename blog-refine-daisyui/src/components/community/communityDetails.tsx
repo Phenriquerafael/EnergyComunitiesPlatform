@@ -24,8 +24,8 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
     id: communityId,
   });
 
-  const { data: prosumerData, isLoading: isProsumersLoading, refetch: refetchProsumers } = useList({
-    resource: "prosumers/all2",
+  const { data: prosumersWithoutCommunity, isLoading: isProsumersLoading, refetch: refetchProsumers } = useList({
+    resource: "prosumers/withoutCommunity",
   });
 
   const { data: communityProsumersData, isLoading: isCommunityProsumersLoading, refetch: refetchCommunityProsumers } = useList({
@@ -107,7 +107,7 @@ const CommunityDetails: React.FC<CommunityDetailsProps> = ({ communityId }) => {
   const community = data?.data as ICommunityDTO;
   console.log("Community Data:", community);
   const prosumersInCommunity = communityProsumersData?.data as IProsumerDataDTO[];
-  const prosumersNotInCommunity = prosumerData?.data.filter((p) => !prosumersInCommunity?.some((cp) => cp.id === p.id));
+  const prosumersNotInCommunity = prosumersWithoutCommunity?.data.filter((p) => !prosumersInCommunity?.some((cp) => cp.id === p.id));
 
   function handleDeleteProfiles(id: string) {
 

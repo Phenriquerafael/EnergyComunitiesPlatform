@@ -30,7 +30,7 @@ export default (app: Router) => {
                 body: Joi.object({
                     id: Joi.string().required(),
                     userId: Joi.string().optional(),
-                    batteryId: Joi.string().optional(),
+                    communityId: Joi.string().optional(),
                 }),}),
             (req, res, next) => ctrl.updateCommunityManager(req, res, next)
         )
