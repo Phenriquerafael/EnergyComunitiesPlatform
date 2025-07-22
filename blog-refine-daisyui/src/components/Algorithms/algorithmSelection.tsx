@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Card, Select, Upload, Button, message, Form, DatePicker } from "antd";
+import {
+  Card,
+  Select,
+  Upload,
+  Button,
+  message,
+  Form,
+  DatePicker,
+  Input,
+} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { CloudArrowUpIcon } from "@heroicons/react/20/solid";
 import dayjs, { Dayjs } from "dayjs";
@@ -35,35 +44,61 @@ interface ActiveAttributes {
 }
 
 const mockAlgorithms: Algorithm[] = [
-  { id: "alg1", name: "Basic Optimizer", description: "Sets optimal energy transactions.",available: true },
-  { id: "alg2", name: "Load Balancer", description: "Distributes loads across network nodes.", available: false },
-  { id: "alg3", name: "Demand Predictor", description: "Predicts energy demand using historical data.",available: false },
+  {
+    id: "alg1",
+    name: "Basic Optimizer",
+    description: "Sets optimal energy transactions.",
+    available: true,
+  },
+  {
+    id: "alg2",
+    name: "Load Balancer",
+    description: "Distributes loads across network nodes.",
+    available: false,
+  },
+  {
+    id: "alg3",
+    name: "Demand Predictor",
+    description: "Predicts energy demand using historical data.",
+    available: false,
+  },
 ];
 
-const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({ prosumers }) => {
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(null);
+const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
+  prosumers,
+}) => {
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(
+    null
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [features, setFeatures] = useState<Record<string, { battery: boolean; load: boolean; photovoltaicLoad: boolean }>>({});
-  const [activeAttributes, setActiveAttributes] = useState<ActiveAttributes[]>([]);
+  const [features, setFeatures] = useState<
+    Record<
+      string,
+      { battery: boolean; load: boolean; photovoltaicLoad: boolean }
+    >
+  >({});
+  const [activeAttributes, setActiveAttributes] = useState<ActiveAttributes[]>(
+    []
+  );
+  const [description, setDescription] = useState<string>("");
 
   // Ensure all prosumers are present in activeAttributes
-React.useEffect(() => {
-  if (!prosumers) return;
+  React.useEffect(() => {
+    if (!prosumers) return;
 
-  const newAttributes: ActiveAttributes[] = prosumers
-    .filter((p): p is IProsumerDataDTO => !!p.id)
-    .map((p) => ({
-      prosumerId: p.id!,
-      profileLoad: true,
-      stateOfCharge: true,
-      photovoltaicEnergyLoad: true,
-    }));
+    const newAttributes: ActiveAttributes[] = prosumers
+      .filter((p): p is IProsumerDataDTO => !!p.id)
+      .map((p) => ({
+        prosumerId: p.id!,
+        profileLoad: true,
+        stateOfCharge: true,
+        photovoltaicEnergyLoad: true,
+      }));
 
-  setActiveAttributes(newAttributes);
-}, [prosumers]);
-
+    setActiveAttributes(newAttributes);
+  }, [prosumers]);
 
   const handleFeatureChange = (
     prosumerId: string,
@@ -100,8 +135,9 @@ React.useEffect(() => {
     formData.append("end_date_str", endDate.format("YYYY-MM-DD"));
     formData.append("communityId", prosumers[0]?.communityId || "");
     formData.append("algorithm_id", selectedAlgorithm);
+    formData.append("description", description);
 
-/*     const featuresPerProsumer = prosumerIds.reduce((acc, id) => {
+    /*     const featuresPerProsumer = prosumerIds.reduce((acc, id) => {
       acc[id] = features[id] || { battery: false, load: false, photovoltaicLoad: false };
       return acc;
     }, {} as Record<string, { battery: boolean; load: boolean; photovoltaicLoad: boolean }>);
@@ -121,7 +157,9 @@ React.useEffect(() => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        const errorData = errorText ? JSON.parse(errorText) : { detail: "Unknown error" };
+        const errorData = errorText
+          ? JSON.parse(errorText)
+          : { detail: "Unknown error" };
         throw new Error(errorData.detail || "Upload failed");
       }
 
@@ -132,7 +170,8 @@ React.useEffect(() => {
     }
   };
 
-  const [defineProsumerFeatures, setDefineProsumerFeatures] = useState<boolean>(false);
+  const [defineProsumerFeatures, setDefineProsumerFeatures] =
+    useState<boolean>(false);
 
   return (
     <Card
@@ -175,6 +214,18 @@ React.useEffect(() => {
 
         <Form.Item>
           <div className="flex flex-col gap-4">
+
+            <Form.Item label="Description" name="description">
+              <Input.TextArea
+              rows={3}
+              placeholder="Type a description of the simulation"
+              maxLength={500}
+              showCount
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              />
+            </Form.Item>
+
             <Button
               className="btn btn-neutral"
               onClick={() => setDefineProsumerFeatures((prev) => !prev)}
@@ -182,73 +233,94 @@ React.useEffect(() => {
             >
               {defineProsumerFeatures ? "Minimize" : "Define"} Prosumer Features
             </Button>
+
             {defineProsumerFeatures && (
               <>
-          {activeAttributes.map((attr) => {
-            const prosumer = prosumers.find((p) => p.id === attr.prosumerId);
-            const currentAttributes = attr;
+                {activeAttributes.map((attr) => {
+                  const prosumer = prosumers.find(
+                    (p) => p.id === attr.prosumerId
+                  );
+                  const currentAttributes = attr;
 
-            const handleRadioChange = (
-              prosumerId: string,
-              key: keyof Omit<ActiveAttributes, "prosumerId">,
-              value: boolean
-            ) => {
-              setActiveAttributes(prev => {
-                return prev.map(a =>
-            a.prosumerId === prosumerId
-              ? { ...a, [key]: value }
-              : a
-                );
-              });
-            };
+                  const handleRadioChange = (
+                    prosumerId: string,
+                    key: keyof Omit<ActiveAttributes, "prosumerId">,
+                    value: boolean
+                  ) => {
+                    setActiveAttributes((prev) => {
+                      return prev.map((a) =>
+                        a.prosumerId === prosumerId ? { ...a, [key]: value } : a
+                      );
+                    });
+                  };
 
-            return (
-              <fieldset
-                key={attr.prosumerId}
-                className="border border-base-300 rounded-lg p-4 shadow-sm bg-base-100"
-              >
-                <legend className="font-semibold text-sm mb-2">
-            Prosumer: {prosumer?.userName || attr.prosumerId} - ID: {attr.prosumerId}
-                </legend>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {([
-              { key: "profileLoad", label: "Profile Load" },
-              { key: "stateOfCharge", label: "State Of Charge" },
-              { key: "photovoltaicEnergyLoad", label: "Photovoltaic Energy Load" },
-            ] as const).map(({ key, label }) => {
-              const isOn = currentAttributes[key];
-              return (
-                <div key={key}>
-                  <div className="text-sm font-medium mb-1">{label}</div>
-                  <div className="flex items-center gap-4">
-              <label className="label cursor-pointer">
-                <input
-                  type="radio"
-                  name={`${attr.prosumerId}-${key}`}
-                  className="radio radio-success"
-                  checked={isOn}
-                  onChange={() => handleRadioChange(attr.prosumerId, key, true)}
-                />
-                <span className="label-text ml-2">On</span>
-              </label>
-              <label className="label cursor-pointer">
-                <input
-                  type="radio"
-                  name={`${attr.prosumerId}-${key}`}
-                  className="radio radio-error"
-                  checked={!isOn}
-                  onChange={() => handleRadioChange(attr.prosumerId, key, false)}
-                />
-                <span className="label-text ml-2">Off</span>
-              </label>
-                  </div>
-                </div>
-              );
-            })}
-                </div>
-              </fieldset>
-            );
-          })}
+                  return (
+                    <fieldset
+                      key={attr.prosumerId}
+                      className="border border-base-300 rounded-lg p-4 shadow-sm bg-base-100"
+                    >
+                      <legend className="font-semibold text-sm mb-2">
+                        Prosumer: {prosumer?.userName || attr.prosumerId} - ID:{" "}
+                        {attr.prosumerId}
+                      </legend>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {(
+                          [
+                            { key: "profileLoad", label: "Profile Load" },
+                            { key: "stateOfCharge", label: "State Of Charge" },
+                            {
+                              key: "photovoltaicEnergyLoad",
+                              label: "Photovoltaic Energy Load",
+                            },
+                          ] as const
+                        ).map(({ key, label }) => {
+                          const isOn = currentAttributes[key];
+                          return (
+                            <div key={key}>
+                              <div className="text-sm font-medium mb-1">
+                                {label}
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <label className="label cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name={`${attr.prosumerId}-${key}`}
+                                    className="radio radio-success"
+                                    checked={isOn}
+                                    onChange={() =>
+                                      handleRadioChange(
+                                        attr.prosumerId,
+                                        key,
+                                        true
+                                      )
+                                    }
+                                  />
+                                  <span className="label-text ml-2">On</span>
+                                </label>
+                                <label className="label cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name={`${attr.prosumerId}-${key}`}
+                                    className="radio radio-error"
+                                    checked={!isOn}
+                                    onChange={() =>
+                                      handleRadioChange(
+                                        attr.prosumerId,
+                                        key,
+                                        false
+                                      )
+                                    }
+                                  />
+                                  <span className="label-text ml-2">Off</span>
+                                </label>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
+                  );
+                })}
               </>
             )}
           </div>
@@ -265,7 +337,9 @@ React.useEffect(() => {
           >
             <Button icon={<UploadOutlined />}>Select Excel File</Button>
           </Upload>
-          {selectedFile && <p className="mt-2 text-sm">Selected file: {selectedFile.name}</p>}
+          {selectedFile && (
+            <p className="mt-2 text-sm">Selected file: {selectedFile.name}</p>
+          )}
         </Form.Item>
 
         <Form.Item>

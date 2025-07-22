@@ -60,7 +60,7 @@ optimization_status = {
 }
 
 
-def run_optimization(file_path: BytesIO, start_date_str, end_date_str, communityId, active_attributes) -> BytesIO:
+def run_optimization(file_path: BytesIO, start_date_str, end_date_str, communityId, active_attributes, description) -> BytesIO:
 #print("\n\n\ndates: "+start_date_str, end_date_str)
     
     all_data = pd.read_excel(file_path, sheet_name=None)
@@ -475,6 +475,7 @@ def run_optimization(file_path: BytesIO, start_date_str, end_date_str, community
         "start_date": start_date_str,
         "end_date": end_date_str,
         "communityId": communityId,
+        "description": description if description else "No description provided",
         "active_attributes": [attr.dict() for attr in active_attributes],
         "detailed_results": detailed_results
     }
@@ -484,7 +485,7 @@ def run_optimization(file_path: BytesIO, start_date_str, end_date_str, community
     try:
         response = requests.post(url, json=data)
         print(response.status_code, response.text)
-        if response.status_code != 200:
+        if response.status_code != 201:
             raise Exception(f"POST request failed with status {response.status_code}: {response.text}")
     except requests.exceptions.RequestException as e:
         raise Exception(f"POST request failed with status {response.status_code}: {response.text}")
@@ -518,6 +519,7 @@ async def start_optimization(
     start_date_str: str = Form(...),
     end_date_str: str = Form(...),
     communityId: Optional[str] = Form(None),
+    description: Optional[str] = Form(None)
 ):
     # Leitura do conteúdo do ficheiro
     file_content = await file.read()
@@ -537,16 +539,20 @@ async def start_optimization(
     print("📅 start:", start_date_str)
     print("📅 end:", end_date_str)
     print("🏘️ communityId:", communityId)
+    print("📝 description:", description)
 
     try:
-        result = run_optimization(file_path, start_date_str, end_date_str, communityId, active_attributes_list)
+        # Pass description as an extra argument to run_optimization
+        result = run_optimization(file_path, start_date_str, end_date_str, communityId, active_attributes_list, description)
+        # Add description to the result dictionary before returning
+        # result["description"] = description if description else "No description provided"
     except Exception as e:
-        raise HTTPException(status_code=400 , detail=f"Optimization failed: {str(e)}")
-    
+        raise HTTPException(status_code=400, detail=f"Optimization failed: {str(e)}")
 
     return {
-        "message": "Optimization completed!", "result": result
-            }
+        "message": "Optimization completed!",
+        "result": result
+    }
 
 @app.get("/optimization-status")
 async def get_optimization_status():

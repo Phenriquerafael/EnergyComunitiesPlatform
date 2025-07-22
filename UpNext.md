@@ -6,6 +6,7 @@ corrigir o data do simulation
 *integrar a deleção da simulation com a deleção dos profiles
 
 uniformizar os pedidos nas routes
+caso haja algum erro na criação de profiles a simulation deve ser apagada 
 
 frontend
 !! Adicionar uma comparação do load e consumo do prosumer antes e após pertencer à comunidade
