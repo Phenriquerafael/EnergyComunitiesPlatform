@@ -14,7 +14,7 @@ const CommunityForm: React.FC<CommunityFormProps> = ({ userId, onSuccess }) => {
   const [selectedProsumers, setSelectedProsumers] = useState<string[]>([]);
 
   const { data: prosumerData, isLoading: isProsumersLoading } = useList({
-    resource: "prosumers/all2",
+    resource: "prosumers/withoutCommunity",
   });
 
   const { mutate: createCommunity, isLoading: isCreatingCommunity } = useCreate();

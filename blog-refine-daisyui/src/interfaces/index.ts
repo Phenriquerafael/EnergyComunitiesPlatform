@@ -212,6 +212,16 @@ export interface ISimulationDTO {
   activeAttributes?: IActiveAtributesDTO[];
 }
 
+export interface ISimulationDTO2 {
+  id?: string;
+  startDate: string;
+  endDate: string;
+  description?: string;
+  communityId?: string;
+  communityCountry?: string;
+  communityCode?: string;
+}
+
 export interface IActiveAtributesDTO {
   prosumerId: string;
   profileLoad: boolean;

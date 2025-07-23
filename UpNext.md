@@ -15,10 +15,9 @@ corrigir erro das secure routes no login
 corrigir barras de busca e botões de organização na tabelas
 corrigir as buscas dos prosumers a adicionar numa communidade
 
-adicionar opção de editar visulizar e eliminar simulation
 adicionar botões de info para os formatos dos ficheiros e para as datas disponíveis para cada ficheiro
 adicionar alertas para a desconexão com o backend e vice versa
-*adicionar numeração dos profiles de uma 
+*adicionar numeração dos profiles de uma simulatiomn
 adicionar scroll para aumentar ou diminuir os intervalos de datas
 parar a procura de entidades quando a lista é vazia.
 
@@ -33,8 +32,11 @@ criar ui para gestão de utilizadores (admin)
 
 Futuro:
 - descrever como cada operação acontece (create delete update) e que impacto tem na base de dados (foreign keys)
-- corrigir e criar mais  testes
-- Histórico de alterações (communities, prosumers, batteries, etc.)
+- corrigir e criar mais  testes 
+- Histórico de alterações (communities, prosumers, batteries, etc.) 
 - Página para gestão de users
 - Geração de relatórios de dados
 - Comparação de dados antes e depois da otimização
+
+Dúvidas:
+- Deve existir um tipo de get para cada função do frontend (ex lista de simulations sem os stributos para evitar overhead)

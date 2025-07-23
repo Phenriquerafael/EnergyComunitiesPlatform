@@ -10,7 +10,7 @@
 
 import { Result } from "../../core/logic/Result";
 import { Community } from "../../domain/Community/Community";
-import { ISimulationDTO } from "../../dto/IProfileDTO";
+import { ISimulationDTO, ISimulationDTO2 } from "../../dto/IProfileDTO";
 
 export default interface ISimulationService  {
     createSimulation(simulation: ISimulationDTO, community: Community): Promise<Result<ISimulationDTO>>;
@@ -18,6 +18,7 @@ export default interface ISimulationService  {
     getSimulation (simulationId: string): Promise<Result<ISimulationDTO>>;
     findAll(): Promise<Result<ISimulationDTO[]>>;
     //findByCommunityId(communityId: string): Promise<Result<ISimulationDTO[]>>;
+    findAll2(): Promise<Result<ISimulationDTO2[]>>;
     delete(simulationId: string): Promise<Result<void>>;
     deleteAll(): Promise<Result<void>>;
 }

@@ -27,7 +27,6 @@ export default class BatteryService implements IBatteryService {
     } catch (error) {
       console.log('Error creating prosumer batteries: ', error);
       return Result.fail<IBatteryDTO[]>('Error creating prosumer batteries');
-      
     }
   }
   public async deleteBattery(batteryId: string): Promise<Result<void>> {
@@ -51,7 +50,6 @@ export default class BatteryService implements IBatteryService {
     } catch (error) {
       console.log('Error deleting prosumer battery: ', error);
       return Result.fail<void>('Error deleting prosumer battery');
-      
     }
   }
 
@@ -59,10 +57,10 @@ export default class BatteryService implements IBatteryService {
     try {
       const prosumerBattery = BatteryMap.toDomainFromDTO(batteryDTO);
 
-        if (prosumerBattery.isFailure) {
-            return Result.fail<IBatteryDTO>('Error creating prosumer battery');
-        }
-      
+      if (prosumerBattery.isFailure) {
+        return Result.fail<IBatteryDTO>('Error creating prosumer battery');
+      }
+
       return this.batteryRepoInstance.save(prosumerBattery.getValue()).then((prosumerBattery) => {
         return Result.ok<IBatteryDTO>(BatteryMap.toDTO(prosumerBattery.getValue()));
       });

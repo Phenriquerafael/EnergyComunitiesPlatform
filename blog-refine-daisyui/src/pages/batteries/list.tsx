@@ -17,6 +17,8 @@ import { BatteryTableBody } from "../../components/batteries/batteryTableBody";
 import { message } from "antd"; // Importe o message do Ant Design
 
 export const BatteryList = () => {
+
+  // Fetch the list of batteries using the useList hook
   const { data, refetch } = useList<IBatteryDTO>({
     resource: "batteries/all",
   });
