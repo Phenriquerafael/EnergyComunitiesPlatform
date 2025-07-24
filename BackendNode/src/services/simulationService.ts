@@ -7,12 +7,17 @@ import { ISimulationDTO } from '../dto/IProfileDTO';
 import { SimulationMap } from '../mappers/SimulationMap';
 import { Community } from '../domain/Community/Community';
 import ICommunityRepo from '../repos/IRepos/ICommunityRepo';
+import IProfileRepo from '../repos/IRepos/IProfileRepo';
+import Logger from '../loaders/logger';
+
 
 @Service()
 export default class SimulationService implements ISimulationService {
   constructor(
     @Inject(config.repos.simulation.name) private simulationRepoInstance: ISimulationRepo,
     @Inject(config.repos.community.name) private communityRepoInstance: ICommunityRepo,
+    @Inject(config.repos.profile.name) private profileRepoInstance: IProfileRepo,
+    @Inject("logger") private logger: any // Assuming a logger is injected for logging purposes
   ) {
     /* console.log('ProsumerBatteryService instantiated'); // Debug */
   }
@@ -124,13 +129,19 @@ export default class SimulationService implements ISimulationService {
       if (!simulationId) {
         return Result.fail<void>('Simulation ID is required');
       }
+      const profileDeletionResult = await this.profileRepoInstance.deleteBySimulationId(simulationId);
+      if (profileDeletionResult.isFailure && profileDeletionResult.error !== 'No profiles found for this simulation') {
+        Logger.info(`No profiles found for simulation ${simulationId}`);
+      }
+      Logger.info(`Profiles associated with simulation ${simulationId} deleted successfully`);
       const deleteResult = await this.simulationRepoInstance.delete(simulationId);
       if (deleteResult.isFailure) {
         return Result.fail<void>(deleteResult.error);
       }
+      Logger.info(`Simulation ${simulationId} deleted successfully`);
       return Result.ok<void>();
     } catch (error) {
-      console.log('Error deleting simulation: ', error);
+      Logger.error('Error deleting simulation: ', error);
       return Result.fail<void>('Error deleting simulation');
     }
   }

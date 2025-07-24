@@ -21,6 +21,7 @@ import type { RangePickerProps } from "antd/es/date-picker";
 import { Pie } from "@ant-design/plots";
 import { Checkbox } from "antd";
 import PieChart from "../components/prosumers/pieChart";
+import SimplePieChart from "../components/prosumers/simplePieChart";
 const { RangePicker } = DatePicker;
 
 export const ProfileAnalyticsPage = () => {
@@ -553,8 +554,9 @@ export const ProfileAnalyticsPage = () => {
             </Col>
           </Row>
 
-          <div className="w-full">
+          <div className="w-full flex flex-row gap-4">
             <PieChart filteredProfiles={filteredProfiles} />
+            <SimplePieChart />
           </div>
         </>
       )}

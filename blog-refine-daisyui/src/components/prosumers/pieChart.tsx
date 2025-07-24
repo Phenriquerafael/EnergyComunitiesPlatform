@@ -100,9 +100,9 @@ const PieChart: React.FC<PieChartProps> = ({ filteredProfiles }) => {
   };
 
   return (
-    <div className="p-4 bg-zinc-50 border rounded-lg">
+    <div className="p-4 bg-zinc-50 border rounded-lg w-full  mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Energy Distribution</h3>
+        <h3 className="text-lg font-semibold">Optimized Energy Distribution</h3>
         <Select
           value={chartType}
           onChange={setChartType}

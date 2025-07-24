@@ -1,3 +1,6 @@
+Otimização:
+corrigir erro do dicionário
+
 Backend
 corrigir erros/ exception dentro e fora da base de dados (ex: quando há delete de uma battery associada a um prosumer)
 corrigir create do profile (simulation e prosumer enviados por parametro)

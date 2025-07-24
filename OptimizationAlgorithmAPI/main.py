@@ -60,7 +60,13 @@ optimization_status = {
 }
 
 
-def run_optimization(file_path: BytesIO, start_date_str, end_date_str, communityId, active_attributes, description) -> BytesIO:
+# Modelo Pydantic para validação
+class ActiveAttribute(BaseModel):
+    prosumerId: str
+    profileLoad: bool
+    stateOfCharge: bool
+    photovoltaicEnergyLoad: bool
+def run_optimization(file_path: BytesIO, start_date_str: str, end_date_str: str, communityId: str, active_attributes: List[ActiveAttribute], description: str) -> dict:
 #print("\n\n\ndates: "+start_date_str, end_date_str)
     
     all_data = pd.read_excel(file_path, sheet_name=None)
@@ -476,7 +482,7 @@ def run_optimization(file_path: BytesIO, start_date_str, end_date_str, community
         "end_date": end_date_str,
         "communityId": communityId,
         "description": description if description else "No description provided",
-        "active_attributes": [attr.dict() for attr in active_attributes],
+        "active_attributes": [attr.model_dump() for attr in active_attributes],
         "detailed_results": detailed_results
     }
 
@@ -505,12 +511,6 @@ async def optimize_excel(file: UploadFile = File(...)):
     return JSONResponse(content=result)
 
 
-# Modelo Pydantic para validação
-class ActiveAttribute(BaseModel):
-    prosumerId: str
-    profileLoad: bool
-    stateOfCharge: bool
-    photovoltaicEnergyLoad: bool
 
 @app.post("/run-optimization")
 async def start_optimization(
@@ -535,7 +535,7 @@ async def start_optimization(
     # Debug
     print("🟢 active_attributes:")
     for attr in active_attributes_list:
-        print(attr.dict())
+        print(attr.model_dump())
     print("📅 start:", start_date_str)
     print("📅 end:", end_date_str)
     print("🏘️ communityId:", communityId)

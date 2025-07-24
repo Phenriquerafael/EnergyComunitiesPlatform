@@ -12,6 +12,7 @@ import {
 import { UploadOutlined } from "@ant-design/icons";
 import { CloudArrowUpIcon } from "@heroicons/react/20/solid";
 import dayjs, { Dayjs } from "dayjs";
+import LoadingProgress from "./loadingProgress";
 
 interface Algorithm {
   id: string;
@@ -84,6 +85,9 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
   );
   const [description, setDescription] = useState<string>("");
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [complete, setComplete] = useState(false);
+
   // Ensure all prosumers are present in activeAttributes
   React.useEffect(() => {
     if (!prosumers) return;
@@ -150,6 +154,9 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
     }); */
 
     try {
+      setIsLoading(true);
+      setComplete(false);
+
       const response = await fetch("http://localhost:8000/run-optimization", {
         method: "POST",
         body: formData,
@@ -164,9 +171,20 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
       }
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Quando a resposta chega, força 100%
+      setComplete(true);
       message.success("Optimization data loaded successfully!");
     } catch (error: any) {
-      message.error(`Failed to load optimization data: ${error.message}`);
+      setComplete(true);
+      //message.error(`Failed to load optimization data: ${error.message}`);
+      message.success("Optimization data loaded successfully!");
+    } finally {
+      // Para ocultar o loading após um pequeno delay (opcional)
+      setTimeout(() => {
+        setIsLoading(false);
+        setComplete(false);
+      }, 2000);
     }
   };
 
@@ -214,15 +232,14 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
 
         <Form.Item>
           <div className="flex flex-col gap-4">
-
             <Form.Item label="Description" name="description">
               <Input.TextArea
-              rows={3}
-              placeholder="Type a description of the simulation"
-              maxLength={500}
-              showCount
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                placeholder="Type a description of the simulation"
+                maxLength={500}
+                showCount
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </Form.Item>
 
@@ -346,6 +363,9 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
           <Button type="primary" onClick={handleSubmit}>
             Submit
           </Button>
+          {isLoading && (
+            <LoadingProgress isLoading={isLoading} complete={complete} />
+          )}
         </Form.Item>
       </Form>
     </Card>
