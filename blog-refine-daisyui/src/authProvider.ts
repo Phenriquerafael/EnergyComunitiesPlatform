@@ -3,34 +3,49 @@ import { AuthBindings } from "@refinedev/core";
 import axios from "axios";
 
 export const authProvider: AuthBindings = {
-login: async ({ email, password }) => {
-  try {
-    const response = await axios.post("http://localhost:4000/api/users/signin", {
-      email,
-      password,
-    });
+  login: async ({ email, password }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:4000/api/users/signin",
+        {
+          email,
+          password,
+        }
+      );
 
-    const token = response.data.data.token; // ✅ caminho correto
-    /* console.log("Token received:", token); */
+      const token = response.data.data.token; // ✅ caminho correto
+      /* console.log("Token received:", token); */
 
-    localStorage.setItem("token", token);
-    return { success: true, redirectTo: "/dashboard" };
-  } catch (error) {
-    return { success: false, error: { name: "LoginError", message: "Login failed" } };
-  }
-},
-  
+      localStorage.setItem("token", token);
+      return { success: true, redirectTo: "/dashboard" };
+    } catch (error) {
+      return {
+        success: false,
+        error: { name: "LoginError", message: "Login failed" },
+      };
+    }
+  },
 
   logout: async () => {
     localStorage.removeItem("token");
     return { success: true, redirectTo: "/login" };
   },
 
-  check: async () => {
-    const token = localStorage.getItem("token");
-    if (token) return { authenticated: true };
-    return { authenticated: false, redirectTo: "/login" };
-  },
+check: async () => {
+  const token = localStorage.getItem("token");
+  const publicRoutes = ["/login", "/register", "/change-password"];
+  const currentPath = window.location.pathname;
+
+  if (token) {
+    return { authenticated: true };
+  }
+
+  if (publicRoutes.includes(currentPath)) {
+    return { authenticated: false }; // Não redireciona
+  }
+
+  return { authenticated: false, redirectTo: "/login" };
+},
 
   getIdentity: async () => {
     const token = localStorage.getItem("token");
@@ -44,7 +59,6 @@ login: async ({ email, password }) => {
     } catch {
       return null;
     }
-
   },
 
   getPermissions: async () => null,

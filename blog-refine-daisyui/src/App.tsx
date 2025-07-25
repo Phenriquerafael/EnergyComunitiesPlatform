@@ -1,4 +1,9 @@
-import { ErrorComponent, GitHubBanner, Refine } from "@refinedev/core";
+import {
+  ErrorComponent,
+  GitHubBanner,
+  Refine,
+  Authenticated,
+} from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
 import routerBindings, {
@@ -6,7 +11,14 @@ import routerBindings, {
   UnsavedChangesNotifier,
 } from "@refinedev/react-router";
 
-import { BrowserRouter, data, Navigate, Outlet, Route, Routes } from "react-router";
+import {
+  BrowserRouter,
+  data,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router";
 import "./App.css";
 import { Layout } from "./components/layout";
 import {
@@ -28,25 +40,40 @@ import {
   BatteryShow,
 } from "./pages/batteries";
 
-import { ArrowDownOnSquareIcon, HomeIcon, ShoppingCartIcon, TagIcon,ChartBarIcon, Battery100Icon, UserIcon, UserGroupIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowDownOnSquareIcon,
+  HomeIcon,
+  ShoppingCartIcon,
+  TagIcon,
+  ChartBarIcon,
+  Battery100Icon,
+  UserIcon,
+  UserGroupIcon,
+} from "@heroicons/react/20/solid";
 import { Dashboard } from "./pages/dashboard";
 import { ProfileAnalyticsPage } from "./pages/ProfileAnalyticsPage";
 import ProfileUpload from "./pages/ProfileUpload";
-import {dataProviderInstance} from "./dataProvider";
+import { dataProviderInstance } from "./dataProvider";
 import { authProvider } from "./authProvider";
 import { Login } from "./pages/auth/Login";
 import { Register } from "./pages/auth/Register";
 import { ChangePassword } from "./pages/auth/ChangePassword";
-import { ProsumerCreate, ProsumerEdit, ProsumerList, ProsumerShow } from "./pages/prosumers";
+import {
+  ProsumerCreate,
+  ProsumerEdit,
+  ProsumerList,
+  ProsumerShow,
+} from "./pages/prosumers";
 import { CommunityManagerPage } from "./pages/communities/communityPage";
-
 
 function App() {
   return (
     <BrowserRouter>
       <RefineKbarProvider>
         <Refine
-          dataProvider={dataProviderInstance/* dataProvider("https://api.finefoods.refine.dev") */}
+          dataProvider={
+            dataProviderInstance /* dataProvider("https://api.finefoods.refine.dev") */
+          }
           routerProvider={routerBindings}
           authProvider={authProvider}
           resources={[
@@ -68,7 +95,7 @@ function App() {
                 canDelete: true,
               },
             },
-/*             {
+            /*             {
               name: "products",
               list: "/products",
               create: "/products/create",
@@ -89,7 +116,7 @@ function App() {
                 icon: <TagIcon className="h-4 w-4" />,
                 canDelete: true,
               },
-            }, */ 
+            }, */
             {
               name: "prosumers",
               list: "/prosumers",
@@ -108,7 +135,7 @@ function App() {
                 icon: <ChartBarIcon className="h-4 w-4" />,
               },
             },
-/*             {
+            /*             {
               name: "uploadData",
               list: "/uploadData",
               meta: {
@@ -127,7 +154,6 @@ function App() {
                 canDelete: true,
               },
             },
-
           ]}
           options={{
             syncWithLocation: true,
@@ -135,20 +161,26 @@ function App() {
           }}
         >
           <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+
             <Route
               element={
-                <Layout>
-                  <Outlet />
-                </Layout>
+                <Authenticated key="authenticated-routes" fallback={<Login />}>
+                  <Layout>
+                    <Outlet />
+                  </Layout>
+                </Authenticated>
               }
             >
               <Route index element={<Navigate to="/dashboard" />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/profiles" element={<ProfileAnalyticsPage />} />
-              <Route path= "/uploadData" element={<ProfileUpload />} />
-              <Route path= "/communities" element={<CommunityManagerPage />}></Route>
+              <Route path="/uploadData" element={<ProfileUpload />} />
+              <Route
+                path="/communities"
+                element={<CommunityManagerPage />}
+              ></Route>
               <Route path="/batteries">
                 <Route index element={<BatteryList />} />
                 <Route path="create" element={<BatteryCreate />} />
