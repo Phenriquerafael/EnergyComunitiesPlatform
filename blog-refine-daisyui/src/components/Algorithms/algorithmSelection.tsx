@@ -13,6 +13,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { CloudArrowUpIcon } from "@heroicons/react/20/solid";
 import dayjs, { Dayjs } from "dayjs";
 import LoadingProgress from "./loadingProgress";
+import InfoModal from "../InfoModal/infoModal";
 
 interface Algorithm {
   id: string;
@@ -194,11 +195,13 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
   return (
     <Card
       title={
-        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }} >
           <CloudArrowUpIcon style={{ width: 24, height: 24 }} />
           Upload Community Data
+          <InfoModal />
         </span>
       }
+
     >
       <Form layout="vertical">
         <Form.Item label="Select Algorithm" required>

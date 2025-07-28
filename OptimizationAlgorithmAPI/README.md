@@ -38,3 +38,6 @@ Interligação com o Backend Node.js:
 O backend Node.js pode chamar esse endpoint usando uma biblioteca HTTP (como Axios) para enviar o ficheiro Excel e aguardar a resposta.
 
 Após receber o resultado, o backend poderá persistir os dados na base Postgres (usando Prisma) ou disponibilizá-los via front-end.
+
+# Methods Used
+

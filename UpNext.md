@@ -33,6 +33,7 @@ Description:
     adicionar alertas para a desconexão com o backend e vice versa
     *adicionar numeração dos profiles de uma simulatiomn
     adicionar scroll para aumentar ou diminuir os intervalos de datas
+    adicionar componente skeleton para aparecer enquanto a página carrega
     parar a procura de entidades quando a lista é vazia.
 
 

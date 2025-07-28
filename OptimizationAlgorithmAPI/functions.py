@@ -1,4 +1,3 @@
-#libs do optimization algorithm
 import json
 from scipy.optimize import newton_krylov
 from pyomo.environ import SolverFactory, SolverManagerFactory
@@ -12,61 +11,116 @@ import pyomo.contrib.solver.ipopt
 import os
 from pyomo.environ import value
 
-#libs do FastAPI
-from fastapi import FastAPI, Form, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
-import pandas as pd
 from io import BytesIO
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 
 import requests
 
-from fastapi.middleware.cors import CORSMiddleware
-
-
-
-app = FastAPI()
-
-origins = [
-    "http://localhost:5173",
-    "http://localhost:4000",
-    "http://localhost",
-    "http://localhost:8000",
-]
-
-# CORS configuration
-""" app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[],  
-    allow_credentials=True,
-    allow_methods=["*"],  # permite todos os métodos (GET, POST, etc.)
-    allow_headers=["*"],  # permite todos os headers
-)
- """
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# Defina uma variável para armazenar o progresso da otimização
-optimization_status = {
-    "status": "waiting",  # Estado inicial
-    "progress": 0         # Progresso inicial
-}
-
-
-# Modelo Pydantic para validação
 class ActiveAttribute(BaseModel):
     prosumerId: str
     profileLoad: bool
     stateOfCharge: bool
     photovoltaicEnergyLoad: bool
 
+def load_excel_file(file_path: str) -> Dict[str, pd.DataFrame]:
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Excel file not found at: {file_path}")
+    
+    try:
+        # Load all sheets
+        xl = pd.read_excel(file_path, sheet_name=None, engine='openpyxl')
+        required_sheets = ['PL', 'PPV_capacity']
+        for sheet in required_sheets:
+            if sheet not in xl:
+                raise ValueError(f"Required sheet '{sheet}' not found in the Excel file.")
+        return xl
+    except Exception as e:
+        raise ValueError(f"Failed to read Excel file: {str(e)}")
+    
+def print_dataframes_dict(dataframes: Dict[str, pd.DataFrame]):
+
+    for name, df in dataframes.items():
+        print(f"\n=== DataFrame: {name} ===")
+        print(df.head())  # ou apenas print(df) se quiser tudo
+
+def check_zero_columns(df: pd.DataFrame, sheet_name: str) -> List[str]:
+
+    valid_columns = {
+        'PL': [col for col in df.columns if col.startswith('PL')],
+        'PPV_capacity': [col for col in df.columns if col.startswith('PV')]
+    }
+    
+    if sheet_name not in valid_columns:
+        raise ValueError(f"Invalid sheet name: {sheet_name}. Must be 'PL' or 'PPV_capacity'.")
+    
+    zero_columns = []
+    for col in valid_columns[sheet_name]:
+        if col in df.columns and (df[col] == 0).all():
+            zero_columns.append(col)
+    
+    return zero_columns
+
+def set_column_to_zero(df: pd.DataFrame, sheet_name: str, column_name: str) -> pd.DataFrame:
+
+    valid_columns = {
+        'PL': [col for col in df.columns if col.startswith('PL')],
+        'PPV_capacity': [col for col in df.columns if col.startswith('PV')]
+    }
+    
+    if sheet_name not in valid_columns:
+        raise ValueError(f"Invalid sheet name: {sheet_name}. Must be 'PL' or 'PPV_capacity'.")
+    
+    if column_name not in valid_columns[sheet_name]:
+        raise ValueError(f"Invalid column name: {column_name}. Must be one of {valid_columns[sheet_name]}.")
+    
+    if column_name not in df.columns:
+        raise ValueError(f"Column {column_name} not found in sheet {sheet_name}.")
+    
+    df[column_name] = 0
+    return df
+
+def save_excel_file(sheets: Dict[str, pd.DataFrame], output_path: str) -> None:
+
+    try:
+        with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+            for sheet_name, df in sheets.items():
+                df.to_excel(writer, sheet_name=sheet_name, index=False)
+        print(f"Excel file saved successfully to: {output_path}")
+    except Exception as e:
+        raise ValueError(f"Failed to save Excel file: {str(e)}")
+
+def generate_active_attributes(sheets: Dict[int, pd.DataFrame], prosumer_id_mapping: Dict[int, str]) -> List[ActiveAttribute]:
+    # Check zero columns
+    pl_zero = check_zero_columns(sheets['PL'], 'PL')
+    ppv_zero = check_zero_columns(sheets['PPV_capacity'], 'PPV_capacity')
+    
+    active_attributes = []
+    for index, prosumer_id in prosumer_id_mapping.items():
+        # Convert index to column number (index 0 -> PL1, PV1)
+        col_number = index + 1
+        pl_column = f"PL{col_number}"
+        pv_column = f"PV{col_number}"
+        
+        # Set profileLoad to False if PL column is all zeros
+        profile_load = pl_column not in pl_zero if pl_column in sheets['PL'].columns else False
+        
+        # Set photovoltaicEnergyLoad to False if PV column is all zeros
+        pv_load = pv_column not in ppv_zero if pv_column in sheets['PPV_capacity'].columns else False
+        
+        # Assume stateOfCharge is True by default (can be modified based on ESS-Param if needed)
+        state_of_charge = True
+        
+        active_attribute = ActiveAttribute(
+            prosumerId=prosumer_id,
+            profileLoad=profile_load,
+            stateOfCharge=state_of_charge,
+            photovoltaicEnergyLoad=pv_load
+        )
+        active_attributes.append(active_attribute)
+    
+    return active_attributes
     
 def run_optimization(file_path: BytesIO, start_date_str: str, end_date_str: str, communityId: str, active_attributes: List[ActiveAttribute], description: str) -> dict:
 #print("\n\n\ndates: "+start_date_str, end_date_str)
@@ -503,97 +557,3 @@ def run_optimization(file_path: BytesIO, start_date_str: str, end_date_str: str,
         "detailed_results": detailed_results,
         response: response.status_code,
     }
-
-@app.post("/loadData")
-async def optimize_excel(file: UploadFile = File(...)):
-    contents = await file.read()
-    input_io = BytesIO(contents)
-
-    result = run_optimization(input_io)
-    return JSONResponse(content=result)
-
-
-
-@app.post("/run-optimization")
-async def start_optimization(
-    file: UploadFile = File(...),
-    active_attributes: str = Form(...),
-    start_date_str: str = Form(...),
-    end_date_str: str = Form(...),
-    communityId: Optional[str] = Form(None),
-    description: Optional[str] = Form(None)
-):
-    # Leitura do conteúdo do ficheiro
-    file_content = await file.read()
-    file_path = BytesIO(file_content)  # pode ser passado para uma função
-
-    # Parse do JSON enviado
-    try:
-        attributes_raw = json.loads(active_attributes)
-        active_attributes_list = [ActiveAttribute(**item) for item in attributes_raw]
-    except (json.JSONDecodeError, TypeError, ValueError) as e:
-        raise HTTPException(status_code=400, detail=f"Invalid active_attributes JSON: {str(e)}")
-
-    # Debug
-    print("🟢 active_attributes:")
-    for attr in active_attributes_list:
-        print(attr.model_dump())
-    print("📅 start:", start_date_str)
-    print("📅 end:", end_date_str)
-    print("🏘️ communityId:", communityId)
-    print("📝 description:", description)
-
-    try:
-        # Pass description as an extra argument to run_optimization
-        result = run_optimization(file_path, start_date_str, end_date_str, communityId, active_attributes_list, description)
-        # Add description to the result dictionary before returning
-        # result["description"] = description if description else "No description provided"
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Optimization failed: {str(e)}")
-
-    return {
-        "message": "Optimization completed!",
-        "result": result
-    }
-
-@app.get("/optimization-status")
-async def get_optimization_status():
-    # Retorna o status e o progresso atual da otimização
-    return {"status": optimization_status["status"], "progress": optimization_status["progress"]}
-
-@app.post("/batteryList")
-async def createBatteries(file: UploadFile = File(...)):
-    contents = await file.read()
-    input_io = BytesIO(contents)
-
-    # Lê e transpõe o DataFrame
-    df = pd.read_excel(input_io, header=0, index_col=0).T
-
-
-    battery_list = []
-    for ess_name, row in df.iterrows():
-        battery = {
-            "name": ess_name,
-            "efficiency": str(row["Eta"]).replace(',', '.'),
-            "maxCapacity": str(row["Cap"]).replace(',', '.'),
-            "initialCapacity": str(row["Capinitial"]).replace(',', '.'),
-            "maxChargeDischarge": str(row["Dprate"]).replace(',', '.')
-        }
-
-        # Não incluir "description" se estiver vazia
-        battery_list.append(battery)
-
-
-    payload = {
-        "batteryList": battery_list
-    }
-
-    # Envia para a API externa
-    url = "http://localhost:4000/api/batteries/batteryList"
-    headers = {"Content-Type": "application/json"}
-
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        return JSONResponse(status_code=response.status_code, content=response.json())
-    except requests.exceptions.RequestException as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
