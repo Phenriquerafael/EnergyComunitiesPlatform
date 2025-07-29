@@ -58,7 +58,7 @@ export const UserDrawer: React.FC = () => {
     <div className="drawer drawer-end z-50">
       <input id="user-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
-        <label htmlFor="user-drawer" className="btn btn-ghost btn-circle btn-lg avatar">
+        <label htmlFor="user-drawer" className="btn btn-ghost btn-circle btn-lg">
           <div className="rounded-full w-20 h-20 flex items-center justify-center">
             {user?.avatar ? (
               <img

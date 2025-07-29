@@ -110,10 +110,10 @@ const InfoModal: FunctionComponent<InfoModalProps> = () => {
                                         <tr><th></th><th>ESS1</th><th>...</th></tr>
                                     </thead>
                                     <tbody>
-                                        <tr><td className="tooltip" data-tip="Efficiency ratio">Eta</td><td>-</td><td>-</td></tr>
-                                        <tr><td className="tooltip" data-tip="Discharge rate">Dprate</td><td>-</td><td>-</td></tr>
-                                        <tr><td className="tooltip" data-tip="Total battery capacity (kWh)">Cap</td><td>-</td><td>-</td></tr>
-                                        <tr><td className="tooltip" data-tip="Initial capacity (kWh)">Capinitial</td><td>-</td><td>-</td></tr>
+                                        <tr><td className="tooltip tooltip-right" data-tip="Efficiency ratio">Eta</td><td>-</td><td>-</td></tr>
+                                        <tr><td className="tooltip tooltip-right" data-tip="Discharge rate">Dprate</td><td>-</td><td>-</td></tr>
+                                        <tr><td className="tooltip tooltip-right" data-tip="Total battery capacity (kWh)">Cap</td><td>-</td><td>-</td></tr>
+                                        <tr><td className="tooltip tooltip-right" data-tip="Initial capacity (kWh)">Capinitial</td><td>-</td><td>-</td></tr>
                                     </tbody>
                                 </table>
                             </div>
