@@ -3,7 +3,7 @@ import config from '../../config';
 import IProfileRepo from '../repos/IRepos/IProfileRepo';
 import IProfileService from './IServices/IProfileService';
 import { Result } from '../core/logic/Result';
-import IProfileDTO, { ISimulationDTO } from '../dto/IProfileDTO';
+import IProfileDTO, { ISimulationDTO, ISimulationTotalStats } from '../dto/IProfileDTO';
 import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
 import IOptimizationResults from '../dto/IOptimizationResults';
@@ -394,5 +394,39 @@ export default class ProfileService implements IProfileService {
     }
   }
 
+  public async getSimulationStats(simulationId: string): Promise<Result<ISimulationTotalStats>> {
+    try {
+      const profilesOrError = await this.profileRepoInstance.findBySimulationId(simulationId);
+      if (profilesOrError.isFailure) {
+        return Result.fail<ISimulationTotalStats>('Profiles not found for simulation');
+      }
+      const profiles = profilesOrError.getValue().map((profile) => ProfileMap.toDTO(profile));
+
+      // Calculate statistics based on profiles
+      const stats = this.calculateStats(profiles);
+      return Result.ok<ISimulationTotalStats>(stats);
+    } catch (error) {
+      console.error('Error getting simulation stats:', error);
+      return Result.fail<ISimulationTotalStats>('Unexpected error getting simulation stats');
+    }
+  }
+
+  private calculateStats(profiles: IProfileDTO[]): ISimulationTotalStats {
+    const totalLoad = profiles.reduce((acc, profile) => acc + (profile.profileLoad ? parseFloat(profile.profileLoad) : 0), 0);
+    const totalPhotovoltaicEnergyLoad = profiles.reduce((acc, profile) => acc + (profile.photovoltaicEnergyLoad ? parseFloat(profile.photovoltaicEnergyLoad) : 0), 0);
+    const totalBoughtEnergy = profiles.reduce((acc, profile) => acc + (profile.boughtEnergyAmount ? parseFloat(profile.boughtEnergyAmount) : 0), 0);
+    const totalSoldEnergy = profiles.reduce((acc, profile) => acc + (profile.soldEnergyAmount ? parseFloat(profile.soldEnergyAmount) : 0), 0);
+    const totalPeerIn = profiles.reduce((acc, profile) => acc + (profile.peerInputEnergyLoad ? parseFloat(profile.peerInputEnergyLoad) : 0), 0);
+    const totalPeerOut = profiles.reduce((acc, profile) => acc + (profile.peerOutputEnergyLoad ? parseFloat(profile.peerOutputEnergyLoad) : 0), 0);
+
+    return {
+      totalLoad,
+      totalPhotovoltaicEnergyLoad,
+      totalBoughtEnergy,
+      totalSoldEnergy,
+      totalPeerIn,
+      totalPeerOut
+    };
+  }
 
 }

@@ -1,230 +1,232 @@
-import { Service } from "typedi";
-import { Container } from "../container";
-import config from "../../config";
-import IProfileController from "./IControllers/IProfileController";
-import IProfileService from "../services/IServices/IProfileService";
-import { Request, Response, NextFunction } from "express";
-import IProfileDTO from "../dto/IProfileDTO";
-import { Result } from "../core/logic/Result";
+import { Service } from 'typedi';
+import { Container } from '../container';
+import config from '../../config';
+import IProfileController from './IControllers/IProfileController';
+import IProfileService from '../services/IServices/IProfileService';
+import { Request, Response, NextFunction } from 'express';
+import IProfileDTO from '../dto/IProfileDTO';
+import { Result } from '../core/logic/Result';
 
 @Service()
 export default class ProfileController implements IProfileController {
   private get profileServiceInstance(): IProfileService {
     return Container.get(config.services.profile.name) as IProfileService;
   }
-  
-  public async createProfile(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profileOrError = await this.profileServiceInstance.createProfile(req.body,null, null);
-        
-        if (profileOrError.isFailure) {
-          return res.status(400).json({ message: profileOrError.error });
-        }
 
-        const profileDTO = profileOrError.getValue();
-        return res.status(201).json(profileDTO);
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
+  public async createProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const profileOrError = await this.profileServiceInstance.createProfile(req.body, null, null);
+
+      if (profileOrError.isFailure) {
+        return res.status(400).json({ message: profileOrError.error });
       }
+
+      const profileDTO = profileOrError.getValue();
+      return res.status(201).json(profileDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
 
   public async createFromOptimizationResults(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profileOrError = await this.profileServiceInstance.createFromOptimizationResults(req.body);
-        
-        if (profileOrError.isFailure) {
-          return res.status(400).json({ message: profileOrError.error });
-        }
+    try {
+      const profileOrError = await this.profileServiceInstance.createFromOptimizationResults(req.body);
 
-        const profileDTO = profileOrError.getValue();
-        return res.status(201).json(profileDTO);
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
+      if (profileOrError.isFailure) {
+        return res.status(400).json({ message: profileOrError.error });
       }
+
+      const profileDTO = profileOrError.getValue();
+      return res.status(201).json(profileDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
-  
-  public async updateProfile(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profileOrError = await this.profileServiceInstance.updateProfile(req.body);
-        
-        if (profileOrError.isFailure) {
-          return res.status(400).json({ message: profileOrError.error });
-        }
 
-        const profileDTO = profileOrError.getValue();
-        return res.status(200).json(profileDTO);
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
+  public async updateProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const profileOrError = await this.profileServiceInstance.updateProfile(req.body);
+
+      if (profileOrError.isFailure) {
+        return res.status(400).json({ message: profileOrError.error });
       }
+
+      const profileDTO = profileOrError.getValue();
+      return res.status(200).json(profileDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
   public async getProfile(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profileOrError = await this.profileServiceInstance.getProfile(req.params.id);
+    try {
+      const profileOrError = await this.profileServiceInstance.getProfile(req.params.id);
 
-        if (profileOrError.isFailure) {
-          return res.status(404).json({ message: profileOrError.error });
-        }
-
-        const profileDTO = profileOrError.getValue();
-        return res.status(200).json(profileDTO);
-
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
+      if (profileOrError.isFailure) {
+        return res.status(404).json({ message: profileOrError.error });
       }
+
+      const profileDTO = profileOrError.getValue();
+      return res.status(200).json(profileDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
   public async findByProsumerId(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profileOrError = await this.profileServiceInstance.findByProsumerId(req.params.id);
+    try {
+      const profileOrError = await this.profileServiceInstance.findByProsumerId(req.params.id);
 
-        if (profileOrError.isFailure) {
-          return res.status(404).json({ message: profileOrError.error });
-        }
-
-        const profileDTO = profileOrError.getValue();
-        return res.status(200).json(profileDTO);
-
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
+      if (profileOrError.isFailure) {
+        return res.status(404).json({ message: profileOrError.error });
       }
+
+      const profileDTO = profileOrError.getValue();
+      return res.status(200).json(profileDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
   public async findByProsumerIdAndSimulationId(req: Request, res: Response, next: NextFunction) {
-      try {
-        const { prosumerId, simulationId } = req.params;
-        const profilesOrError = await this.profileServiceInstance.findByProsumerIdAndSimulationId(prosumerId, simulationId);
+    try {
+      const { prosumerId, simulationId } = req.params;
+      const profilesOrError = await this.profileServiceInstance.findByProsumerIdAndSimulationId(
+        prosumerId,
+        simulationId,
+      );
 
-        if (profilesOrError.isFailure) {
-          return res.status(404).json({ message: profilesOrError.error });
-        }
-
-        const profilesDTO = profilesOrError.getValue();
-        return res.status(200).json(profilesDTO);
-
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
+      if (profilesOrError.isFailure) {
+        return res.status(404).json({ message: profilesOrError.error });
       }
+
+      const profilesDTO = profilesOrError.getValue();
+      return res.status(200).json(profilesDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
 
   public async findBySimulationId(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profileOrError = await this.profileServiceInstance.findBySimulationId(req.params.id);
+    try {
+      const profileOrError = await this.profileServiceInstance.findBySimulationId(req.params.id);
 
-        if (profileOrError.isFailure) {
-          return res.status(404).json({ message: profileOrError.error });
-        }
-
-        const profileDTO = profileOrError.getValue();
-        return res.status(200).json(profileDTO);
-
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
+      if (profileOrError.isFailure) {
+        return res.status(404).json({ message: profileOrError.error });
       }
+
+      const profileDTO = profileOrError.getValue();
+      return res.status(200).json(profileDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
 
   public async findByCommunityIdAndSimulationId(req: Request, res: Response, next: NextFunction) {
-      try {
-        const { communityId, simulationId } = req.params;
-        const profilesOrError = await this.profileServiceInstance.findByCommunityIdAndSimulationId(
-          communityId,
-          simulationId
-        );
-        if (profilesOrError.isFailure) {
-          return res.status(404).json({ message: profilesOrError.error });
-        }
-        const profilesDTO = profilesOrError.getValue();
-        return res.status(200).json(profilesDTO);
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
+    try {
+      const { communityId, simulationId } = req.params;
+      const profilesOrError = await this.profileServiceInstance.findByCommunityIdAndSimulationId(
+        communityId,
+        simulationId,
+      );
+      if (profilesOrError.isFailure) {
+        return res.status(404).json({ message: profilesOrError.error });
       }
+      const profilesDTO = profilesOrError.getValue();
+      return res.status(200).json(profilesDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
 
   public async findAll(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profilesOrError = await this.profileServiceInstance.findAll() as Result<IProfileDTO[]>;
-        
-        if (profilesOrError.isFailure) {
-          return res.status(404).json({ message: profilesOrError.error });
-        }
+    try {
+      const profilesOrError = (await this.profileServiceInstance.findAll()) as Result<IProfileDTO[]>;
 
-        const profilesDTO = profilesOrError.getValue();
-        return res.status(200).json(profilesDTO);
-
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
+      if (profilesOrError.isFailure) {
+        return res.status(404).json({ message: profilesOrError.error });
       }
+
+      const profilesDTO = profilesOrError.getValue();
+      return res.status(200).json(profilesDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
+    }
   }
 
-    public async deleteProfile(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { id } = req.params;
+  public async deleteProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
 
-            const result = await this.profileServiceInstance.deleteProfile(id);
+      const result = await this.profileServiceInstance.deleteProfile(id);
 
-            if (result.isFailure) {
-                return res.status(404).json({ message: result.error });
-            }
+      if (result.isFailure) {
+        return res.status(404).json({ message: result.error });
+      }
 
-            return res.status(200).send();
-        } catch (error) {
-            return next(error);
-        }
+      return res.status(200).send();
+    } catch (error) {
+      return next(error);
     }
+  }
 
   public async findByCommunityId(req: Request, res: Response, next: NextFunction) {
-      try {
-        const profileOrError = await this.profileServiceInstance.findByCommunityId(req.params.id);
+    try {
+      const profileOrError = await this.profileServiceInstance.findByCommunityId(req.params.id);
 
-        if (profileOrError.isFailure) {
-          return res.status(404).json({ message: profileOrError.error });
-        }
-
-        const profileDTO = profileOrError.getValue();
-        return res.status(200).json(profileDTO);
-
-      } catch (error) {
-        return next(error); // Pass error to Express error handler
-        
-      } 
-    }
-  public async deleteByCommunityId(req: Request, res: Response, next: NextFunction) {
-      try {
-          const { id } = req.params;
-
-          const result = await this.profileServiceInstance.deleteByCommunityId(id);
-
-          if (result.isFailure) {
-              return res.status(404).json({ message: result.error });
-          }
-
-          return res.status(200).send();
-      } catch (error) {
-          return next(error);
+      if (profileOrError.isFailure) {
+        return res.status(404).json({ message: profileOrError.error });
       }
+
+      const profileDTO = profileOrError.getValue();
+      return res.status(200).json(profileDTO);
+    } catch (error) {
+      return next(error); // Pass error to Express error handler
     }
+  }
+  public async deleteByCommunityId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      const result = await this.profileServiceInstance.deleteByCommunityId(id);
+
+      if (result.isFailure) {
+        return res.status(404).json({ message: result.error });
+      }
+
+      return res.status(200).send();
+    } catch (error) {
+      return next(error);
+    }
+  }
 
   public async deleteByProsumerId(req: Request, res: Response, next: NextFunction) {
-      try {
-          const { id } = req.params;
+    try {
+      const { id } = req.params;
 
-          const result = await this.profileServiceInstance.deleteByProsumerId(id);
+      const result = await this.profileServiceInstance.deleteByProsumerId(id);
 
-          if (result.isFailure) {
-              return res.status(404).json({ message: result.error });
-          }
-
-          return res.status(200).send();
-      } catch (error) {
-          return next(error);
+      if (result.isFailure) {
+        return res.status(404).json({ message: result.error });
       }
+
+      return res.status(200).send();
+    } catch (error) {
+      return next(error);
     }
+  }
 
+  public async getSimulationStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const statsOrError = await this.profileServiceInstance.getSimulationStats(id);
 
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
 
-
-}
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+  
+  }

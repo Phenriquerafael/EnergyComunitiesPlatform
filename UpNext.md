@@ -14,6 +14,7 @@ Description:
 
     Backend
     corrigir erros/ exception dentro e fora da base de dados (ex: quando há delete de uma battery associada a um prosumer)
+    corrigir codigos de sucesso ou insucesso no controller
     corrigir create do profile (simulation e prosumer enviados por parametro)
     corrigir create e mappers do simulation (community enviado por parametro)
     corrigir o data do simulation
@@ -29,6 +30,7 @@ Description:
     corrigir erro das secure routes no login 
     corrigir barras de busca e botões de organização na tabelas
     corrigir as buscas dos prosumers a adicionar numa communidade
+    corrigir o erro do algoritmo de otimização
 
     adicionar botões de info para os formatos dos ficheiros e para as datas disponíveis para cada ficheiro
     adicionar alertas para a desconexão com o backend e vice versa

@@ -45,3 +45,14 @@ export interface IActiveAtributesDTO {
   stateOfCharge: boolean;
   photovoltaicEnergyLoad: boolean;
 }
+
+
+export interface ISimulationTotalStats {
+  totalLoad: number;
+  totalPhotovoltaicEnergyLoad: number;
+  totalBoughtEnergy: number;
+  totalSoldEnergy: number;
+  totalPeerIn: number;
+  totalPeerOut: number;
+  
+}

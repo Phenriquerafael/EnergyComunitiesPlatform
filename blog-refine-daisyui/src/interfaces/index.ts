@@ -61,26 +61,34 @@ export type TTab = {
 };
 
 export interface ProfileDTO {
-    id?: string;
-    prosumerId: string;
-    date: string;
-    intervalOfTime: string;
-    numberOfIntervals: number;
-    stateOfCharge: string;
-    energyCharge: string;
-    energyDischarge: string;
-    photovoltaicEnergyLoad: string;
-    boughtEnergyAmount: string;
-    boughtEnergyPrice?: string;
-    soldEnergyAmount: string;
-    soldEnergyPrice?: string;
-    peerOutputEnergyLoad: string;
-    peerOutPrice?: string;
-    peerInputEnergyLoad: string;
-    peerInPrice?: string;
-    profileLoad: string;
-  }
+  id?: string;
+  prosumerId: string;
+  date: string;
+  intervalOfTime: string;
+  numberOfIntervals: number;
+  stateOfCharge: string;
+  energyCharge: string;
+  energyDischarge: string;
+  photovoltaicEnergyLoad: string;
+  boughtEnergyAmount: string;
+  boughtEnergyPrice?: string;
+  soldEnergyAmount: string;
+  soldEnergyPrice?: string;
+  peerOutputEnergyLoad: string;
+  peerOutPrice?: string;
+  peerInputEnergyLoad: string;
+  peerInPrice?: string;
+  profileLoad: string;
+}
 
+export interface ISimulationTotalStats {
+  totalLoad: number;
+  totalPhotovoltaicEnergyLoad: number;
+  totalBoughtEnergy: number;
+  totalSoldEnergy: number;
+  totalPeerIn: number;
+  totalPeerOut: number;
+}
 
 export interface IStorageEfficiency {
   prosumer: string;
@@ -122,41 +130,39 @@ export interface IBoughtVsSold {
   sold: number;
 }
 
-  export interface OptimizationResult {
-    Day: string;
-    Time_Step: number;
-    Prosumer: string;
-    P_buy: string;
-    P_sell: string;
-    SOC: string;
-    P_ESS_ch: string;
-    P_ESS_dch: string;
-    P_PV_load: string;
-    P_Peer_out: string;
-    P_Peer_in: string;
-    P_Load: string;
-  }
-  
-  export interface OptimizeRequest {
-    total_objective_value?: string;
-    detailed_results: OptimizationResult[];
-  }
+export interface OptimizationResult {
+  Day: string;
+  Time_Step: number;
+  Prosumer: string;
+  P_buy: string;
+  P_sell: string;
+  SOC: string;
+  P_ESS_ch: string;
+  P_ESS_dch: string;
+  P_PV_load: string;
+  P_Peer_out: string;
+  P_Peer_in: string;
+  P_Load: string;
+}
+
+export interface OptimizeRequest {
+  total_objective_value?: string;
+  detailed_results: OptimizationResult[];
+}
 
 export interface IRoleDTO {
   id?: string;
   name?: string;
 }
 
-
-  export interface IBatteryDTO {
+export interface IBatteryDTO {
   id?: string;
-    name?: string;
-    description?: string;
-    efficiency?: string;
-    maxCapacity?: string;
-    initialCapacity?: string;
-    maxChargeDischarge?: string;
-
+  name?: string;
+  description?: string;
+  efficiency?: string;
+  maxCapacity?: string;
+  initialCapacity?: string;
+  maxChargeDischarge?: string;
 }
 
 export interface IUserDTO {
@@ -171,18 +177,18 @@ export interface IUserDTO {
 }
 
 export interface ICommunityDTO {
-    id?: string;
-      name?: string;
-      description?: string;
-      country?: string; // Optional field for country
-      countryCode?: string; // Optional field for country code
-  }
+  id?: string;
+  name?: string;
+  description?: string;
+  country?: string; // Optional field for country
+  countryCode?: string; // Optional field for country code
+}
 
 export interface IProsumerDTO {
-    id?: string;
-    batteryId: IBatteryDTO;
-    userId: IUserDTO;
-    communityId?: ICommunityDTO;
+  id?: string;
+  batteryId: IBatteryDTO;
+  userId: IUserDTO;
+  communityId?: ICommunityDTO;
 }
 
 export interface IProsumerDataDTO {
@@ -202,7 +208,6 @@ export interface ICommunityManagerDTO {
   communityId?: string;
 }
 
-    
 export interface ISimulationDTO {
   id?: string;
   startDate: string;

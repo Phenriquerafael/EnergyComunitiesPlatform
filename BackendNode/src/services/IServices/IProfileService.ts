@@ -19,4 +19,6 @@ export default interface IProfileService {
     findByCommunityId(communityId: string): Promise<Result<IProfileDTO[]>>;
     deleteByCommunityId(communityId: string): Promise<Result<void>>;
     deleteByProsumerId(prosumerId: string): Promise<Result<void>>;
+
+    getSimulationStats(simulationId: string): Promise<Result<any>>;
 }

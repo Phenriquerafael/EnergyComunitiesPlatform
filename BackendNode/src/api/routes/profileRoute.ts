@@ -41,6 +41,7 @@ export default (app: Router) => {
     ),
     (req, res, next) => ctrl.createProfile(req, res, next),
   );
+
   route.post(
     '/optimize-results',
     celebrate({
@@ -116,9 +117,11 @@ export default (app: Router) => {
   route.get('/community/:communityId/simulation/:simulationId', (req, res, next) =>
     ctrl.findByCommunityIdAndSimulationId(req, res, next),
   );
+
   route.get('/prosumer/:prosumerId/simulation/:simulationId', (req, res, next) =>
     ctrl.findByProsumerIdAndSimulationId(req, res, next),
   );
+
   route.get('/simulation/:simulationId', (req, res, next) => ctrl.findBySimulationId(req, res, next));
 
   route.delete(
@@ -151,7 +154,10 @@ export default (app: Router) => {
     (req, res, next) => ctrl.deleteByProsumerId(req, res, next),
   );
 
+  route.get('/simulationStats/:id/', (req, res, next) => ctrl.getSimulationStats(req, res, next));
+
   app.use('/profiles', route);
+
   // Middleware de erro do celebrate
   app.use(errors());
 };
