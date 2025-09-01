@@ -1,21 +1,24 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "Debug com TS (ts-node)",
-        "runtimeArgs": [
-          "-r",
-          "ts-node/register"
-        ],
-        "args": [
-          "${workspaceFolder}/BackendNode/src/app.ts"
-        ],
-        "cwd": "${workspaceFolder}/BackendNode",
-        "skipFiles": ["<node_internals>/**"],
-        "internalConsoleOptions": "openOnSessionStart"
-      }
-    ]
-  }
-  
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: FastAPI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["main:app", "--reload"],
+      "cwd": "${workspaceFolder}/OptimizationAlgorithmAPI",
+      "jinja": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug com TS (ts-node)",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/BackendNode/src/app.ts"],
+      "cwd": "${workspaceFolder}/BackendNode",
+      "skipFiles": ["<node_internals>/**"],
+      "internalConsoleOptions": "openOnSessionStart"
+    }
+  ]
+}

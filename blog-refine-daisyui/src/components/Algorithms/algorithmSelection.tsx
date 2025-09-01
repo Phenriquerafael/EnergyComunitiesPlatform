@@ -14,6 +14,7 @@ import { CloudArrowUpIcon } from "@heroicons/react/20/solid";
 import dayjs, { Dayjs } from "dayjs";
 import LoadingProgress from "./loadingProgress";
 import InfoModal from "../InfoModal/infoModal";
+import OptimizationInputModal from "../InfoModal/OptimizationInputModal";
 
 interface Algorithm {
   id: string;
@@ -88,7 +89,22 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [complete, setComplete] = useState(false);
+  const numberOfProsumers = prosumers.length;
 
+  // Updates the order of prosumers based on the selected number
+  const handleOrderChange = (prosumerId: string, newIndex: number) => {
+    setActiveAttributes((prev) => {
+      const current = [...prev];
+      const movingItem = current.find((a) => a.prosumerId === prosumerId);
+      if (!movingItem) return current;
+
+      // Remove da posição atual
+      const filtered = current.filter((a) => a.prosumerId !== prosumerId);
+      // Inserir na nova posição
+      filtered.splice(newIndex, 0, movingItem);
+      return filtered;
+    });
+  };
   // Ensure all prosumers are present in activeAttributes
   React.useEffect(() => {
     if (!prosumers) return;
@@ -195,13 +211,12 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
   return (
     <Card
       title={
-        <span style={{ display: "flex", alignItems: "center", gap: 8 }} >
+        <span className="flex items-top justify-left gap-2">
           <CloudArrowUpIcon style={{ width: 24, height: 24 }} />
           Upload Community Data
           <InfoModal />
         </span>
       }
-
     >
       <Form layout="vertical">
         <Form.Item label="Select Algorithm" required>
@@ -246,13 +261,18 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
               />
             </Form.Item>
 
-            <Button
-              className="btn btn-neutral"
-              onClick={() => setDefineProsumerFeatures((prev) => !prev)}
-              style={{ marginBottom: 12, width: "fit-content" }}
-            >
-              {defineProsumerFeatures ? "Minimize" : "Define"} Prosumer Features
-            </Button>
+            <div className="flex items-top justify-left gap-2">
+              <Button
+                className="btn btn-neutral"
+                onClick={() => setDefineProsumerFeatures((prev) => !prev)}
+                style={{ marginBottom: 12, width: "fit-content" }}
+              >
+                {defineProsumerFeatures ? "Minimize" : "Define"} Prosumer
+                Features
+              </Button>
+
+              <InfoModal />
+            </div>
 
             {defineProsumerFeatures && (
               <>
@@ -279,10 +299,37 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
                       key={attr.prosumerId}
                       className="border border-base-300 rounded-lg p-4 shadow-sm bg-base-100"
                     >
-                      <legend className="font-semibold text-sm mb-2">
-                        Prosumer: {prosumer?.userName || attr.prosumerId} - ID:{" "}
-                        {attr.prosumerId}
-                      </legend>
+                      <div className="flex">
+                        <div className="mb-4 mr-4">
+                          <select
+                            className="select select-bordered"
+                            value={activeAttributes.findIndex(
+                              (a) => a.prosumerId === attr.prosumerId
+                            )}
+                            onChange={(e) =>
+                              handleOrderChange(
+                                attr.prosumerId,
+                                Number(e.target.value)
+                              )
+                            }
+                          >
+                            {Array.from(
+                              { length: numberOfProsumers },
+                              (_, i) => (
+                                <option key={i} value={i}>
+                                  {i + 1}
+                                </option>
+                              )
+                            )}
+                          </select>
+                        </div>
+
+                        <legend className="font-semibold text-sm">
+                          Prosumer: {prosumer?.userName || attr.prosumerId} -
+                          ID: {attr.prosumerId}
+                        </legend>
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {(
                           [
@@ -346,21 +393,24 @@ const AlgorithmUploadSection: React.FC<AlgorithmUploadSectionProps> = ({
           </div>
         </Form.Item>
 
-        <Form.Item label="Upload Excel File" required>
-          <Upload
-            beforeUpload={(file) => {
-              setSelectedFile(file);
-              return false;
-            }}
-            maxCount={1}
-            accept=".xlsx,.xls"
-          >
-            <Button icon={<UploadOutlined />}>Select Excel File</Button>
-          </Upload>
-          {selectedFile && (
-            <p className="mt-2 text-sm">Selected file: {selectedFile.name}</p>
-          )}
-        </Form.Item>
+        <div className="flex">
+          <Form.Item label="Upload Excel File" required>
+            <Upload
+              beforeUpload={(file) => {
+                setSelectedFile(file);
+                return false;
+              }}
+              maxCount={1}
+              accept=".xlsx,.xls"
+            >
+              <Button icon={<UploadOutlined />}>Select Excel File</Button>
+            </Upload>
+            {selectedFile && (
+              <p className="mt-2 text-sm">Selected file: {selectedFile.name}</p>
+            )}
+          </Form.Item>
+          <InfoModal    />
+        </div>
 
         <Form.Item>
           <Button type="primary" onClick={handleSubmit}>

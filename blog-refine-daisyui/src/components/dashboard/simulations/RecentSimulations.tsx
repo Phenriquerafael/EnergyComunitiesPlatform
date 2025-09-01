@@ -12,7 +12,7 @@ export const RecentSimulations: React.FC = () => {
 
     const simulations = data?.data ?? [];
 
-    console.log("Recent Simulations Data:", simulations);
+    //console.log("Recent Simulations Data:", simulations);
 
     const edit = (resource: string, id: string | number) => {
         // rota de edição

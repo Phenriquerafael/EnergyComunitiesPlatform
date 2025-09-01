@@ -23,6 +23,7 @@ Description:
     caso haja algum erro na criação de profiles a simulation deve ser apagada 
 
     frontend
+    Corrigir a forma como se obtem profiles no dashboard
     !! Adicionar uma comparação do load e consumo do prosumer antes e após pertencer à comunidade
     Corrigir refresh e navegações 
     corrigir erro das secure routes no login 

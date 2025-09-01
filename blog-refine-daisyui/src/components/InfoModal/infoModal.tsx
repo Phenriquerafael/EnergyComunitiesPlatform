@@ -1,7 +1,9 @@
 import { InformationCircleIcon, ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import { FunctionComponent, useState } from "react";
 
-interface InfoModalProps {}
+interface InfoModalProps {
+    
+}
 
 const InfoModal: FunctionComponent<InfoModalProps> = () => {
     const openModal = () => {
@@ -18,7 +20,7 @@ const InfoModal: FunctionComponent<InfoModalProps> = () => {
 
     return (
         <>
-            <div className="tooltip tooltip-right" data-tip="Input file description">
+            <div className="btn btn-ghost btn-circle btn-xs" data-tip="Input file description">
                 <InformationCircleIcon
                     className="h-5 w-5 shrink-0 cursor-pointer text-blue-500"
                     onClick={openModal}
@@ -27,6 +29,7 @@ const InfoModal: FunctionComponent<InfoModalProps> = () => {
 
             <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box max-w-5xl">
+
                     <h3 className="font-bold text-lg mb-4">Optimization algorithm input description</h3>
 
                     {/* Tabs */}

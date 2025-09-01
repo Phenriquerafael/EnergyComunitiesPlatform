@@ -116,6 +116,8 @@ Download the installer at 'https://www.python.org/downloads/' and follow the ins
 **5º** - Paste the file path you copied above and save.
 
 ## Install Libraries 
+    pip install fastapi uvicorn python-multipart pandas openpyxl xlsxwriter
+
 Finally run:
 
     py satcomm-scen4.py
