@@ -68,7 +68,7 @@ export const Dashboard: React.FC = () => {
 
   // 2. Estado da simulação selecionada
   const [selectedSimulation, setSelectedSimulation] = useState<ISimulationDTO2 | null>(
-    simulations[0] || null
+      null
   );
 
   // 3. Buscar profiles da simulação selecionada

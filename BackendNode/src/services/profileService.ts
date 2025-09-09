@@ -14,7 +14,6 @@ import { Simulation } from '../domain/Simulation/Simulation';
 import ISimulationRepo from '../repos/IRepos/ISimulationRepo';
 import ICommunityRepo from '../repos/IRepos/ICommunityRepo';
 
-
 @Service()
 export default class ProfileService implements IProfileService {
   constructor(
@@ -23,21 +22,23 @@ export default class ProfileService implements IProfileService {
     @Inject(config.repos.simulation.name) private simulationRepoInstance: ISimulationRepo,
     @Inject(config.repos.community.name) private communityRepoInstance: ICommunityRepo, // Assuming you have a community repo
     @Inject(config.services.simulation.name) private simulationServiceInstance: ISimulationService, // Assuming you have a simulation repo
-    @Inject('logger') private logger
+    @Inject('logger') private logger,
   ) {
     /* console.log('ProfileService instantiated'); // Debug */
   }
 
-  public async createProfile(profileDTO: IProfileDTO, prosumer:Prosumer, simulation:Simulation): Promise<Result<IProfileDTO>> {
+  public async createProfile(
+    profileDTO: IProfileDTO,
+    prosumer: Prosumer,
+    simulation: Simulation,
+  ): Promise<Result<IProfileDTO>> {
     try {
-    
       // Map DTO to Domain
       const profileResult = ProfileMap.toDomainFromDTO(profileDTO, prosumer, simulation);
       if (profileResult.isFailure) {
         return Result.fail<IProfileDTO>(`Failed to create Profile: ${profileResult.error}`);
       }
-      const profile = profileResult.getValue(); 
-
+      const profile = profileResult.getValue();
 
       // Save Profile
       const savedProfileResult = await this.profileRepoInstance.save(profile);
@@ -49,9 +50,8 @@ export default class ProfileService implements IProfileService {
       // Map to DTO
       const profileDTOResult = ProfileMap.toDTO(savedProfile);
       return Result.ok<IProfileDTO>(profileDTOResult);
-
     } catch (error) {
-      console.error("Error creating profile:", error);
+      console.error('Error creating profile:', error);
       return Result.fail<IProfileDTO>(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -68,34 +68,31 @@ export default class ProfileService implements IProfileService {
 
       let prosumerOrError;
       const prosumerProfileCount: Record<string, number> = {};
-      const simulationDTO = 
-        {
-          startDate: results.start_date,
-          endDate: results.end_date,
-          description: results.description || '',
-          communityId: results.communityId,
-          activeAttributes: results.active_attributes.map(attr => ({
-            prosumerId: attr.prosumerId,
-            profileLoad: attr.profileLoad,
-            stateOfCharge: attr.stateOfCharge,
-            photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad
-          }))
+      const simulationDTO = {
+        startDate: results.start_date,
+        endDate: results.end_date,
+        description: results.description || '',
+        communityId: results.communityId,
+        activeAttributes: results.active_attributes.map((attr) => ({
+          prosumerId: attr.prosumerId,
+          profileLoad: attr.profileLoad,
+          stateOfCharge: attr.stateOfCharge,
+          photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad,
+        })),
+      } as ISimulationDTO;
 
-        } as ISimulationDTO;
+      // Fetch the community based on communityId
+      const communityOrError = await this.communityRepoInstance.findById(results.communityId);
+      if (communityOrError.isFailure) {
+        return Result.fail<void>(`Community with ID ${results.communityId} not found`);
+      }
+      const community = communityOrError.getValue();
 
-        // Fetch the community based on communityId
-        const communityOrError = await this.communityRepoInstance.findById(results.communityId);
-        if (communityOrError.isFailure) {
-          return Result.fail<void>(`Community with ID ${results.communityId} not found`);
-        }
-        const community = communityOrError.getValue();
-
-        const simulationOrError = await this.simulationServiceInstance.createSimulation(simulationDTO, community);
-        if (simulationOrError.isFailure) {
-          return Result.fail<void>(`Failed to create simulation: ${simulationOrError.error}`);
-        }
-        const simulation = await this.simulationRepoInstance.findById(simulationOrError.getValue().id);
-
+      const simulationOrError = await this.simulationServiceInstance.createSimulation(simulationDTO, community);
+      if (simulationOrError.isFailure) {
+        return Result.fail<void>(`Failed to create simulation: ${simulationOrError.error}`);
+      }
+      const simulation = await this.simulationRepoInstance.findById(simulationOrError.getValue().id);
 
       for (let i = 0; i < results.detailed_results.length; i++) {
         let result = results.detailed_results[i];
@@ -103,7 +100,7 @@ export default class ProfileService implements IProfileService {
           prosumerId: result.Prosumer,
           simulationId: simulationDTO.id, // Simulation will be set later
           date: result.DateTime,
-          intervalOfTime: "15",
+          intervalOfTime: '15',
           numberOfIntervals: Number(result.Time_Step),
           stateOfCharge: result.SOC,
           energyCharge: result.P_ESS_ch,
@@ -115,15 +112,15 @@ export default class ProfileService implements IProfileService {
           soldEnergyAmount: result.P_sell,
           profileLoad: result.P_Load,
         };
-        
-        if ( !prosumerOrError ||prosumerOrError.id !== profileDTO.prosumerId ) {
+
+        if (!prosumerOrError || prosumerOrError.id !== profileDTO.prosumerId) {
           prosumerOrError = await this.prosumerRepoInstance.findById(profileDTO.prosumerId);
           if (prosumerOrError.isFailure) {
             return Result.fail<void>(`Prosumer with ID ${profileDTO.prosumerId} not found`);
           }
         }
 
-        const createResult = await this.createProfile(profileDTO,prosumerOrError.getValue(), simulation.getValue());
+        const createResult = await this.createProfile(profileDTO, prosumerOrError.getValue(), simulation.getValue());
 
         if (createResult.isFailure) {
           return Result.fail<void>(`Failed to create profile from optimization results: ${createResult.error}`);
@@ -135,8 +132,6 @@ export default class ProfileService implements IProfileService {
         } else {
           prosumerProfileCount[profileDTO.prosumerId] = 1;
         }
-
-
       }
 
       // Log the number of profiles loaded for each prosumer
@@ -146,13 +141,11 @@ export default class ProfileService implements IProfileService {
 
       // Return the last profile created as a representative result
       return Result.ok<void>(/* finalResult */);
-
     } catch (error) {
       this.logger.error('Error creating profile from optimization results: ', error);
       return Result.fail<void>('Error creating profile from optimization results');
     }
   }
-
 
   public async updateProfile(profileDTO: IProfileDTO): Promise<Result<IProfileDTO>> {
     try {
@@ -173,7 +166,6 @@ export default class ProfileService implements IProfileService {
       }
 
       const existingProfile = existingProfileOrError.getValue();
-
 
       // Update the prosumer if applicable
       if (prosumer) {
@@ -232,8 +224,6 @@ export default class ProfileService implements IProfileService {
 
   public async getProfile(profileId: string): Promise<Result<IProfileDTO>> {
     try {
-      
-
       const existingProfileOrError = await this.profileRepoInstance.findById(profileId);
       if (existingProfileOrError.isFailure) {
         return Result.fail<IProfileDTO>('Profile not found');
@@ -267,15 +257,19 @@ export default class ProfileService implements IProfileService {
         return Result.fail<IProfileDTO[]>('Profile not found');
       }
       const existingProfile = existingProfileOrError.getValue();
-      return Result.ok<IProfileDTO[]>(Array.isArray(existingProfile) ? existingProfile.map(ProfileMap.toDTO) : [ProfileMap.toDTO(existingProfile)]);
-      
+      return Result.ok<IProfileDTO[]>(
+        Array.isArray(existingProfile) ? existingProfile.map(ProfileMap.toDTO) : [ProfileMap.toDTO(existingProfile)],
+      );
     } catch (error) {
       console.log('Error getting profile by prosumer ID: ', error);
       return Result.fail<IProfileDTO[]>('Error getting profile by prosumer ID');
     }
   }
 
-  public async findByProsumerIdAndSimulationId(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+  public async findByProsumerIdAndSimulationId(
+    prosumerId: string,
+    simulationId: string,
+  ): Promise<Result<IProfileDTO[]>> {
     try {
       const profilesOrError = await this.profileRepoInstance.findByProsumerIdAndSimulationId(prosumerId, simulationId);
       if (profilesOrError.isFailure) {
@@ -303,9 +297,15 @@ export default class ProfileService implements IProfileService {
     }
   }
 
-  public async findByCommunityIdAndSimulationId(communityId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+  public async findByCommunityIdAndSimulationId(
+    communityId: string,
+    simulationId: string,
+  ): Promise<Result<IProfileDTO[]>> {
     try {
-      const profilesOrError = await this.profileRepoInstance.findByCommunityIdAndSimulationId(communityId, simulationId);
+      const profilesOrError = await this.profileRepoInstance.findByCommunityIdAndSimulationId(
+        communityId,
+        simulationId,
+      );
       if (profilesOrError.isFailure) {
         return Result.fail<IProfileDTO[]>('Profiles not found for community and simulation');
       }
@@ -316,7 +316,6 @@ export default class ProfileService implements IProfileService {
       return Result.fail<IProfileDTO[]>('Error getting profiles by community ID and simulation ID');
     }
   }
-
 
   public async deleteProfile(profileId: string): Promise<Result<void>> {
     try {
@@ -396,6 +395,24 @@ export default class ProfileService implements IProfileService {
 
   public async getSimulationStats(simulationId: string): Promise<Result<ISimulationTotalStats>> {
     try {
+      const statsOrError = await this.profileRepoInstance.getSimulationStats(simulationId);
+      if (statsOrError.isFailure) {
+        return Result.fail<ISimulationTotalStats>('Error retrieving simulation stats');
+      }
+      const simulation = statsOrError.getValue();
+      if (!simulation) {
+        return Result.fail<ISimulationTotalStats>('Simulation not found');
+      }
+      const stats = SimulationMap.toSimulationStatsDTO(simulation);
+      return Result.ok<ISimulationTotalStats>(stats);
+    } catch (error) {
+      console.error('Error getting simulation stats:', error);
+      return Result.fail<ISimulationTotalStats>('Unexpected error getting simulation stats');
+    }
+  }
+
+  /*   public async getSimulationStats(simulationId: string): Promise<Result<ISimulationTotalStats>> {
+    try {
       const profilesOrError = await this.profileRepoInstance.findBySimulationId(simulationId);
       if (profilesOrError.isFailure) {
         return Result.fail<ISimulationTotalStats>('Profiles not found for simulation');
@@ -427,6 +444,5 @@ export default class ProfileService implements IProfileService {
       totalPeerIn,
       totalPeerOut
     };
-  }
-
+  } */
 }

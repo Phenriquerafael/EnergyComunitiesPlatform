@@ -4,7 +4,7 @@ import { Community } from '../domain/Community/Community';
 import { CommunityDescription } from '../domain/Community/CommunityInformation';
 import { Simulation } from '../domain/Simulation/Simulation';
 import { Community as PrismaCommunity } from '@prisma/client';
-import { ISimulationDTO, ISimulationDTO2 } from '../dto/IProfileDTO';
+import { ISimulationDTO, ISimulationDTO2, ISimulationTotalStats } from '../dto/IProfileDTO';
 import { ActiveAttributes } from '../domain/Simulation/ActiveAtributes';
 import { CommunityMap } from './CommunityMap';
 
@@ -37,6 +37,18 @@ export class SimulationMap {
       communityCode: simulation.props.community.props.countryCode || '',
     } as ISimulationDTO2;
   }
+
+  public static toSimulationStatsDTO(simulation: any): ISimulationTotalStats {
+    return {
+        totalLoad: simulation.totalLoad,
+        totalPhotovoltaicEnergyLoad: simulation.totalPhotovoltaicEnergyLoad,
+        totalBoughtEnergy: simulation.totalBoughtEnergy,
+        totalSoldEnergy: simulation.totalSoldEnergy,
+        totalPeerIn: simulation.totalPeerIn,
+        totalPeerOut: simulation.totalPeerOut,
+    }
+  }
+
 
   public static async toDomain(
     rawSimulation: ISimulationPersistence & { community: PrismaCommunity },

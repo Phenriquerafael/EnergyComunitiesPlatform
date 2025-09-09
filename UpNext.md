@@ -9,10 +9,13 @@ Next steps:
 
 Description:
 
+    a manipulação do intervalo de tempo dos dados deve ser feita no frontend ou backend?
     Otimização:
     corrigir erro do dicionário
 
     Backend
+    criar entidade stats
+    converter strings para float no schema e nas entidades
     corrigir erros/ exception dentro e fora da base de dados (ex: quando há delete de uma battery associada a um prosumer)
     corrigir codigos de sucesso ou insucesso no controller
     corrigir create do profile (simulation e prosumer enviados por parametro)
