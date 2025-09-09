@@ -1,11 +1,12 @@
 import { Service } from 'typedi';
 import IProfileRepo from './IRepos/IProfileRepo';
 import { Result } from '../core/logic/Result';
-import { Profile } from '../domain/Prosumer/Profile/Profile';
+import { Profile } from '../domain/Profile/Profile';
 import prisma from '../../prisma/prismaClient';
 import { ProfileMap } from '../mappers/ProfileMap';
 import { Prosumer } from '../domain/Prosumer/Prosumer';
 import { Simulation } from '../domain/Simulation/Simulation';
+import { TotalStatistics } from '../domain/Statistics/TotalStatistics';
 
 @Service()
 export default class ProfileRepo implements IProfileRepo {
@@ -428,62 +429,66 @@ export default class ProfileRepo implements IProfileRepo {
     }
   }
 
-public async getSimulationStats(simulationId: string): Promise<Result<any>> {
-  try {
-    // Buscar os profiles da simulação
-    const profiles = await prisma.profile.findMany({
-      where: { simulationId },
-      select: {
-        profileLoad: true,
-        stateOfCharge: true,
-        batteryCharge: true,
-        batteryDischarge: true,
-        photovoltaicEnergyLoad: true,
-        boughtEnergyAmount: true,
-        soldEnergyAmount: true,
-        peerInputEnergyLoad: true,
-        peerOutputEnergyLoad: true,
-        numberOfIntervals: true,
-      },
-    });
+  public async getSimulationStats(simulationId: string): Promise<Result<TotalStatistics>> {
+    try {
+      // Buscar os profiles da simulação
+      const profiles = await prisma.profile.findMany({
+        where: { simulationId },
+        select: {
+          profileLoad: true,
+          stateOfCharge: true,
+          batteryCharge: true,
+          batteryDischarge: true,
+          photovoltaicEnergyLoad: true,
+          boughtEnergyAmount: true,
+          soldEnergyAmount: true,
+          peerInputEnergyLoad: true,
+          peerOutputEnergyLoad: true,
+          numberOfIntervals: true,
+        },
+      });
 
-    // Converter os valores string -> float e calcular totais
-    const result = profiles.reduce(
-      (acc, p) => {
-        acc.totalProfiles += 1;
-        acc.totalNumberOfIntervals += p.numberOfIntervals || 0;
-        acc.totalLoad += parseFloat(p.profileLoad) || 0;
-        acc.totalStateOfCharge += parseFloat(p.stateOfCharge) || 0;
-        acc.totalBatteryCharge += parseFloat(p.batteryCharge) || 0;
-        acc.totalBatteryDischarge += parseFloat(p.batteryDischarge) || 0;
-        acc.totalPhotovoltaicEnergyLoad += parseFloat(p.photovoltaicEnergyLoad) || 0;
-        acc.totalBoughtEnergy += parseFloat(p.boughtEnergyAmount) || 0;
-        acc.totalSoldEnergy += parseFloat(p.soldEnergyAmount) || 0;
-        acc.totalPeerIn += parseFloat(p.peerInputEnergyLoad) || 0;
-        acc.totalPeerOut += parseFloat(p.peerOutputEnergyLoad) || 0;
-        return acc;
-      },
-      {
-        totalProfiles: 0,
-        totalNumberOfIntervals: 0,
-        totalLoad: 0,
-        totalStateOfCharge: 0,
-        totalBatteryCharge: 0,
-        totalBatteryDischarge: 0,
-        totalPhotovoltaicEnergyLoad: 0,
-        totalBoughtEnergy: 0,
-        totalSoldEnergy: 0,
-        totalPeerIn: 0,
-        totalPeerOut: 0,
+      // Converter os valores string -> float e calcular totais
+      const result = profiles.reduce(
+        (acc, p) => {
+          acc.totalProfiles += 1;
+          acc.totalNumberOfIntervals += p.numberOfIntervals || 0;
+          acc.totalLoad += parseFloat(p.profileLoad) || 0;
+          acc.totalStateOfCharge += parseFloat(p.stateOfCharge) || 0;
+          acc.totalBatteryCharge += parseFloat(p.batteryCharge) || 0;
+          acc.totalBatteryDischarge += parseFloat(p.batteryDischarge) || 0;
+          acc.totalPhotovoltaicEnergyLoad += parseFloat(p.photovoltaicEnergyLoad) || 0;
+          acc.totalBoughtEnergy += parseFloat(p.boughtEnergyAmount) || 0;
+          acc.totalSoldEnergy += parseFloat(p.soldEnergyAmount) || 0;
+          acc.totalPeerIn += parseFloat(p.peerInputEnergyLoad) || 0;
+          acc.totalPeerOut += parseFloat(p.peerOutputEnergyLoad) || 0;
+          return acc;
+        },
+        {
+          totalProfiles: 0,
+          totalNumberOfIntervals: 0,
+          totalLoad: 0,
+          totalStateOfCharge: 0,
+          totalBatteryCharge: 0,
+          totalBatteryDischarge: 0,
+          totalPhotovoltaicEnergyLoad: 0,
+          totalBoughtEnergy: 0,
+          totalSoldEnergy: 0,
+          totalPeerIn: 0,
+          totalPeerOut: 0,
+        },
+      );
+
+      // Crie o objeto TotalStatistics usando o resultado
+      const totalStatisticsOrError = TotalStatistics.create(result);
+      if (totalStatisticsOrError.isFailure) {
+        return Result.fail<TotalStatistics>(totalStatisticsOrError.error);
       }
-    );
+      const totalStatistics = totalStatisticsOrError.getValue();
 
-    return Result.ok(result);
-  } catch (error) {
-    return Result.fail<any>(
-      error instanceof Error ? error.message : 'Unexpected error fetching simulation stats',
-    );
+      return Result.ok(totalStatistics);
+    } catch (error) {
+      return Result.fail<any>(error instanceof Error ? error.message : 'Unexpected error fetching simulation stats');
+    }
   }
-}
-
 }

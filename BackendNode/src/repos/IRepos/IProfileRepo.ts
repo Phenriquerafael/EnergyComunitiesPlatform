@@ -1,7 +1,6 @@
-import { Profile } from "../../domain/Prosumer/Profile/Profile";
+import { Profile } from "../../domain/Profile/Profile";
 import { Result } from "../../core/logic/Result";
-import { Prosumer } from "../../domain/Prosumer/Prosumer";
-import { Simulation } from "../../domain/Simulation/Simulation";
+import { TotalStatistics } from "../../domain/Statistics/TotalStatistics";
 
 
 export default interface IProfileRepo {
@@ -17,5 +16,5 @@ export default interface IProfileRepo {
   deleteByCommunityId(communityId: string): Promise<Result<void>>;
   deleteByProsumerId(prosumerId: string): Promise<Result<void>>;
   deleteBySimulationId(simulationId: string): Promise<Result<void>>;
-  getSimulationStats(simulationId: string): Promise<Result<Simulation>>;
+  getSimulationStats(simulationId: string): Promise<Result<TotalStatistics>>;
 }

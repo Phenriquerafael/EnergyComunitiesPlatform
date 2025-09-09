@@ -1,5 +1,5 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 
 interface SoldEnergyProps {
     amount: string;

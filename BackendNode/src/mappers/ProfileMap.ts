@@ -1,12 +1,12 @@
 import IProfilePersistence from '../dataschema/IProfilePersistence';
-import { Profile } from '../domain/Prosumer/Profile/Profile';
-import { TimeStamp } from '../domain/Prosumer/Profile/TimeStamp';
-import IProfileDTO from '../dto/IProfileDTO';
-import { Load } from '../domain/Prosumer/Profile/ProfileLoad';
-import { StateOfCharge } from '../domain/Prosumer/Profile/StateOfCharge';
-import { PhotovoltaicEnergyLoad } from '../domain/Prosumer/Profile/PhotovoltaicEnergyLoad';
-import { BoughtEnergy } from '../domain/Prosumer/Profile/BoughtEnergy';
-import { SoldEnergy } from '../domain/Prosumer/Profile/SoldEnergy';
+import { Profile } from '../domain/Profile/Profile';
+import { TimeStamp } from '../domain/Profile/TimeStamp';
+import IProfileDTO, { ISimulationTotalStats } from '../dto/IProfileDTO';
+import { Load } from '../domain/Profile/ProfileLoad';
+import { StateOfCharge } from '../domain/Profile/StateOfCharge';
+import { PhotovoltaicEnergyLoad } from '../domain/Profile/PhotovoltaicEnergyLoad';
+import { BoughtEnergy } from '../domain/Profile/BoughtEnergy';
+import { SoldEnergy } from '../domain/Profile/SoldEnergy';
 import { Prosumer } from '../domain/Prosumer/Prosumer';
 import {  Prosumer as PrismaProsumer } from "@prisma/client";
 import { Community as PrismaCommunity } from "@prisma/client";
@@ -21,6 +21,7 @@ import { Simulation } from '../domain/Simulation/Simulation';
 import { SimulationMap } from './SimulationMap';
 import { CommunityMap } from './CommunityMap';
 import { strict } from 'assert';
+import { TotalStatistics } from '../domain/Statistics/TotalStatistics';
 
 export class ProfileMap {
   public static toDTO(profile: Profile): IProfileDTO {
@@ -47,6 +48,17 @@ export class ProfileMap {
       peerInPrice: profile.peerInputEnergyLoad.price,
     } as IProfileDTO;
   }
+
+    public static toSimulationStatsDTO(simulation: TotalStatistics): ISimulationTotalStats {
+      return {
+          totalLoad: simulation.totalLoad,
+          totalPhotovoltaicEnergyLoad: simulation.totalPhotovoltaicEnergyLoad,
+          totalBoughtEnergy: simulation.totalBoughtEnergy,
+          totalSoldEnergy: simulation.totalSoldEnergy,
+          totalPeerIn: simulation.totalPeerIn,
+          totalPeerOut: simulation.totalPeerOut,
+      }
+    }
 
   public static async toDomain(
     rawProfile: IProfilePersistence & {

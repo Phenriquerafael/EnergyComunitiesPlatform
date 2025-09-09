@@ -3,7 +3,7 @@ import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 import { Guard } from "../../core/logic/Guard";
 import { Result } from "../../core/logic/Result";
 import { User } from "../User/user";
-import { Profile } from "./Profile/Profile";
+import { Profile } from "../Profile/Profile";
 import { Battery } from "./Battery.ts/Battery";
 import { Community } from "../Community/Community";
 

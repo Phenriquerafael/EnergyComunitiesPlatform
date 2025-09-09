@@ -1,11 +1,11 @@
 
 
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
-import { Guard } from "../../../core/logic/Guard";
-import { Result } from "../../../core/logic/Result";
-import { Simulation } from "../../Simulation/Simulation";
-import { Prosumer } from "../Prosumer";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
+import { Guard } from "../../core/logic/Guard";
+import { Result } from "../../core/logic/Result";
+import { Simulation } from "../Simulation/Simulation";
+import { Prosumer } from "../Prosumer/Prosumer";
 import { BoughtEnergy } from "./BoughtEnergy";
 import { PhotovoltaicEnergyLoad } from "./PhotovoltaicEnergyLoad";
 import { Load as Load } from "./ProfileLoad";

@@ -8,7 +8,6 @@ import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
 import IOptimizationResults from '../dto/IOptimizationResults';
 import ISimulationService from './IServices/ISimulationService';
-import { SimulationMap } from '../mappers/SimulationMap';
 import { Prosumer } from '../domain/Prosumer/Prosumer';
 import { Simulation } from '../domain/Simulation/Simulation';
 import ISimulationRepo from '../repos/IRepos/ISimulationRepo';
@@ -403,7 +402,7 @@ export default class ProfileService implements IProfileService {
       if (!simulation) {
         return Result.fail<ISimulationTotalStats>('Simulation not found');
       }
-      const stats = SimulationMap.toSimulationStatsDTO(simulation);
+      const stats = ProfileMap.toSimulationStatsDTO(simulation);
       return Result.ok<ISimulationTotalStats>(stats);
     } catch (error) {
       console.error('Error getting simulation stats:', error);

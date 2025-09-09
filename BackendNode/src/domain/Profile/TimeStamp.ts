@@ -1,4 +1,4 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
 
 interface TimeStampProps {
     
