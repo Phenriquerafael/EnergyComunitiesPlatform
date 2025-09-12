@@ -2,15 +2,15 @@ import { AggregateRoot } from "../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 
 interface StateOfChargeProps {
-    amount: string;
+    amount: number;
 }
 
 export class StateOfCharge extends AggregateRoot<StateOfChargeProps> {
-    get amount (): string {
+    get amount (): number {
         return this.props.amount;
     }
 
-    set amount (value: string) {
+    set amount (value: number) {
         this.props.amount = value;
     }
 

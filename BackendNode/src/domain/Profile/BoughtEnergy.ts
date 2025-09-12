@@ -2,28 +2,28 @@ import { Entity } from "../../core/domain/Entity";
 import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 
 interface BoughtEnergyProps {
-    amount: string;
-    price?: string;
+    amount: number;
+    price?: number;
 }
 
 export class BoughtEnergy extends Entity<BoughtEnergyProps> {
-  private _price: string;
-  private _amount?: string;
+  private _price: number;
+  private _amount?: number;
 
-  get amount(): string {
+  get amount(): number {
     return this._amount;
   }
 
-  get price(): string {
+  get price(): number {
     return this._price;
   }
 
-  set amount(value: string) {
+  set amount(value: number) {
     this.props.amount = value;
   }
 
-  set price(value: string) {
-        this.props.price = value;
+  set price(value: number) {
+    this.props.price = value;
   }
 
     private constructor (props: BoughtEnergyProps) {

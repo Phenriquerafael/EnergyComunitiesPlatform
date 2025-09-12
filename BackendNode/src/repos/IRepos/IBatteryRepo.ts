@@ -1,5 +1,5 @@
 import { Result } from "../../core/logic/Result";
-import { Battery } from "../../domain/Prosumer/Battery.ts/Battery";
+import { Battery } from "../../domain/Battery.ts/Battery";
 
 
 export default interface IBatteryRepo {

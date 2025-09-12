@@ -8,22 +8,22 @@ export default interface IProfilePersistence {
   prosumerId: string;
   prosumer?: PrismaProsumer & { user?: PrismaUser; battery?: PrismaBattery }; // Include user and battery
   simulation: Simulation;
-  intervalOfTime: string;
+  intervalOfTime: number;
   numberOfIntervals: number;
-  stateOfCharge: string;
-  batteryCharge: string;
-  batteryDischarge: string;
-  peerOutputEnergyLoad: string;
-  peerOutPrice: string;
-  peerInputEnergyLoad: string;
-  peerInPrice: string;
-  photovoltaicEnergyLoad: string;
-  boughtEnergyAmount: string;
-  boughtEnergyPrice: string;
-  soldEnergyAmount: string;
-  soldEnergyPrice: string;
-  profileLoad: string;
-  
+  stateOfCharge: number;
+  batteryCharge: number;
+  batteryDischarge: number;
+  peerOutputEnergyLoad: number;
+  peerOutPrice: number;
+  peerInputEnergyLoad: number;
+  peerInPrice: number;
+  photovoltaicEnergyLoad: number;
+  boughtEnergyAmount: number;
+  boughtEnergyPrice: number;
+  soldEnergyAmount: number;
+  soldEnergyPrice: number;
+  profileLoad: number;
+
 }
 
 export interface ISimulationPersistence {

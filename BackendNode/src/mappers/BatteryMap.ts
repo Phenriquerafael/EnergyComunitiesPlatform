@@ -1,10 +1,10 @@
 import { Mapper } from "../core/infra/Mapper";
 
-import { Battery } from '../domain/Prosumer/Battery.ts/Battery';
-import { BatteryDescription as BatteryInformation } from '../domain/Prosumer/Battery.ts/BatteryInformation';
-import { Efficiency } from '../domain/Prosumer/Battery.ts/Efficiency';
-import { MaxCapacity } from '../domain/Prosumer/Battery.ts/MaxCapacity';
-import { MaxChargeDischarge } from '../domain/Prosumer/Battery.ts/MaxChargeDischarge';
+import { Battery } from '../domain/Battery.ts/Battery';
+import { BatteryDescription as BatteryInformation } from '../domain/Battery.ts/BatteryInformation';
+import { Efficiency } from '../domain/Battery.ts/Efficiency';
+import { MaxCapacity } from '../domain/Battery.ts/MaxCapacity';
+import { MaxChargeDischarge } from '../domain/Battery.ts/MaxChargeDischarge';
 
 
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";

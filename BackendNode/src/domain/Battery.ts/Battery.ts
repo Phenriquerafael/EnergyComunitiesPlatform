@@ -1,11 +1,11 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 import { BatteryDescription as BatteryInformation } from "./BatteryInformation";
 import { Efficiency } from "./Efficiency";
 import { MaxCapacity as Capacity } from "./MaxCapacity";
 import { MaxChargeDischarge } from "./MaxChargeDischarge";
-import { Guard } from "../../../core/logic/Guard";
-import { Result } from "../../../core/logic/Result";
+import { Guard } from "../../core/logic/Guard";
+import { Result } from "../../core/logic/Result";
 
 export interface BatteryProps {
     batteryInformation: BatteryInformation;

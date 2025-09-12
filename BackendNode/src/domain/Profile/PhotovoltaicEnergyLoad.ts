@@ -2,16 +2,16 @@ import { AggregateRoot } from "../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 
 interface PhotovoltaicEnergyLoadProps {
-amount: string;
+amount: number;
 }
 
 export class PhotovoltaicEnergyLoad extends AggregateRoot<PhotovoltaicEnergyLoadProps>{
     
-    get amount (): string {
+    get amount (): number {
         return this.props.amount;
     }
 
-    set amount (value: string) {
+    set amount (value: number) {
         this.props.amount = value;
     }
     

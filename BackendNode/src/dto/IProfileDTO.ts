@@ -3,21 +3,21 @@ export default interface IProfileDTO {
   prosumerId?: string;
   simulationId?: string;
   date?: string;
-  intervalOfTime?: string;
+  intervalOfTime?: number;
   numberOfIntervals?: number;
-  stateOfCharge?: string;
-  energyCharge?: string;
-  energyDischarge?: string;
-  photovoltaicEnergyLoad?: string;
-  boughtEnergyAmount?: string;
-  boughtEnergyPrice?: string;
-  soldEnergyAmount?: string;
-  soldEnergyPrice?: string;
-  peerOutputEnergyLoad?: string;
-  peerOutPrice?: string;
-  peerInputEnergyLoad?: string;
-  peerInPrice?: string;
-  profileLoad?: string;
+  stateOfCharge?: number;
+  energyCharge?: number;
+  energyDischarge?: number;
+  photovoltaicEnergyLoad?: number;
+  boughtEnergyAmount?: number;
+  boughtEnergyPrice?: number;
+  soldEnergyAmount?: number;
+  soldEnergyPrice?: number;
+  peerOutputEnergyLoad?: number;
+  peerOutPrice?: number;
+  peerInputEnergyLoad?: number;
+  peerInPrice?: number;
+  profileLoad?: number;
 }
 
 export interface ISimulationDTO {

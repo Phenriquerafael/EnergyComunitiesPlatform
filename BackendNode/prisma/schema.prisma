@@ -39,21 +39,21 @@ model Profile {
   prosumerId             String
   prosumer               Prosumer @relation(fields: [prosumerId], references: [id], onDelete: Cascade)
   date                   String
-  intervalOfTime         String
+  intervalOfTime         Int
   numberOfIntervals      Int
-  stateOfCharge          String
-  batteryDischarge       String
-  batteryCharge          String
-  photovoltaicEnergyLoad String
-  boughtEnergyAmount     String
-  boughtEnergyPrice      String?
-  soldEnergyAmount       String
-  soldEnergyPrice        String?
-  peerOutputEnergyLoad   String
-  peerOutPrice           String?
-  peerInputEnergyLoad    String
-  peerInPrice            String?
-  profileLoad            String
+  stateOfCharge          Float 
+  batteryDischarge       Float 
+  batteryCharge          Float 
+  photovoltaicEnergyLoad Float 
+  boughtEnergyAmount     Float 
+  boughtEnergyPrice      Float ?
+  soldEnergyAmount       Float 
+  soldEnergyPrice        Float ?
+  peerOutputEnergyLoad   Float 
+  peerOutPrice           Float ?
+  peerInputEnergyLoad    Float 
+  peerInPrice            Float ?
+  profileLoad            Float ?
   simulationId         String  @default("")
   simulation           Simulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
 
@@ -93,10 +93,10 @@ model Battery {
   id                 String    @id @default(uuid())
   name               String?
   description        String?
-  efficiency         String
-  maxCapacity        String
-  initialCapacity    String
-  maxChargeDischarge String
+  efficiency         Float 
+  maxCapacity        Float 
+  initialCapacity    Float 
+  maxChargeDischarge Float 
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   Prosumer           Prosumer[]

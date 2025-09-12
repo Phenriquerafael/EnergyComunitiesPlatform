@@ -448,20 +448,20 @@ export default class ProfileRepo implements IProfileRepo {
         },
       });
 
-      // Converter os valores string -> float e calcular totais
+      // Calcular totais
       const result = profiles.reduce(
         (acc, p) => {
           acc.totalProfiles += 1;
           acc.totalNumberOfIntervals += p.numberOfIntervals || 0;
-          acc.totalLoad += parseFloat(p.profileLoad) || 0;
-          acc.totalStateOfCharge += parseFloat(p.stateOfCharge) || 0;
-          acc.totalBatteryCharge += parseFloat(p.batteryCharge) || 0;
-          acc.totalBatteryDischarge += parseFloat(p.batteryDischarge) || 0;
-          acc.totalPhotovoltaicEnergyLoad += parseFloat(p.photovoltaicEnergyLoad) || 0;
-          acc.totalBoughtEnergy += parseFloat(p.boughtEnergyAmount) || 0;
-          acc.totalSoldEnergy += parseFloat(p.soldEnergyAmount) || 0;
-          acc.totalPeerIn += parseFloat(p.peerInputEnergyLoad) || 0;
-          acc.totalPeerOut += parseFloat(p.peerOutputEnergyLoad) || 0;
+          acc.totalLoad += p.profileLoad || 0;
+          acc.totalStateOfCharge += p.stateOfCharge || 0;
+          acc.totalBatteryCharge += p.batteryCharge || 0;
+          acc.totalBatteryDischarge += p.batteryDischarge || 0;
+          acc.totalPhotovoltaicEnergyLoad += p.photovoltaicEnergyLoad || 0;
+          acc.totalBoughtEnergy += p.boughtEnergyAmount || 0;
+          acc.totalSoldEnergy += p.soldEnergyAmount || 0;
+          acc.totalPeerIn += p.peerInputEnergyLoad || 0;
+          acc.totalPeerOut += p.peerOutputEnergyLoad || 0;
           return acc;
         },
         {
@@ -478,6 +478,48 @@ export default class ProfileRepo implements IProfileRepo {
           totalPeerOut: 0,
         },
       );
+
+      //Alternativa usando sql
+      /* const result = await prisma.$queryRawUnsafe(`
+      SELECT
+        COUNT(*) AS totalProfiles,
+        SUM("numberOfIntervals") AS "totalNumberOfIntervals",
+        SUM("profileLoad") AS "totalLoad",
+        SUM("stateOfCharge") AS "totalStateOfCharge",
+        SUM("batteryCharge") AS "totalBatteryCharge",
+        SUM("batteryDischarge") AS "totalBatteryDischarge",
+        SUM("photovoltaicEnergyLoad") AS "totalPhotovoltaicEnergyLoad",
+        SUM("boughtEnergyAmount") AS "totalBoughtEnergy",
+        SUM("soldEnergyAmount") AS "totalSoldEnergy",
+        SUM("peerInputEnergyLoad") AS "totalPeerIn",
+        SUM("peerOutputEnergyLoad") AS "totalPeerOut"
+      FROM "Profile"
+      WHERE "simulationId" = '${simulationId}';
+    `); */
+
+    // Alternativa usando Prisma
+
+        /* const stats = await prisma.profile.aggregate({
+      where: { simulationId },
+      _sum: {
+        profileLoad: true,
+        photovoltaicEnergyLoad: true,
+        boughtEnergyAmount: true,
+        soldEnergyAmount: true,
+        peerInputEnergyLoad: true,
+        peerOutputEnergyLoad: true,
+      },
+    });
+
+    return {
+      totalLoad: stats._sum.profileLoad || 0,
+      totalPhotovoltaicEnergyLoad: stats._sum.photovoltaicEnergyLoad || 0,
+      totalBoughtEnergy: stats._sum.boughtEnergyAmount || 0,
+      totalSoldEnergy: stats._sum.soldEnergyAmount || 0,
+      totalPeerIn: stats._sum.peerInputEnergyLoad || 0,
+      totalPeerOut: stats._sum.peerOutputEnergyLoad || 0,
+    };
+    */
 
       // Crie o objeto TotalStatistics usando o resultado
       const totalStatisticsOrError = TotalStatistics.create(result);

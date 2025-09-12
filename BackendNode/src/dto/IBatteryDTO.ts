@@ -2,10 +2,10 @@ export default interface IBatteryDTO {
   id?: string;
     name?: string;
     description?: string;
-    efficiency?: string;
-    maxCapacity?: string;
-    initialCapacity?: string;
-    maxChargeDischarge?: string;
+    efficiency?: number;
+    maxCapacity?: number;
+    initialCapacity?: number;
+    maxChargeDischarge?: number;
 
 }
     

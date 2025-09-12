@@ -1,15 +1,15 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
 
 interface EfficiencyProps {
-    value: string;
+    value: number;
 }
 
 export class Efficiency extends AggregateRoot<EfficiencyProps> {
-    get value(): string {
+    get value(): number {
         return this.props.value;
     }
 
-    set value(value: string) {
+    set value(value: number) {
         this.props.value = value;
     }
 

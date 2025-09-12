@@ -2,16 +2,16 @@ import { AggregateRoot } from "../../core/domain/AggregateRoot";
 
 
 interface ProfileLoadProps {
-    amount: string;
+    amount: number;
 }
 
 export class Load extends AggregateRoot<ProfileLoadProps> {
 
-    get amount (): string {
+    get amount (): number {
         return this.props.amount;
     }
 
-    set amount (value: string) {
+    set amount (value: number) {
         this.props.amount = value;
     }
 

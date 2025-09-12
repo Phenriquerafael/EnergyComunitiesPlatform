@@ -14,6 +14,8 @@ Description:
     corrigir erro do dicionário
 
     Backend
+    fazer o upload dos dados diretamente para a base de dados (FastApi para Postgress)
+    mover os dtos para um só ficheiro?
     criar entidade stats
     converter strings para float no schema e nas entidades
     corrigir erros/ exception dentro e fora da base de dados (ex: quando há delete de uma battery associada a um prosumer)

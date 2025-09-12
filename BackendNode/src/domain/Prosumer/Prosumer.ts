@@ -4,7 +4,7 @@ import { Guard } from "../../core/logic/Guard";
 import { Result } from "../../core/logic/Result";
 import { User } from "../User/user";
 import { Profile } from "../Profile/Profile";
-import { Battery } from "./Battery.ts/Battery";
+import { Battery } from "../Battery.ts/Battery";
 import { Community } from "../Community/Community";
 
 interface ProsumerProps {

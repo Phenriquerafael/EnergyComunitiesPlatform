@@ -2,12 +2,12 @@ import { AggregateRoot } from "../../core/domain/AggregateRoot";
 
 interface TimeStampProps {
     
-    intervalOfTime: string; // Minutes
+    intervalOfTime: number; // Minutes
     numberOfIntervals: number;
 }
 
 export class TimeStamp extends AggregateRoot<TimeStampProps> {
-    get intervalOfTime (): string {
+    get intervalOfTime (): number {
         return this.props.intervalOfTime;
     }
 
@@ -15,7 +15,7 @@ export class TimeStamp extends AggregateRoot<TimeStampProps> {
         return this.props.numberOfIntervals;
     }
 
-    set intervalOfTime (value: string) {
+    set intervalOfTime (value: number) {
         this.props.intervalOfTime = value;
     }
 

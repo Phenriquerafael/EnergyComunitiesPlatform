@@ -1,14 +1,14 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
 
 interface MaxChargeDischargeProps {
-    value: string;
+    value: number;
 }
 export class MaxChargeDischarge extends AggregateRoot<MaxChargeDischargeProps> {
-    get value(): string {
+    get value(): number {
         return this.props.value;
     }
 
-    set value(value: string) {
+    set value(value: number) {
         this.props.value = value;
     }
 

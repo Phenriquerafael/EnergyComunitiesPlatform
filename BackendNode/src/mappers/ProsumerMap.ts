@@ -2,7 +2,7 @@ import { Prosumer } from "../domain/Prosumer/Prosumer";
 import IProsumerDTO, { IProsumerDataDTO } from "../dto/IProsumerDTO";
 import IBatteryDTO from "../dto/IBatteryDTO";
 import { IUserDTO } from "../dto/IUserDTO";
-import { Battery } from "../domain/Prosumer/Battery.ts/Battery";
+import { Battery } from "../domain/Battery.ts/Battery";
 import { User } from "../domain/User/user";
 import { BatteryMap } from "./BatteryMap";
 import { UserMap } from "./UserMap";

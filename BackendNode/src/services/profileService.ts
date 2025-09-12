@@ -97,10 +97,10 @@ export default class ProfileService implements IProfileService {
         let result = results.detailed_results[i];
         const profileDTO: IProfileDTO = {
           prosumerId: result.Prosumer,
-          simulationId: simulationDTO.id, // Simulation will be set later
+          simulationId: simulationDTO.id, 
           date: result.DateTime,
-          intervalOfTime: '15',
-          numberOfIntervals: Number(result.Time_Step),
+          intervalOfTime: Number(15), // Assuming a fixed interval of 15 minutes
+          numberOfIntervals: result.Time_Step,
           stateOfCharge: result.SOC,
           energyCharge: result.P_ESS_ch,
           energyDischarge: result.P_ESS_dch,

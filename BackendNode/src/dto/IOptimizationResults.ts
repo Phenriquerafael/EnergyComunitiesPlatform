@@ -14,18 +14,18 @@ export default interface IOptimizationResults {
     detailed_results:
         {
             DateTime: string;
-            Time_Step: string;
+            Time_Step: number;
             Prosumer: string;
-            P_buy: string;
-            P_sell: string;
-            SOC: string;
-            P_ESS_ch: string;
-            P_ESS_dch: string;
-            P_PV_load: string;
-            P_PV_ESS: string;
-            P_Peer_out: string;
-            P_Peer_in: string;
-            P_Load: string;
+            P_buy: number;
+            P_sell: number;
+            SOC: number;
+            P_ESS_ch: number;
+            P_ESS_dch: number;
+            P_PV_load: number;
+            P_PV_ESS: number;
+            P_Peer_out: number;
+            P_Peer_in: number;
+            P_Load: number;
         }[];
 
 }

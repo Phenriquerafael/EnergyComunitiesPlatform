@@ -129,29 +129,23 @@ async def createBatteries(file: UploadFile = File(...)):
     contents = await file.read()
     input_io = BytesIO(contents)
 
-    # Lê e transpõe o DataFrame
-    df = pd.read_excel(input_io, header=0, index_col=0).T
-
+    # Ler Excel tratando ',' como separador decimal
+    df = pd.read_excel(input_io, header=0, index_col=0, decimal=",").T
 
     battery_list = []
     for ess_name, row in df.iterrows():
         battery = {
             "name": ess_name,
-            "efficiency": str(row["Eta"]).replace(',', '.'),
-            "maxCapacity": str(row["Cap"]).replace(',', '.'),
-            "initialCapacity": str(row["Capinitial"]).replace(',', '.'),
-            "maxChargeDischarge": str(row["Dprate"]).replace(',', '.')
+            "efficiency": float(row["Eta"]),
+            "maxCapacity": float(row["Cap"]),
+            "initialCapacity": float(row["Capinitial"]),
+            "maxChargeDischarge": float(row["Dprate"])
         }
-
-        # Não incluir "description" se estiver vazia
         battery_list.append(battery)
 
+    payload = {"batteryList": battery_list}
 
-    payload = {
-        "batteryList": battery_list
-    }
-
-    # Envia para a API externa
+    # Envia para a API Node
     url = "http://localhost:4000/api/batteries/batteryList"
     headers = {"Content-Type": "application/json"}
 
@@ -160,7 +154,7 @@ async def createBatteries(file: UploadFile = File(...)):
         return JSONResponse(status_code=response.status_code, content=response.json())
     except requests.exceptions.RequestException as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
-    
+
 
     #Functions
 
@@ -639,17 +633,17 @@ def run_optimization(all_data: Dict[str, pd.DataFrame], start_date_str: str, end
             for pl in model.PL:
                 chunk_row = {
                     "DateTime": dt.isoformat(),
-                    "Time_Step": str(chunk_start_time + t_index + 1),
+                    "Time_Step": float(chunk_start_time + t_index + 1),
                     "Prosumer": str(active_attributes[pl].prosumerId),
-                    "P_buy": str(value(instance.P_buy[pl, t])),
-                    "P_sell": str(value(instance.P_sell[pl, t])),
-                    "SOC": str(value(instance.P_ESS_s[pl, t])),
-                    "P_ESS_ch": str(value(instance.P_ESS_ch[pl, t])),
-                    "P_ESS_dch": str(value(instance.P_ESS_dch[pl, t])),
-                    "P_PV_load": str(value(instance.PPV_capacitys[t, pl])),
-                    "P_Peer_out": str(sum(value(instance.P_peer[pl, pl2, t]) for pl2 in model.PL if pl2 != pl)),
-                    "P_Peer_in": str(sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl)),
-                    "P_Load": str(value(instance.PLs[t, pl]))
+                    "P_buy": float(value(instance.P_buy[pl, t])),
+                    "P_sell": float(value(instance.P_sell[pl, t])),
+                    "SOC": float(value(instance.P_ESS_s[pl, t])),
+                    "P_ESS_ch": float(value(instance.P_ESS_ch[pl, t])),
+                    "P_ESS_dch": float(value(instance.P_ESS_dch[pl, t])),
+                    "P_PV_load": float(value(instance.PPV_capacitys[t, pl])),
+                    "P_Peer_out": float(sum(value(instance.P_peer[pl, pl2, t]) for pl2 in model.PL if pl2 != pl)),
+                    "P_Peer_in": float(sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl)),
+                    "P_Load": float(value(instance.PLs[t, pl]))
                 }
                 chunk_results_list.append(chunk_row)
         
@@ -676,7 +670,7 @@ def run_optimization(all_data: Dict[str, pd.DataFrame], start_date_str: str, end
     #send data do backen using lib requests
     # Dados a enviar
     data = {
-        "total_objective_value":  str(total_objective_value),
+        "total_objective_value":  float(total_objective_value),
         "start_date": start_date_str,
         "end_date": end_date_str,
         "communityId": communityId,

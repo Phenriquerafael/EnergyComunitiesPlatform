@@ -2,26 +2,26 @@ import { AggregateRoot } from "../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 
 interface SoldEnergyProps {
-    amount: string;
-    price?: string;
+    amount: number;
+    price?: number;
 }
 
 export class SoldEnergy extends AggregateRoot<SoldEnergyProps> {
 
 
-    get amount (): string {
+    get amount (): number {
         return this.props.amount;
     }
 
-    get price (): string {
+    get price (): number | undefined {
         return this.props.price;
     }
 
-    set amount (value: string) {
+    set amount (value: number) {
         this.props.amount = value;
     }
 
-    set price (value: string) {
+    set price (value: number | undefined) {
         this.props.price = value;
     }
 

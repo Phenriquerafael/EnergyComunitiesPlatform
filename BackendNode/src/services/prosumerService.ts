@@ -5,7 +5,7 @@ import IProsumerService from './IServices/IProsumerService';
 import { Result } from '../core/logic/Result';
 import IProsumerDTO, { IProsumerDataDTO } from '../dto/IProsumerDTO';
 import { ProsumerMap } from '../mappers/ProsumerMap';
-import { Battery } from '../domain/Prosumer/Battery.ts/Battery';
+import { Battery } from '../domain/Battery.ts/Battery';
 import IBatteryRepo from '../repos/IRepos/IBatteryRepo';
 import IUserRepo from '../repos/IRepos/IUserRepo';
 import ICommunityRepo from '../repos/IRepos/ICommunityRepo';

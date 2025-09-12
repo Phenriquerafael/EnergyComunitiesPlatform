@@ -1,7 +1,7 @@
 import { Inject, Service } from "typedi";
 import IBatteryRepo from "./IRepos/IBatteryRepo";
 import { Result } from "../core/logic/Result";
-import { Battery } from "../domain/Prosumer/Battery.ts/Battery";
+import { Battery } from "../domain/Battery.ts/Battery";
 import prisma from "../../prisma/prismaClient";
 import { BatteryMap } from "../mappers/BatteryMap";
 import { PrismaClient } from "@prisma/client";

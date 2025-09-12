@@ -19,9 +19,9 @@ interface ProfileProps {
     date: String;
     timestamp:TimeStamp;
     profileLoad: Load;
-    stateOfCharge: StateOfCharge;
-    energyCharge:Load;
-    energyDischarge:Load;
+    stateOfCharge?: StateOfCharge;
+    energyCharge?:Load;
+    energyDischarge?:Load;
     photovoltaicEnergyLoad: PhotovoltaicEnergyLoad;
     boughtEnergy: BoughtEnergy;
     soldEnergy: SoldEnergy;
@@ -53,15 +53,15 @@ export class Profile extends AggregateRoot<ProfileProps> {
         return this.props.profileLoad;
     }
 
-    get stateOfCharge(): StateOfCharge {
+    get stateOfCharge(): StateOfCharge | undefined {
         return this.props.stateOfCharge;
     }
 
-    get batteryCharge(): Load {
+    get batteryCharge(): Load | undefined {
         return this.props.energyCharge;
     }
 
-    get batteryDischarge(): Load {
+    get batteryDischarge(): Load | undefined {
         return this.props.energyDischarge;
     }
 
@@ -118,13 +118,13 @@ export class Profile extends AggregateRoot<ProfileProps> {
             { argument: props.prosumer, argumentName: 'prosumer' },
             { argument: props.simulation, argumentName: 'simulation' },
             { argument: props.date, argumentName: 'date' },
-            { argument: props.energyCharge, argumentName: 'energyCharge' },
-            { argument: props.energyDischarge, argumentName: 'energyDischarge' },
+           // { argument: props.energyCharge, argumentName: 'energyCharge' },
+            //{ argument: props.energyDischarge, argumentName: 'energyDischarge' },
             { argument: props.peerOutputEnergyLoad, argumentName: 'peerOutputEnergyLoad' },
             { argument: props.peerInputEnergyLoad, argumentName: 'peerInputEnergyLoad' },
             { argument: props.timestamp, argumentName: 'timestamp' },
             { argument: props.profileLoad, argumentName: 'profileLoad' },
-            { argument: props.stateOfCharge, argumentName: 'stateOfCharge' },
+            //{ argument: props.stateOfCharge, argumentName: 'stateOfCharge' },
             { argument: props.photovoltaicEnergyLoad, argumentName: 'photovoltaicEnergyLoad' },
             { argument: props.boughtEnergy, argumentName: 'boughtEnergy' },
             { argument: props.soldEnergy, argumentName: 'soldEnergy' }
@@ -149,13 +149,13 @@ export class Profile extends AggregateRoot<ProfileProps> {
         date: ${this.props.date.toString()},\n
         timestamp: ${this.props.timestamp.toString()},\n
         profileLoad: ${this.props.profileLoad.toString()},\n
-        stateOfCharge: ${this.props.stateOfCharge.toString()},\n
-        energyCharge: ${this.props.energyCharge.toString()},\n
-        energyDischarge: ${this.props.energyDischarge.toString()},\n
-        peerOutputEnergyLoad: ${this.props.peerOutputEnergyLoad.toString()},\n
-        peerInputEnergyLoad: ${this.props.peerInputEnergyLoad.toString()},\n
-        photovoltaicEnergyLoad: ${this.props.photovoltaicEnergyLoad.toString()},\n
-        boughtEnergy: ${this.props.boughtEnergy.toString()},\n
-        soldEnergy: ${this.props.soldEnergy.toString()} }\n`;
+        stateOfCharge: ${this.props.stateOfCharge?.toString()},\n
+        energyCharge: ${this.props.energyCharge?.toString()},\n
+        energyDischarge: ${this.props.energyDischarge?.toString()},\n
+        peerOutputEnergyLoad: ${this.props.peerOutputEnergyLoad?.toString()},\n
+        peerInputEnergyLoad: ${this.props.peerInputEnergyLoad?.toString()},\n
+        photovoltaicEnergyLoad: ${this.props.photovoltaicEnergyLoad?.toString()},\n
+        boughtEnergy: ${this.props.boughtEnergy?.toString()},\n
+        soldEnergy: ${this.props.soldEnergy?.toString()} }\n`;
     }
 }
