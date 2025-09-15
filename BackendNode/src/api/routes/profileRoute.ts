@@ -156,6 +156,8 @@ export default (app: Router) => {
 
   route.get('/simulationStats/:id/', (req, res, next) => ctrl.getSimulationStats(req, res, next));
 
+  route.get('/monthlyStats/:id/', (req, res, next) => ctrl.getProfileMonthlyStats(req, res, next));
+
   app.use('/profiles', route);
 
   // Middleware de erro do celebrate

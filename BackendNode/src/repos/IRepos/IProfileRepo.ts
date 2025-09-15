@@ -17,4 +17,5 @@ export default interface IProfileRepo {
   deleteByProsumerId(prosumerId: string): Promise<Result<void>>;
   deleteBySimulationId(simulationId: string): Promise<Result<void>>;
   getSimulationStats(simulationId: string): Promise<Result<TotalStatistics>>;
+  getProfileMonthlyAggregates(simulationId: string): Promise<any[]>;
 }

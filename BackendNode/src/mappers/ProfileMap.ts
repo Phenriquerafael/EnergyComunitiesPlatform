@@ -194,8 +194,8 @@ export class ProfileMap {
   }
 
   public static toDomainFromDTO(profileDTO: IProfileDTO, prosumer: Prosumer, simulation: Simulation): Result<Profile> {
-    // Helper to default null/undefined to "0.0"
-    const safe = (val: any) => (val == null || val == undefined) ? "0.0" : val;
+    // Helper to default null/undefined to 0
+    const safe = (val: any) => (val == null || val == undefined) ? 0 : val;
 
     const timeStamp = TimeStamp.create({
       intervalOfTime: safe(profileDTO.intervalOfTime),

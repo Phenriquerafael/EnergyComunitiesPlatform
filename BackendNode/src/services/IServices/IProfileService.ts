@@ -1,4 +1,4 @@
-import IProfileDTO from "../../dto/IProfileDTO";
+import IProfileDTO, { IMonthlyProfileStatsDTO } from "../../dto/IProfileDTO";
 import { Result } from "../../core/logic/Result";
 import IOptimizationResults from "../../dto/IOptimizationResults";
 import { Prosumer } from "../../domain/Prosumer/Prosumer";
@@ -21,4 +21,5 @@ export default interface IProfileService {
     deleteByProsumerId(prosumerId: string): Promise<Result<void>>;
 
     getSimulationStats(simulationId: string): Promise<Result<any>>;
+    getMonthlyStats(simulationId: string): Promise<Result<IMonthlyProfileStatsDTO[]>>
 }

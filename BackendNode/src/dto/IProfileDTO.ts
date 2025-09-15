@@ -56,3 +56,12 @@ export interface ISimulationTotalStats {
   totalPeerOut: number;
   
 }
+
+export interface IMonthlyProfileStatsDTO {
+  month: Date;
+  averageLoad: number;
+  averagePV: number;
+  averageBought: number;
+  averageSold: number;
+  averageSOC: number;
+}

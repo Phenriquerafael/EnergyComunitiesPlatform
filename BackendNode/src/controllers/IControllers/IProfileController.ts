@@ -14,5 +14,7 @@ export default interface IProfileController {
     findByProsumerIdAndSimulationId(req: Request, res: Response, next: NextFunction);
     findBySimulationId(req: Request, res: Response, next: NextFunction);
     findByCommunityIdAndSimulationId(req: Request, res: Response, next: NextFunction);
+
     getSimulationStats(req: Request, res: Response, next: NextFunction);
+    getProfileMonthlyStats(req: Request, res: Response, next: NextFunction);
 }

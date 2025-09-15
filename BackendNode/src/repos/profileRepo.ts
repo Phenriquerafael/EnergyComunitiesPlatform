@@ -234,6 +234,24 @@ export default class ProfileRepo implements IProfileRepo {
     }
   }
 
+public async getProfileMonthlyAggregates(simulationId: string): Promise<any[]> {
+  return await prisma.$queryRaw<
+    { month: Date; avgLoad: number; avgPV: number; avgBought: number; avgSold: number; avgSOC: number }[]
+  >`
+    SELECT DATE_TRUNC('month', CAST("date" AS DATE)) as month,
+           AVG("profileLoad") as "avgLoad",
+           AVG("photovoltaicEnergyLoad") as "avgPV",
+           AVG("boughtEnergyAmount") as "avgBought",
+           AVG("soldEnergyAmount") as "avgSold",
+           AVG("stateOfCharge") as "avgSOC"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId}
+    GROUP BY DATE_TRUNC('month', CAST("date" AS DATE))
+    ORDER BY month;
+  `;
+}
+
+
   public async findByCommunityIdAndSimulationId(communityId: string, simulationId: string): Promise<Result<Profile[]>> {
     try {
       const profiles = await prisma.profile.findMany({

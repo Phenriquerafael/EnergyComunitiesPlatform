@@ -228,5 +228,18 @@ export default class ProfileController implements IProfileController {
       return next(error);
     }
   }
-  
+
+  public async getProfileMonthlyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const statsOrError = await this.profileServiceInstance.getMonthlyStats(id);
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
   }
+}

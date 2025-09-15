@@ -3,7 +3,7 @@ import config from '../../config';
 import IProfileRepo from '../repos/IRepos/IProfileRepo';
 import IProfileService from './IServices/IProfileService';
 import { Result } from '../core/logic/Result';
-import IProfileDTO, { ISimulationDTO, ISimulationTotalStats } from '../dto/IProfileDTO';
+import IProfileDTO, { IMonthlyProfileStatsDTO, ISimulationDTO, ISimulationTotalStats } from '../dto/IProfileDTO';
 import IProsumerRepo from '../repos/IRepos/IProsumerRepo';
 import { ProfileMap } from '../mappers/ProfileMap';
 import IOptimizationResults from '../dto/IOptimizationResults';
@@ -409,6 +409,28 @@ export default class ProfileService implements IProfileService {
       return Result.fail<ISimulationTotalStats>('Unexpected error getting simulation stats');
     }
   }
+
+  public async getMonthlyStats(simulationId: string): Promise<Result<IMonthlyProfileStatsDTO[]>> {
+  try {
+    const aggregates = await this.profileRepoInstance.getProfileMonthlyAggregates(simulationId);
+
+    const result: IMonthlyProfileStatsDTO[] = aggregates.map(a => ({
+      month: a.month,
+      averageLoad: Number(a.avgLoad) || 0,
+      averagePV: Number(a.avgPV) || 0,
+      averageBought: Number(a.avgBought) || 0,
+      averageSold: Number(a.avgSold) || 0,
+      averageSOC: Number(a.avgSOC) || 0,
+    }));
+
+    return Result.ok(result);
+  } catch (error) {
+    return Result.fail(error instanceof Error ? error.message : 'Unexpected error');
+  }
+}
+
+
+
 
   /*   public async getSimulationStats(simulationId: string): Promise<Result<ISimulationTotalStats>> {
     try {
