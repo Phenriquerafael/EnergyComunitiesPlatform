@@ -410,7 +410,40 @@ export default class ProfileService implements IProfileService {
     }
   }
 
-  public async getMonthlyStats(simulationId: string): Promise<Result<IMonthlyProfileStatsDTO[]>> {
+  public async getMonthlyStats(simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const aggregates = await this.profileRepoInstance.getProfileMonthlyAggregates(simulationId);
+
+      const result: IProfileDTO[] = aggregates.map(a => ({
+        id: a.id,
+        //month: a.month,
+        prosumerId: a.prosumerId,
+        date: a.month.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting monthly stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting monthly stats');
+    }
+  }
+
+/*   public async getMonthlyStats(simulationId: string): Promise<Result<IMonthlyProfileStatsDTO[]>> {
   try {
     const aggregates = await this.profileRepoInstance.getProfileMonthlyAggregates(simulationId);
 
@@ -428,7 +461,7 @@ export default class ProfileService implements IProfileService {
     return Result.fail(error instanceof Error ? error.message : 'Unexpected error');
   }
 }
-
+ */
 
 
 

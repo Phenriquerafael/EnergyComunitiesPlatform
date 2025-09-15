@@ -234,23 +234,27 @@ export default class ProfileRepo implements IProfileRepo {
     }
   }
 
-public async getProfileMonthlyAggregates(simulationId: string): Promise<any[]> {
-  return await prisma.$queryRaw<
-    { month: Date; avgLoad: number; avgPV: number; avgBought: number; avgSold: number; avgSOC: number }[]
-  >`
+  public async getProfileMonthlyAggregates(simulationId: string): Promise<any[]> {
+    return await prisma.$queryRaw<
+      { month: Date; prosumerId: string ; avgLoad: number; avgPV: number; avgBought: number; avgSold: number; avgSOC: number }[]
+    >`
     SELECT DATE_TRUNC('month', CAST("date" AS DATE)) as month,
+          "prosumerId",
            AVG("profileLoad") as "avgLoad",
            AVG("photovoltaicEnergyLoad") as "avgPV",
            AVG("boughtEnergyAmount") as "avgBought",
            AVG("soldEnergyAmount") as "avgSold",
-           AVG("stateOfCharge") as "avgSOC"
+           AVG("stateOfCharge") as "avgSOC",
+           AVG("batteryCharge") as "avgBatteryCharge",
+           AVG("batteryDischarge") as "avgBatteryDischarge",
+           AVG("peerInputEnergyLoad") as "avgPeerIn",
+           AVG("peerOutputEnergyLoad") as "avgPeerOut"
     FROM "Profile"
     WHERE "simulationId" = ${simulationId}
-    GROUP BY DATE_TRUNC('month', CAST("date" AS DATE))
+    GROUP BY "prosumerId",DATE_TRUNC('month', CAST("date" AS DATE))
     ORDER BY month;
   `;
-}
-
+  }
 
   public async findByCommunityIdAndSimulationId(communityId: string, simulationId: string): Promise<Result<Profile[]>> {
     try {
@@ -515,9 +519,9 @@ public async getProfileMonthlyAggregates(simulationId: string): Promise<any[]> {
       WHERE "simulationId" = '${simulationId}';
     `); */
 
-    // Alternativa usando Prisma
+      // Alternativa usando Prisma
 
-        /* const stats = await prisma.profile.aggregate({
+      /* const stats = await prisma.profile.aggregate({
       where: { simulationId },
       _sum: {
         profileLoad: true,

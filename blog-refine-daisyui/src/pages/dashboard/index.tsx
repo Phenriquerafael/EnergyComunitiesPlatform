@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Select } from "antd";
-import { TTab, ProfileDTO, ISimulationDTO2, ISimulationTotalStats } from "../../interfaces";
+import {
+  TTab,
+  ProfileDTO,
+  ISimulationDTO2,
+  ISimulationTotalStats,
+  IMonthlyProfileStatsDTO,
+} from "../../interfaces";
 
 import { TabView } from "../../components/dashboard/TabView";
 import {
@@ -11,7 +17,7 @@ import {
   profileClusterData,
   profileData,
 } from "../../components/dashboard/mockEnergyData";
-import { useList,useOne } from "@refinedev/core";
+import { useList, useOne } from "@refinedev/core";
 import { ResponsiveAreaChart } from "../../components/dashboard/ResponsiveAreaChart";
 import { GroupedBarChart } from "../../components/dashboard/GroupedBarChart";
 import { StorageEfficiencyRadarChart } from "../../components/dashboard/StorageEfficiencyChart";
@@ -50,6 +56,21 @@ const useSimulationStats = (id?: string) => {
   };
 };
 
+//Hook para buscar dados mensais de uma simulação
+const useMonthlyStats = (id?: string) => {
+  const { data, isLoading } = useOne<ProfileDTO[]>({
+    resource: "profiles/monthlyStats",
+    id: id ?? "", // passa o id aqui
+    queryOptions: {
+      enabled: !!id, // só faz a query se tiver id
+    },
+  });
+
+  return {
+    monthlyStats: data?.data ?? [],
+    isLoading,
+  };
+};
 
 // Hook para buscar perfis da comunidade
 const useCommunityProfiles = (communityId?: string) => {
@@ -67,12 +88,11 @@ export const Dashboard: React.FC = () => {
   const simulations = useSimulations();
 
   // 2. Estado da simulação selecionada
-  const [selectedSimulation, setSelectedSimulation] = useState<ISimulationDTO2 | null>(
-      null
-  );
+  const [selectedSimulation, setSelectedSimulation] =
+    useState<ISimulationDTO2 | null>(null);
 
   // 3. Buscar profiles da simulação selecionada
-/*   const { profiles: communityProfiles, isLoading: isProfilesLoading } =
+  /*   const { profiles: communityProfiles, isLoading: isProfilesLoading } =
     useCommunityProfiles(selectedSimulation?.communityId); */
 
   // 3. Buscar dados totais da simulação selecionada
@@ -80,6 +100,10 @@ export const Dashboard: React.FC = () => {
   const { stats: simulationStats, isLoading: isStatsLoading } =
     useSimulationStats(selectedSimulation?.id);
 
+  const {
+    monthlyStats: monthlyProfileStats,
+    isLoading: isMonthlyStatsLoading,
+  } = useMonthlyStats(selectedSimulation?.id);
 
   // 4. Alterar simulação
   const handleSimulationChange = (simulationId: string) => {
@@ -88,19 +112,19 @@ export const Dashboard: React.FC = () => {
   };
 
   // 5. Prosumer selecionado
-  const [selectedProsumerIndices, setSelectedProsumerIndices] = useState<number[]>([]);
+  const [selectedProsumerIndices, setSelectedProsumerIndices] = useState<
+    number[]
+  >([]);
 
   // Opções de prosumers
   const prosumerOptions = useMemo(
     () =>
-      profileData.map((prosumer, index) => ({
+      monthlyProfileStats.map((prosumer, index) => ({
         label: prosumer.prosumerId || `Prosumer #${index + 1}`,
         value: index,
       })),
-    [profileData]
+    [monthlyProfileStats]
   );
-
-
 
   // Tabs da comunidade específica
   const specificCommunityTabs: TTab[] = [
@@ -110,7 +134,7 @@ export const Dashboard: React.FC = () => {
       content: (
         <ResponsiveAreaChart
           kpi="Battery SoC (%)"
-          data={profileData}
+          data={monthlyProfileStats}
           dataKey="stateOfCharge"
           colors={{ stroke: "rgb(54,162,235)", fill: "rgba(54,162,235,0.2)" }}
         />
@@ -122,10 +146,14 @@ export const Dashboard: React.FC = () => {
       content: (
         <GroupedBarChart
           kpi="Charge/Discharge (kWh)"
-          data={profileData}
+          data={monthlyProfileStats}
           colors={[
-            { stroke: "rgb(54,162,235)", fill: "rgba(54,162,235,0.2)" },
-            { stroke: "rgb(255,99,132)", fill: "rgba(255,99,132,0.2)" },
+            { stroke: "rgb(54, 162, 235)", fill: "rgba(54, 162, 235, 0.2)" },
+            { stroke: "rgb(255, 99, 132)", fill: "rgba(255, 99, 132, 0.2)" },
+            { stroke: "rgb(75, 192, 192)", fill: "rgba(75, 192, 192, 0.2)" },
+            { stroke: "rgb(255, 159, 64)", fill: "rgba(255, 159, 64, 0.2)" },
+            { stroke: "rgb(153, 102, 255)", fill: "rgba(153, 102, 255, 0.2)" },
+            { stroke: "rgb(255, 205, 86)", fill: "rgba(255, 205, 86, 0.2)" },
           ]}
         />
       ),
@@ -141,7 +169,7 @@ export const Dashboard: React.FC = () => {
       content: (
         <StackedAreaChart
           kpi="Energy (kWh)"
-          data={profileData}
+          data={monthlyProfileStats}
           colors={[
             { stroke: "rgb(54,162,235)", fill: "rgba(54,162,235,0.2)" },
             { stroke: "rgb(255,99,132)", fill: "rgba(255,99,132,0.2)" },
@@ -155,7 +183,7 @@ export const Dashboard: React.FC = () => {
       content: (
         <ResponsiveAreaChart
           kpi="Profile Load (kWh)"
-          data={profileData}
+          data={monthlyProfileStats}
           dataKey="profileLoad"
           colors={{ stroke: "rgb(76,175,80)", fill: "rgba(76,175,80,0.2)" }}
         />
@@ -164,7 +192,7 @@ export const Dashboard: React.FC = () => {
     {
       id: 6,
       label: "P2P Energy Flows",
-      content: <SankeyDiagram data={profileData} />,
+      content: <SankeyDiagram data={monthlyProfileStats} />,
     },
     {
       id: 7,
@@ -182,8 +210,8 @@ export const Dashboard: React.FC = () => {
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             {(selectedProsumerIndices.length > 0
-              ? selectedProsumerIndices.map((idx) => profileData[idx])
-              : profileData
+              ? selectedProsumerIndices.map((idx) => monthlyProfileStats[idx])
+              : monthlyProfileStats
             ).map((prosumer, index) => (
               <div key={index} className="bg-white rounded-lg shadow-sm p-4">
                 <h4 className="font-medium mb-2">
@@ -239,12 +267,16 @@ export const Dashboard: React.FC = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Energy Community Dashboard</h1>
 
-      {selectedSimulation && isStatsLoading && <div className="loading loading-dots">Loading stats...</div>}
+      {selectedSimulation && isStatsLoading && (
+        <div className="loading loading-dots">Loading stats...</div>
+      )}
 
       {simulationStats && <Stats stats={simulationStats} />}
 
       <div className="mb-6">
-        <label className="block text-md font-medium mb-2">Select Simulation</label>
+        <label className="block text-md font-medium mb-2">
+          Select Simulation
+        </label>
         <Select
           className="w-full"
           placeholder="Choose a simulation"

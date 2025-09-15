@@ -64,8 +64,8 @@ export interface ProfileDTO {
   id?: string;
   prosumerId: string;
   date: string;
-  intervalOfTime: string;
-  numberOfIntervals: number;
+  intervalOfTime?: string;
+  numberOfIntervals?: number;
   stateOfCharge: string;
   energyCharge: string;
   energyDischarge: string;
@@ -89,6 +89,17 @@ export interface ISimulationTotalStats {
   totalPeerIn: number;
   totalPeerOut: number;
 }
+
+
+export interface IMonthlyProfileStatsDTO {
+  month: Date;
+  averageLoad: number;
+  averagePV: number;
+  averageBought: number;
+  averageSold: number;
+  averageSOC: number;
+}
+
 
 export interface IStorageEfficiency {
   prosumer: string;

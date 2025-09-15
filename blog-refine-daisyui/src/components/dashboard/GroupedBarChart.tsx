@@ -66,12 +66,30 @@ export const GroupedBarChart: React.FC<GroupedBarChartProps> = ({
             borderRadius: '10px',
           }}
         />
-        <Bar dataKey="prosumer1_charge" fill={colors[0].fill} stroke={colors[0].stroke} name="Prosumer 1 Charge" />
-        <Bar dataKey="prosumer1_discharge" fill={colors[1].fill} stroke={colors[1].stroke} name="Prosumer 1 Discharge" />
-        <Bar dataKey="prosumer2_charge" fill={colors[2].fill} stroke={colors[2].stroke} name="Prosumer 2 Charge" />
-        <Bar dataKey="prosumer2_discharge" fill={colors[3].fill} stroke={colors[3].stroke} name="Prosumer 2 Discharge" />
-        <Bar dataKey="prosumer3_charge" fill={colors[4].fill} stroke={colors[4].stroke} name="Prosumer 3 Charge" />
-        <Bar dataKey="prosumer3_discharge" fill={colors[5].fill} stroke={colors[5].stroke} name="Prosumer 3 Discharge" />
+        {data.length > 0 &&
+          Object.keys(data.reduce((acc, item) => {
+            acc[item.prosumerId] = true;
+            return acc;
+          }, {} as Record<string, boolean>)).map((prosumerId, index) => (
+            <React.Fragment key={prosumerId}>
+              <Bar
+                dataKey={`${prosumerId}_charge`}
+                stackId="a"
+                fill={colors[index % colors.length].fill}
+                stroke={colors[index % colors.length].stroke}
+                barSize={20}
+                name={`Prosumer ${prosumerId} Charge`}
+              />
+              <Bar
+                dataKey={`${prosumerId}_discharge`}
+                stackId="a"
+                fill={colors[(index + 1) % colors.length].fill}
+                stroke={colors[(index + 1) % colors.length].stroke}
+                barSize={20}
+                name={`Prosumer ${prosumerId} Discharge`}
+              />
+            </React.Fragment>
+          ))}
       </BarChart>
     </ResponsiveContainer>
   );

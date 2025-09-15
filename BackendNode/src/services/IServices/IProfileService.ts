@@ -21,5 +21,5 @@ export default interface IProfileService {
     deleteByProsumerId(prosumerId: string): Promise<Result<void>>;
 
     getSimulationStats(simulationId: string): Promise<Result<any>>;
-    getMonthlyStats(simulationId: string): Promise<Result<IMonthlyProfileStatsDTO[]>>
+    getMonthlyStats(simulationId: string): Promise<Result<IProfileDTO[]>>
 }
