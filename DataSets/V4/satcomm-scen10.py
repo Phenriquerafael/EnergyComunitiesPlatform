@@ -458,17 +458,9 @@ for chunk_start_time in range(0, Thorizon+1, update_interval):
             chunk_row[f"P_Peer_out[{pl}]"] = sum(value(instance.P_peer[pl, pl2, t]) for pl2 in model.PL if pl2 != pl)
             chunk_row[f"P_Peer_in[{pl}]"] = sum(value(instance.P_peer[pl2, pl, t]) for pl2 in model.PL if pl2 != pl)
             chunk_row[f"P_Load[{pl}]"] = value(instance.PLs[t, pl])
-    
+
         chunk_results_list.append(chunk_row)
 
-    
-    
-    
-    
-    
-    
-    
-    
     # Convert chunk results to DataFrame and append
     chunk_results_df = pd.DataFrame(chunk_results_list)
     detailed_results.append(chunk_results_df)

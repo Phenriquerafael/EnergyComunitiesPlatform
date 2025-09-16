@@ -10,10 +10,12 @@ Next steps:
 Description:
 
     a manipulação do intervalo de tempo dos dados deve ser feita no frontend ou backend?
+
     Otimização:
     corrigir erro do dicionário
 
     Backend
+    adicionar mais logs a descrever o load dos profiles 
     fazer o upload dos dados diretamente para a base de dados (FastApi para Postgress)
     mover os dtos para um só ficheiro?
     criar entidade stats
@@ -29,8 +31,13 @@ Description:
     caso haja algum erro na criação de profiles a simulation deve ser apagada 
 
     frontend
+    melhorar a descrição dos prosumers na dashboard
+    melhorar a descrição das simulations ao carregar no show
+    apresentar o numero de profiles no show da simulation
     Corrigir a forma como se obtem profiles no dashboard
+    corrigir a seleção/ de seleção dos atributos do profile analitics
     !! Adicionar uma comparação do load e consumo do prosumer antes e após pertencer à comunidade
+    corrigir a lista de prosumers na comparação de uma comunidade (prosumers repetidos)
     Corrigir refresh e navegações 
     corrigir erro das secure routes no login 
     corrigir barras de busca e botões de organização na tabelas

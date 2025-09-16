@@ -84,6 +84,31 @@ export default class ProfileRepo implements IProfileRepo {
     }
   }
 
+  public async saveMany(profiles: Profile[]): Promise<Result<Profile[]>> {
+    try {
+      const rawProfiles = profiles.map((profile) => {
+        const prosumerId = profile.prosumer.id.toString();
+        const simulationId = profile.simulation.id.toString();
+
+        return {
+          ...ProfileMap.toPersistence(profile),
+          prosumerId,
+          simulationId,
+        };
+      });
+
+      await prisma.profile.createMany({
+        data: rawProfiles,
+        skipDuplicates: true, // evita duplicados se já existirem
+      });
+
+      return Result.ok<Profile[]>(profiles);
+    } catch (error) {
+      console.error('Error bulk saving profiles:', error);
+      return Result.fail<Profile[]>(error instanceof Error ? error.message : 'Unexpected error saving profiles');
+    }
+  }
+
   public async findById(id: string): Promise<Result<Profile>> {
     try {
       const profile = await prisma.profile.findUnique({
@@ -236,7 +261,15 @@ export default class ProfileRepo implements IProfileRepo {
 
   public async getProfileMonthlyAggregates(simulationId: string): Promise<any[]> {
     return await prisma.$queryRaw<
-      { month: Date; prosumerId: string ; avgLoad: number; avgPV: number; avgBought: number; avgSold: number; avgSOC: number }[]
+      {
+        month: Date;
+        prosumerId: string;
+        avgLoad: number;
+        avgPV: number;
+        avgBought: number;
+        avgSold: number;
+        avgSOC: number;
+      }[]
     >`
     SELECT DATE_TRUNC('month', CAST("date" AS DATE)) as month,
           "prosumerId",
