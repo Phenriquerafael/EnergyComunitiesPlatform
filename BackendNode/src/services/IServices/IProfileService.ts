@@ -22,4 +22,5 @@ export default interface IProfileService {
 
     getSimulationStats(simulationId: string): Promise<Result<any>>;
     getMonthlyStats(simulationId: string): Promise<Result<IProfileDTO[]>>
+    countProfilesBySimulationId(simulationId: string): Promise<Result<number>>;
 }

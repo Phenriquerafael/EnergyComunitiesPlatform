@@ -7,12 +7,20 @@ interface Props {
 }
 
 const SimulationShow: React.FC<Props> = ({ simulation }) => {
-    console.log("Simulation Data:", simulation.communityId);
+    
     const { data: communityData, isLoading: isCommunityLoading } = useOne<ICommunityDTO>({
         resource: "communities/id",
         id: simulation.communityId ?? "",
         queryOptions: {
             enabled: !!simulation.communityId,
+        },
+    });
+
+    const { data: profileCountData, isLoading: isProfileCountLoading } = useOne({
+        resource: "profiles/countBySimulation",
+        id: simulation.id ?? "",
+        queryOptions: {
+            enabled: !!simulation.id,
         },
     });
 
@@ -24,6 +32,11 @@ const SimulationShow: React.FC<Props> = ({ simulation }) => {
 {/*                 <div><strong>Start Date:</strong> {new Date(simulation.startDate).toLocaleString()}</div>
                 <div><strong>End Date:</strong> {new Date(simulation.endDate).toLocaleString()}</div> */}
                 <div><strong>Description:</strong> {simulation.description || <em className="text-gray-400">None</em>}</div>
+{/*                 <div><strong>Created At:</strong> {new Date(simulation.createdAt).toLocaleString()}</div>
+                <div><strong>Updated At:</strong> {new Date(simulation.updatedAt).toLocaleString()}</div> */}
+                <div>
+                    <strong>Profile Count:</strong> {isProfileCountLoading ? "Loading..." : profileCountData?.data.count ?? 0}
+                </div>
             </div>
 
             <div>

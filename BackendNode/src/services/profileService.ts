@@ -57,108 +57,103 @@ export default class ProfileService implements IProfileService {
   }
 
   public async createFromOptimizationResults(results: IOptimizationResults): Promise<Result<void>> {
-  try {
-    console.log(
-      'Creating profile from optimization results:',
-      results.detailed_results.length,
-      'results found'
-    );
+    try {
+      console.log('Creating profile from optimization results:', results.detailed_results.length, 'results found');
 
-    if (results.total_objective_value === undefined) {
-      return Result.fail<void>('Total objective value not found in optimization results');
-    }
-    if (!results.detailed_results || results.detailed_results.length === 0) {
-      return Result.fail<void>('Detailed results not found in optimization results');
-    }
-
-    const simulationDTO = {
-      startDate: results.start_date,
-      endDate: results.end_date,
-      description: results.description || '',
-      communityId: results.communityId,
-      activeAttributes: results.active_attributes.map((attr) => ({
-        prosumerId: attr.prosumerId,
-        profileLoad: attr.profileLoad,
-        stateOfCharge: attr.stateOfCharge,
-        photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad,
-      })),
-    } as ISimulationDTO;
-
-    // 🔹 Buscar comunidade
-    const communityOrError = await this.communityRepoInstance.findById(results.communityId);
-    if (communityOrError.isFailure) {
-      return Result.fail<void>(`Community with ID ${results.communityId} not found`);
-    }
-    const community = communityOrError.getValue();
-
-    // 🔹 Criar simulação
-    const simulationOrError = await this.simulationServiceInstance.createSimulation(simulationDTO, community);
-    if (simulationOrError.isFailure) {
-      return Result.fail<void>(`Failed to create simulation: ${simulationOrError.error}`);
-    }
-    const simulation = await this.simulationRepoInstance.findById(simulationOrError.getValue().id);
-
-    if (simulation.isFailure) {
-      return Result.fail<void>('Simulation not found after creation');
-    }
-
-    // 🔹 Converter todos os results em Domain Objects
-    const profiles: Profile[] = [];
-    for (let i = 0; i < results.detailed_results.length; i++) {
-      const result = results.detailed_results[i];
-
-      const profileDTO: IProfileDTO = {
-        prosumerId: result.Prosumer,
-        simulationId: simulationDTO.id,
-        date: result.DateTime,
-        intervalOfTime: 15,
-        numberOfIntervals: result.Time_Step,
-        stateOfCharge: result.SOC,
-        energyCharge: result.P_ESS_ch,
-        energyDischarge: result.P_ESS_dch,
-        peerOutputEnergyLoad: result.P_Peer_out,
-        peerInputEnergyLoad: result.P_Peer_in,
-        photovoltaicEnergyLoad: result.P_PV_load,
-        boughtEnergyAmount: result.P_buy,
-        soldEnergyAmount: result.P_sell,
-        profileLoad: result.P_Load,
-      };
-
-      const prosumerOrError = await this.prosumerRepoInstance.findById(profileDTO.prosumerId);
-      if (prosumerOrError.isFailure) {
-        return Result.fail<void>(`Prosumer with ID ${profileDTO.prosumerId} not found`);
+      if (results.total_objective_value === undefined) {
+        return Result.fail<void>('Total objective value not found in optimization results');
+      }
+      if (!results.detailed_results || results.detailed_results.length === 0) {
+        return Result.fail<void>('Detailed results not found in optimization results');
       }
 
-      const profileResult = ProfileMap.toDomainFromDTO(profileDTO, prosumerOrError.getValue(), simulation.getValue());
-      if (profileResult.isFailure) {
-        return Result.fail<void>(`Failed to create Profile: ${profileResult.error}`);
+      const simulationDTO = {
+        startDate: results.start_date,
+        endDate: results.end_date,
+        description: results.description || '',
+        communityId: results.communityId,
+        activeAttributes: results.active_attributes.map((attr) => ({
+          prosumerId: attr.prosumerId,
+          profileLoad: attr.profileLoad,
+          stateOfCharge: attr.stateOfCharge,
+          photovoltaicEnergyLoad: attr.photovoltaicEnergyLoad,
+        })),
+      } as ISimulationDTO;
+
+      // 🔹 Buscar comunidade
+      const communityOrError = await this.communityRepoInstance.findById(results.communityId);
+      if (communityOrError.isFailure) {
+        return Result.fail<void>(`Community with ID ${results.communityId} not found`);
+      }
+      const community = communityOrError.getValue();
+
+      // 🔹 Criar simulação
+      const simulationOrError = await this.simulationServiceInstance.createSimulation(simulationDTO, community);
+      if (simulationOrError.isFailure) {
+        return Result.fail<void>(`Failed to create simulation: ${simulationOrError.error}`);
+      }
+      const simulation = await this.simulationRepoInstance.findById(simulationOrError.getValue().id);
+
+      if (simulation.isFailure) {
+        return Result.fail<void>('Simulation not found after creation');
       }
 
-      profiles.push(profileResult.getValue());
-    }
+      // 🔹 Converter todos os results em Domain Objects
+      const profiles: Profile[] = [];
+      for (let i = 0; i < results.detailed_results.length; i++) {
+        const result = results.detailed_results[i];
 
-    // 🔹 Salvar em batches (10k por query)
-    const batchSize = 10000;
-    for (let i = 0; i < profiles.length; i += batchSize) {
-      const batch = profiles.slice(i, i + batchSize);
-      const saveResult = await this.profileRepoInstance.saveMany(batch);
-      if (saveResult.isFailure) {
-        return Result.fail<void>(`Failed to bulk save Profiles: ${saveResult.error}`);
+        const profileDTO: IProfileDTO = {
+          prosumerId: result.Prosumer,
+          simulationId: simulationDTO.id,
+          date: result.DateTime,
+          intervalOfTime: 15,
+          numberOfIntervals: result.Time_Step,
+          stateOfCharge: result.SOC,
+          energyCharge: result.P_ESS_ch,
+          energyDischarge: result.P_ESS_dch,
+          peerOutputEnergyLoad: result.P_Peer_out,
+          peerInputEnergyLoad: result.P_Peer_in,
+          photovoltaicEnergyLoad: result.P_PV_load,
+          boughtEnergyAmount: result.P_buy,
+          soldEnergyAmount: result.P_sell,
+          profileLoad: result.P_Load,
+        };
+
+        const prosumerOrError = await this.prosumerRepoInstance.findById(profileDTO.prosumerId);
+        if (prosumerOrError.isFailure) {
+          return Result.fail<void>(`Prosumer with ID ${profileDTO.prosumerId} not found`);
+        }
+
+        const profileResult = ProfileMap.toDomainFromDTO(profileDTO, prosumerOrError.getValue(), simulation.getValue());
+        if (profileResult.isFailure) {
+          return Result.fail<void>(`Failed to create Profile: ${profileResult.error}`);
+        }
+
+        profiles.push(profileResult.getValue());
       }
-      console.log(`✅ Saved batch ${i / batchSize + 1} (${batch.length} profiles)`);
+
+      // 🔹 Salvar em batches (10k por query)
+      const batchSize = 10000;
+      for (let i = 0; i < profiles.length; i += batchSize) {
+        const batch = profiles.slice(i, i + batchSize);
+        const saveResult = await this.profileRepoInstance.saveMany(batch);
+        if (saveResult.isFailure) {
+          return Result.fail<void>(`Failed to bulk save Profiles: ${saveResult.error}`);
+        }
+        console.log(`✅ Saved batch ${i / batchSize + 1} (${batch.length} profiles)`);
+      }
+
+      this.logger.info(`Successfully loaded ${profiles.length} profiles for simulation ${simulationDTO.id}`);
+
+      return Result.ok<void>();
+    } catch (error) {
+      this.logger.error('Error creating profile from optimization results: ', error);
+      return Result.fail<void>('Error creating profile from optimization results');
     }
-
-    this.logger.info(`Successfully loaded ${profiles.length} profiles for simulation ${simulationDTO.id}`);
-
-    return Result.ok<void>();
-  } catch (error) {
-    this.logger.error('Error creating profile from optimization results: ', error);
-    return Result.fail<void>('Error creating profile from optimization results');
   }
-}
 
-
-/*   public async createFromOptimizationResults(results: IOptimizationResults): Promise<Result<void>> {
+  /*   public async createFromOptimizationResults(results: IOptimizationResults): Promise<Result<void>> {
     try {
       console.log('Creating profile from optimization results:', results.detailed_results.length, 'results found');
       if (results.total_objective_value === undefined) {
@@ -517,7 +512,7 @@ export default class ProfileService implements IProfileService {
     try {
       const aggregates = await this.profileRepoInstance.getProfileMonthlyAggregates(simulationId);
 
-      const result: IProfileDTO[] = aggregates.map(a => ({
+      const result: IProfileDTO[] = aggregates.map((a) => ({
         id: a.id,
         //month: a.month,
         prosumerId: a.prosumerId,
@@ -546,7 +541,21 @@ export default class ProfileService implements IProfileService {
     }
   }
 
-/*   public async getMonthlyStats(simulationId: string): Promise<Result<IMonthlyProfileStatsDTO[]>> {
+  public async countProfilesBySimulationId(simulationId: string): Promise<Result<number>> {
+    try {
+      const countOrError = await this.profileRepoInstance.countProfilesBySimulationId(simulationId);
+      if (countOrError.isFailure) {
+        return Result.fail<number>('Error counting profiles for simulation');
+      }
+      const count = countOrError.getValue();
+      return Result.ok<number>(count);
+    } catch (error) {
+      console.error('Error counting profiles by simulation ID:', error);
+      return Result.fail<number>('Unexpected error counting profiles by simulation ID');
+    }
+  }
+
+  /*   public async getMonthlyStats(simulationId: string): Promise<Result<IMonthlyProfileStatsDTO[]>> {
   try {
     const aggregates = await this.profileRepoInstance.getProfileMonthlyAggregates(simulationId);
 
@@ -565,8 +574,6 @@ export default class ProfileService implements IProfileService {
   }
 }
  */
-
-
 
   /*   public async getSimulationStats(simulationId: string): Promise<Result<ISimulationTotalStats>> {
     try {

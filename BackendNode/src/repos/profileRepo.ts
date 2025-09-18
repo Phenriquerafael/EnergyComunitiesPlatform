@@ -588,4 +588,16 @@ export default class ProfileRepo implements IProfileRepo {
       return Result.fail<any>(error instanceof Error ? error.message : 'Unexpected error fetching simulation stats');
     }
   }
+
+  public async countProfilesBySimulationId(simulationId: string): Promise<Result<number>> {
+    try {
+      const count = await prisma.profile.count({
+        where: { simulationId },
+      });
+      return Result.ok<number>(count);
+    } catch (error) {
+      console.error('Error counting profiles by simulationId:', error);
+      return Result.fail<number>(error instanceof Error ? error.message : 'Unexpected error counting profiles');
+    } 
+  }
 }

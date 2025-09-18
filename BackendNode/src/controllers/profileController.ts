@@ -242,4 +242,18 @@ export default class ProfileController implements IProfileController {
       return next(error);
     }
   }
+
+  public async countProfilesBySimulationId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const countOrError = await this.profileServiceInstance.countProfilesBySimulationId(id);
+      if (countOrError.isFailure) {
+        return res.status(404).json({ message: countOrError.error });
+      }
+      const count = countOrError.getValue();
+      return res.status(200).json({ count });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }

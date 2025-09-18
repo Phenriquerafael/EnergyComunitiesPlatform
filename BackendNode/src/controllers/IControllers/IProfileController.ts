@@ -17,4 +17,5 @@ export default interface IProfileController {
 
     getSimulationStats(req: Request, res: Response, next: NextFunction);
     getProfileMonthlyStats(req: Request, res: Response, next: NextFunction);
+    countProfilesBySimulationId(req: Request, res: Response, next: NextFunction);
 }

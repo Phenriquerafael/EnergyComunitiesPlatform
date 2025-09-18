@@ -158,6 +158,8 @@ export default (app: Router) => {
 
   route.get('/monthlyStats/:id/', (req, res, next) => ctrl.getProfileMonthlyStats(req, res, next));
 
+  route.get('/countBySimulation/:id/', (req, res, next) => ctrl.countProfilesBySimulationId(req, res, next));
+
   app.use('/profiles', route);
 
   // Middleware de erro do celebrate
