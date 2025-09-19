@@ -508,11 +508,16 @@ export default class ProfileService implements IProfileService {
     }
   }
 
+  // community profiles
   public async getMonthlyStats(simulationId: string): Promise<Result<IProfileDTO[]>> {
     try {
       const aggregates = await this.profileRepoInstance.getProfileMonthlyAggregates(simulationId);
 
-      const result: IProfileDTO[] = aggregates.map((a) => ({
+      if (!aggregates) {
+        return Result.fail<IProfileDTO[]>('No monthly aggregates found');
+      }
+
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
         id: a.id,
         //month: a.month,
         prosumerId: a.prosumerId,
@@ -538,6 +543,250 @@ export default class ProfileService implements IProfileService {
     } catch (error) {
       console.error('Error getting monthly stats:', error);
       return Result.fail<IProfileDTO[]>('Unexpected error getting monthly stats');
+    }
+  }
+
+  public async getWeeklyStats(simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const aggregates = await this.profileRepoInstance.getProfileWeeklyAggregates(simulationId);
+      if (aggregates.isFailure) {
+        return Result.fail<IProfileDTO[]>('Error fetching weekly aggregates');
+      }
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
+        id: a.id,
+        prosumerId: a.prosumerId,
+        date: a.week.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting weekly stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting weekly stats');
+    }
+  }
+
+  public async getDailyStats(simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const aggregates = await this.profileRepoInstance.getProfileDailyAggregates(simulationId);
+      if (aggregates.isFailure) {
+        return Result.fail<IProfileDTO[]>('Error fetching daily aggregates');
+      }
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
+        id: a.id,
+        prosumerId: a.prosumerId,
+        date: a.day.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting daily stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting daily stats');
+    }
+  }
+
+  public async getHourlyStats(simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const aggregates = await this.profileRepoInstance.getProfileHourlyAggregates(simulationId);
+      if (aggregates.isFailure) {
+        return Result.fail<IProfileDTO[]>('Error fetching hourly aggregates');
+      }
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
+        id: a.id,
+        prosumerId: a.prosumerId,
+        date: a.hour.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting hourly stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting hourly stats');
+    }
+  }
+
+  // prosumer profiles
+  public async getProsumerMonthlyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const aggregates = await this.profileRepoInstance.getProsumerProfileMonthlyAggregates(prosumerId, simulationId);
+      if (aggregates.isFailure) {
+        return Result.fail<IProfileDTO[]>('Error fetching monthly aggregates for prosumer');
+      }
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
+        id: a.id,
+        prosumerId: a.prosumerId,
+        date: a.month.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting prosumer monthly stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting prosumer monthly stats');
+    }
+  }
+
+  public async getProsumerWeeklyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const prosumerOrError = await this.prosumerRepoInstance.findById(prosumerId);
+      if (prosumerOrError.isFailure) {
+        return Result.fail<IProfileDTO[]>('Prosumer not found');
+      }
+      const simulationOrError = await this.simulationRepoInstance.findById(simulationId);
+      if (simulationOrError.isFailure) {
+        return Result.fail<IProfileDTO[]>('Simulation not found');
+      }
+
+      const aggregates = await this.profileRepoInstance.getProsumerProfileWeeklyAggregates(prosumerId, simulationId);
+      if (aggregates.isFailure) {
+        return Result.fail<IProfileDTO[]>('Error fetching weekly aggregates for prosumer');
+      }
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
+        id: a.id,
+        prosumerId: a.prosumerId,
+        date: a.week.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting prosumer weekly stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting prosumer weekly stats');
+    }
+  }
+
+  public async getProsumerDailyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const aggregates = await this.profileRepoInstance.getProsumerProfileDailyAggregates(prosumerId, simulationId);
+      if (aggregates.isFailure) {
+        return Result.fail<IProfileDTO[]>('Error fetching daily aggregates for prosumer');
+      }
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
+        id: a.id,
+        prosumerId: a.prosumerId,
+        date: a.day.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting prosumer daily stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting prosumer daily stats');
+    }
+  }
+
+  public async getProsumerHourlyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>> {
+    try {
+      const aggregates = await this.profileRepoInstance.getProsumerProfileHourlyAggregates(prosumerId, simulationId);
+      if (aggregates.isFailure) {
+        return Result.fail<IProfileDTO[]>('Error fetching hourly aggregates for prosumer');
+      }
+      const result: IProfileDTO[] = aggregates.getValue().map((a) => ({
+        id: a.id,
+        prosumerId: a.prosumerId,
+        date: a.hour.toISOString(),
+        intervalOfTime: undefined,
+        numberOfIntervals: undefined,
+        stateOfCharge: a.avgSOC || 0,
+        energyCharge: a.avgBatteryCharge || 0,
+        energyDischarge: a.avgBatteryDischarge || 0,
+        photovoltaicEnergyLoad: a.avgPV || 0,
+        boughtEnergyAmount: a.avgBought || 0,
+        boughtEnergyPrice: 0,
+        soldEnergyAmount: a.avgSold || 0,
+        soldEnergyPrice: 0,
+        peerOutputEnergyLoad: a.avgPeerOut || 0,
+        peerOutPrice: 0,
+        peerInputEnergyLoad: a.avgPeerIn || 0,
+        peerInPrice: 0,
+        profileLoad: a.avgLoad || 0,
+      }));
+      return Result.ok(result);
+    } catch (error) {
+      console.error('Error getting prosumer hourly stats:', error);
+      return Result.fail<IProfileDTO[]>('Unexpected error getting prosumer hourly stats');
     }
   }
 

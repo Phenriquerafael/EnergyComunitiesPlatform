@@ -21,6 +21,17 @@ export default interface IProfileService {
     deleteByProsumerId(prosumerId: string): Promise<Result<void>>;
 
     getSimulationStats(simulationId: string): Promise<Result<any>>;
-    getMonthlyStats(simulationId: string): Promise<Result<IProfileDTO[]>>
+    //Community profiles
+    getMonthlyStats(simulationId: string): Promise<Result<IProfileDTO[]>>;
+    getWeeklyStats(simulationId: string): Promise<Result<IProfileDTO[]>>;
+    getDailyStats(simulationId: string): Promise<Result<IProfileDTO[]>>;
+    getHourlyStats(simulationId: string): Promise<Result<IProfileDTO[]>>;
+
+    //Prosumer profiles
+    getProsumerMonthlyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>>;
+    getProsumerWeeklyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>>;
+    getProsumerDailyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>>;
+    getProsumerHourlyStats(prosumerId: string, simulationId: string): Promise<Result<IProfileDTO[]>>;
+
     countProfilesBySimulationId(simulationId: string): Promise<Result<number>>;
 }

@@ -2,11 +2,13 @@ import { Service } from 'typedi';
 import IProfileRepo from './IRepos/IProfileRepo';
 import { Result } from '../core/logic/Result';
 import { Profile } from '../domain/Profile/Profile';
+import { Profile as PrismaProfile } from '@prisma/client';
 import prisma from '../../prisma/prismaClient';
 import { ProfileMap } from '../mappers/ProfileMap';
 import { Prosumer } from '../domain/Prosumer/Prosumer';
 import { Simulation } from '../domain/Simulation/Simulation';
 import { TotalStatistics } from '../domain/Statistics/TotalStatistics';
+import ProfileService from '../services/profileService';
 
 @Service()
 export default class ProfileRepo implements IProfileRepo {
@@ -257,36 +259,6 @@ export default class ProfileRepo implements IProfileRepo {
         error instanceof Error ? error.message : 'Unexpected error fetching profiles by simulationId',
       );
     }
-  }
-
-  public async getProfileMonthlyAggregates(simulationId: string): Promise<any[]> {
-    return await prisma.$queryRaw<
-      {
-        month: Date;
-        prosumerId: string;
-        avgLoad: number;
-        avgPV: number;
-        avgBought: number;
-        avgSold: number;
-        avgSOC: number;
-      }[]
-    >`
-    SELECT DATE_TRUNC('month', CAST("date" AS DATE)) as month,
-          "prosumerId",
-           AVG("profileLoad") as "avgLoad",
-           AVG("photovoltaicEnergyLoad") as "avgPV",
-           AVG("boughtEnergyAmount") as "avgBought",
-           AVG("soldEnergyAmount") as "avgSold",
-           AVG("stateOfCharge") as "avgSOC",
-           AVG("batteryCharge") as "avgBatteryCharge",
-           AVG("batteryDischarge") as "avgBatteryDischarge",
-           AVG("peerInputEnergyLoad") as "avgPeerIn",
-           AVG("peerOutputEnergyLoad") as "avgPeerOut"
-    FROM "Profile"
-    WHERE "simulationId" = ${simulationId}
-    GROUP BY "prosumerId",DATE_TRUNC('month', CAST("date" AS DATE))
-    ORDER BY month;
-  `;
   }
 
   public async findByCommunityIdAndSimulationId(communityId: string, simulationId: string): Promise<Result<Profile[]>> {
@@ -589,6 +561,330 @@ export default class ProfileRepo implements IProfileRepo {
     }
   }
 
+  // Community profiles
+
+  public async getProfileMonthlyAggregates(simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+        {
+          month: Date;
+          prosumerId: string;
+          avgLoad: number;
+        avgPV: number;
+        avgBought: number;
+        avgSold: number;
+        avgSOC: number;
+        avgBatteryCharge: number;
+        avgBatteryDischarge: number;
+        avgPeerIn: number;
+        avgPeerOut: number;
+      }[]
+    >`
+    SELECT DATE_TRUNC('month', CAST("date" AS DATE)) as month,
+          "prosumerId",
+           AVG("profileLoad") as "avgLoad",
+           AVG("photovoltaicEnergyLoad") as "avgPV",
+           AVG("boughtEnergyAmount") as "avgBought",
+           AVG("soldEnergyAmount") as "avgSold",
+           AVG("stateOfCharge") as "avgSOC",
+           AVG("batteryCharge") as "avgBatteryCharge",
+           AVG("batteryDischarge") as "avgBatteryDischarge",
+           AVG("peerInputEnergyLoad") as "avgPeerIn",
+           AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId}
+    GROUP BY "prosumerId",DATE_TRUNC('month', CAST("date" AS DATE))
+    ORDER BY month;
+  `;
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching profile monthly aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+  }
+
+  public async getProfileWeeklyAggregates(simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+      {
+        week: Date;
+        prosumerId: string;
+        avgLoad: number;
+        avgPV: number;
+        avgBought: number;
+        avgSold: number;
+        avgSOC: number;
+      }[]
+    >`
+    SELECT DATE_TRUNC('week', CAST("date" AS DATE)) as week,
+          "prosumerId",
+           AVG("profileLoad") as "avgLoad",
+           AVG("photovoltaicEnergyLoad") as "avgPV",
+            AVG("boughtEnergyAmount") as "avgBought",
+            AVG("soldEnergyAmount") as "avgSold",
+            AVG("stateOfCharge") as "avgSOC",
+            AVG("batteryCharge") as "avgBatteryCharge",
+            AVG("batteryDischarge") as "avgBatteryDischarge",
+            AVG("peerInputEnergyLoad") as "avgPeerIn",
+            AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId}
+    GROUP BY "prosumerId",DATE_TRUNC('week', CAST("date" AS DATE))
+    ORDER BY week;
+  `;
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching profile weekly aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+
+  }
+
+  public async getProfileDailyAggregates(simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+        {
+          day: Date;
+          prosumerId: string;
+          avgLoad: number;
+          avgPV: number;
+          avgBought: number;
+          avgSold: number;
+          avgSOC: number;
+          avgBatteryCharge: number;
+          avgBatteryDischarge: number;
+          avgPeerIn: number;
+          avgPeerOut: number;
+        }[]
+      >`
+    SELECT DATE_TRUNC('day', CAST("date" AS DATE)) as day,
+           "prosumerId",
+           AVG("profileLoad") as "avgLoad",
+           AVG("photovoltaicEnergyLoad") as "avgPV",
+           AVG("boughtEnergyAmount") as "avgBought",
+           AVG("soldEnergyAmount") as "avgSold",
+           AVG("stateOfCharge") as "avgSOC",
+           AVG("batteryCharge") as "avgBatteryCharge",
+           AVG("batteryDischarge") as "avgBatteryDischarge",
+           AVG("peerInputEnergyLoad") as "avgPeerIn",
+           AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId}
+    GROUP BY "prosumerId",DATE_TRUNC('day', CAST("date" AS DATE))
+    ORDER BY day;
+  `;
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching profile daily aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+  }
+
+
+  public async getProfileHourlyAggregates(simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+      {
+        hour: Date;
+        prosumerId: string;
+        avgLoad: number;
+        avgPV: number;
+        avgBought: number;
+        avgSold: number;
+        avgSOC: number;
+        avgBatteryCharge: number;
+        avgBatteryDischarge: number;
+        avgPeerIn: number;
+        avgPeerOut: number;
+      }[]
+    >`
+    SELECT DATE_TRUNC('hour', CAST("date" AS TIMESTAMP)) as hour,
+           "prosumerId",
+            AVG("profileLoad") as "avgLoad",
+            AVG("photovoltaicEnergyLoad") as "avgPV",
+            AVG("boughtEnergyAmount") as "avgBought",
+            AVG("soldEnergyAmount") as "avgSold",
+            AVG("stateOfCharge") as "avgSOC",
+            AVG("batteryCharge") as "avgBatteryCharge",
+            AVG("batteryDischarge") as "avgBatteryDischarge",
+            AVG("peerInputEnergyLoad") as "avgPeerIn",
+            AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId}
+    GROUP BY "prosumerId",DATE_TRUNC('hour', CAST("date" AS TIMESTAMP))
+    ORDER BY hour;
+  `;
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching profile hourly aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+    
+  }
+
+  // Prosumer profiles
+  public async getProsumerProfileMonthlyAggregates(prosumerId: string, simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+        {
+          month: Date;
+          prosumerId: string;
+          avgLoad: number;
+          avgPV: number;
+          avgBought: number;
+          avgSold: number;
+          avgSOC: number;
+          avgBatteryCharge: number;
+          avgBatteryDischarge: number;
+          avgPeerIn: number;
+          avgPeerOut: number;
+        }[]
+      >`
+    SELECT DATE_TRUNC('month', CAST("date" AS DATE)) as month,
+           "prosumerId",
+           AVG("profileLoad") as "avgLoad",
+           AVG("photovoltaicEnergyLoad") as "avgPV",
+           AVG("boughtEnergyAmount") as "avgBought",
+           AVG("soldEnergyAmount") as "avgSold",
+           AVG("stateOfCharge") as "avgSOC"
+            AVG("batteryCharge") as "avgBatteryCharge",
+            AVG("batteryDischarge") as "avgBatteryDischarge",
+            AVG("peerInputEnergyLoad") as "avgPeerIn",
+            AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId} And "prosumerId" = ${prosumerId}
+    GROUP BY "prosumerId",DATE_TRUNC('month', CAST("date" AS DATE))
+    ORDER BY month;
+  `;
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching prosumer profile monthly aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+  }
+
+  public async getProsumerProfileWeeklyAggregates(prosumerId: string, simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+        {
+          week: Date;
+          prosumerId: string;
+          avgLoad: number;
+          avgPV: number;
+          avgBought: number;
+          avgSold: number;
+          avgSOC: number;
+          avgBatteryCharge: number;
+          avgBatteryDischarge: number;
+          avgPeerIn: number;
+          avgPeerOut: number;
+        }[]
+      >`
+      SELECT DATE_TRUNC('week', CAST("date" AS DATE)) as week,
+             "prosumerId",
+              AVG("profileLoad") as "avgLoad",
+              AVG("photovoltaicEnergyLoad") as "avgPV",
+              AVG("boughtEnergyAmount") as "avgBought",
+              AVG("soldEnergyAmount") as "avgSold",
+              AVG("stateOfCharge") as "avgSOC",
+              AVG("batteryCharge") as "avgBatteryCharge",
+              AVG("batteryDischarge") as "avgBatteryDischarge",
+              AVG("peerInputEnergyLoad") as "avgPeerIn",
+              AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId} And "prosumerId" = ${prosumerId}
+    GROUP BY "prosumerId",DATE_TRUNC('week', CAST("date" AS DATE))
+    ORDER BY week;
+  `;
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching prosumer profile weekly aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+  }
+
+  public async getProsumerProfileDailyAggregates(prosumerId: string, simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+        {
+          day: Date;
+          prosumerId: string;
+          avgLoad: number;
+          avgPV: number;
+          avgBought: number;
+          avgSold: number;
+          avgSOC: number;
+          avgBatteryCharge: number;
+          avgBatteryDischarge: number;
+          avgPeerIn: number;
+          avgPeerOut: number;
+        }[]
+      >`
+      SELECT DATE_TRUNC('day', CAST("date" AS DATE)) as day,
+             "prosumerId",
+              AVG("profileLoad") as "avgLoad",
+              AVG("photovoltaicEnergyLoad") as "avgPV",
+              AVG("boughtEnergyAmount") as "avgBought",
+              AVG("soldEnergyAmount") as "avgSold",
+              AVG("stateOfCharge") as "avgSOC",
+              AVG("batteryCharge") as "avgBatteryCharge",
+              AVG("batteryDischarge") as "avgBatteryDischarge",
+              AVG("peerInputEnergyLoad") as "avgPeerIn",
+              AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId} And "prosumerId" = ${prosumerId}
+    GROUP BY "prosumerId",DATE_TRUNC('day', CAST("date" AS DATE))
+    ORDER BY day;
+  `;
+
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching prosumer profile daily aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+  }
+
+  public async getProsumerProfileHourlyAggregates(prosumerId: string, simulationId: string): Promise<Result<any[]>> {
+    try {
+      const result = await prisma.$queryRaw<
+        {
+          hour: Date;
+          prosumerId: string;
+          avgLoad: number;
+          avgPV: number;
+          avgBought: number;
+          avgSold: number;
+          avgSOC: number;
+          avgBatteryCharge: number;
+          avgBatteryDischarge: number;
+          avgPeerIn: number;
+          avgPeerOut: number;
+        }[]
+      >`
+      SELECT DATE_TRUNC('hour', CAST("date" AS TIMESTAMP)) as hour,
+             "prosumerId",
+              AVG("profileLoad") as "avgLoad",
+              AVG("photovoltaicEnergyLoad") as "avgPV",
+              AVG("boughtEnergyAmount") as "avgBought",
+              AVG("soldEnergyAmount") as "avgSold",
+              AVG("stateOfCharge") as "avgSOC",
+              AVG("batteryCharge") as "avgBatteryCharge",
+              AVG("batteryDischarge") as "avgBatteryDischarge",
+              AVG("peerInputEnergyLoad") as "avgPeerIn",
+              AVG("peerOutputEnergyLoad") as "avgPeerOut"
+    FROM "Profile"
+    WHERE "simulationId" = ${simulationId} And "prosumerId" = ${prosumerId}
+    GROUP BY "prosumerId",DATE_TRUNC('hour', CAST("date" AS TIMESTAMP))
+    ORDER BY hour;
+  `;
+
+      return Result.ok<any[]>(result);
+    } catch (error) {
+      console.error('Error fetching prosumer profile hourly aggregates:', error);
+      return Result.fail<any[]>(error instanceof Error ? error.message : 'Unexpected error fetching data');
+    }
+  }
+
   public async countProfilesBySimulationId(simulationId: string): Promise<Result<number>> {
     try {
       const count = await prisma.profile.count({
@@ -598,6 +894,6 @@ export default class ProfileRepo implements IProfileRepo {
     } catch (error) {
       console.error('Error counting profiles by simulationId:', error);
       return Result.fail<number>(error instanceof Error ? error.message : 'Unexpected error counting profiles');
-    } 
+    }
   }
 }

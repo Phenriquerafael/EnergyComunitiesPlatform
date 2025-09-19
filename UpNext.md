@@ -15,8 +15,10 @@ Description:
     corrigir erro do dicionário
 
     Backend
+    substituir a validação da existencia de entidades pelo find pela validação por exists
+    Remover os includes desnecessários dos metodos find no repo (ex include community no Find dos profiles)
     adicionar mais logs a descrever o load dos profiles 
-    fazer o upload dos dados diretamente para a base de dados (FastApi para Postgress)
+    _fazer o upload dos dados diretamente para a base de dados (FastApi para Postgress)_
     mover os dtos para um só ficheiro?
     criar entidade stats
     converter strings para float no schema e nas entidades
@@ -61,6 +63,8 @@ Description:
 
 
     Futuro:
+    - adicionar os logs do terminal no frontend (websocket)
+    - ponderar dashboards que representam valores monetários das energias 
     - descrever como cada operação acontece (create delete update) e que impacto tem na base de dados (foreign keys)
     - corrigir e criar mais  testes 
     - Histórico de alterações (communities, prosumers, batteries, etc.) 

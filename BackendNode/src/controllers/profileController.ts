@@ -213,6 +213,126 @@ export default class ProfileController implements IProfileController {
     }
   }
 
+  // Community profiles
+  public async getProfileMonthlyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const statsOrError = await this.profileServiceInstance.getMonthlyStats(id);
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async getProfileWeeklyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const statsOrError = await this.profileServiceInstance.getWeeklyStats(id);
+
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async getProfileDailyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const statsOrError = await this.profileServiceInstance.getDailyStats(id);
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async getProfileHourlyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const statsOrError = await this.profileServiceInstance.getHourlyStats(id);
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  // Prosumer profiles
+  public async getProsumerMonthlyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { prosumerId, simulationId } = req.params;
+      const statsOrError = await this.profileServiceInstance.getProsumerMonthlyStats(prosumerId, simulationId);
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async getProsumerWeeklyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { prosumerId, simulationId } = req.params;
+      const statsOrError = await this.profileServiceInstance.getProsumerWeeklyStats(prosumerId, simulationId);
+
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async getProsumerDailyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { prosumerId, simulationId } = req.params;
+      const statsOrError = await this.profileServiceInstance.getProsumerDailyStats(prosumerId, simulationId);
+
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public async getProsumerHourlyStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { prosumerId, simulationId } = req.params;
+      const statsOrError = await this.profileServiceInstance.getProsumerHourlyStats(prosumerId, simulationId);
+
+      if (statsOrError.isFailure) {
+        return res.status(404).json({ message: statsOrError.error });
+      }
+      const statsDTO = statsOrError.getValue();
+      return res.status(200).json(statsDTO);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  // Statistics
+
   public async getSimulationStats(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -222,20 +342,6 @@ export default class ProfileController implements IProfileController {
         return res.status(404).json({ message: statsOrError.error });
       }
 
-      const statsDTO = statsOrError.getValue();
-      return res.status(200).json(statsDTO);
-    } catch (error) {
-      return next(error);
-    }
-  }
-
-  public async getProfileMonthlyStats(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const statsOrError = await this.profileServiceInstance.getMonthlyStats(id);
-      if (statsOrError.isFailure) {
-        return res.status(404).json({ message: statsOrError.error });
-      }
       const statsDTO = statsOrError.getValue();
       return res.status(200).json(statsDTO);
     } catch (error) {

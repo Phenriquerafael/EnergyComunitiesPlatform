@@ -154,10 +154,29 @@ export default (app: Router) => {
     (req, res, next) => ctrl.deleteByProsumerId(req, res, next),
   );
 
-  route.get('/simulationStats/:id/', (req, res, next) => ctrl.getSimulationStats(req, res, next));
 
+  // Community profile stats routes
+  route.get('/hourlyStats/:id/', (req, res, next) => ctrl.getProfileHourlyStats(req, res, next));
+  route.get('/dailyStats/:id/', (req, res, next) => ctrl.getProfileDailyStats(req, res, next));
+  route.get('/weeklyStats/:id/', (req, res, next) => ctrl.getProfileWeeklyStats(req, res, next));
   route.get('/monthlyStats/:id/', (req, res, next) => ctrl.getProfileMonthlyStats(req, res, next));
 
+  // Prosumer profile stats routes
+  route.get('/prosumer/hourlyStats/:prosumerId/:simulationId', (req, res, next) =>
+    ctrl.getProsumerHourlyStats(req, res, next),
+  );
+  route.get('/prosumer/dailyStats/:prosumerId/:simulationId', (req, res, next) =>
+    ctrl.getProsumerDailyStats(req, res, next),
+  );
+  route.get('/prosumer/weeklyStats/:prosumerId/:simulationId', (req, res, next) =>
+    ctrl.getProsumerWeeklyStats(req, res, next),
+  );
+  route.get('/prosumer/monthlyStats/:prosumerId/:simulationId', (req, res, next) =>
+    ctrl.getProsumerMonthlyStats(req, res, next),
+  );
+
+  // Statistics routes
+  route.get('/simulationStats/:id/', (req, res, next) => ctrl.getSimulationStats(req, res, next));
   route.get('/countBySimulation/:id/', (req, res, next) => ctrl.countProfilesBySimulationId(req, res, next));
 
   app.use('/profiles', route);
